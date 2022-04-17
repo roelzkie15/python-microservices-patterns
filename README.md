@@ -14,3 +14,5 @@ There are two types of Saga patterns:
 - [__Choreography__](https://github.com/roelzkie15/python-microservice-patterns/tree/master/saga-choreograhpy-example) - Where microservices publish a message/event from a local transaction and trigger subscribers or participating microservices for the next local transaction.
 
 - __Orchestration__ - Where microservices have an orchestrator to command what participating microservices should trigger the next local transaction and should receive a reply from that local transaction.
+
+## WIP: More patterns to come...
