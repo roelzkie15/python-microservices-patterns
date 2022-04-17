@@ -4,11 +4,11 @@
 [Saga](#saga)
 
 ## Saga
-When you use architecture with Database per Service then Saga pattern is a way to go for distributed transactions.
+When you use architecture with Database per Service then Saga is a way to go for distributed transactions.
 
-A Saga is a sequence of a local transactions and each transaction will publish messages or events that triggers the next local transaction.
+A Saga is a sequence of local transactions and each transaction will publish messages or events that triggers the next local transaction.
 
-In Saga pattern if something went wrong to a participating service there should be a compensating transaction to undo the changes that were made by the preceding local transactions.
+If something went wrong to a participating microservice there should be a compensating transaction to undo the changes that were made by the preceding local transactions.
 
 There are two types of Saga patterns:
 - __Choreography__ - Where microservices publish a message/event from a local transaction and trigger subscribers or participating microservices for next local transaction.
