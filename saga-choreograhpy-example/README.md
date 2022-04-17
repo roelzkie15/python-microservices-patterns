@@ -13,7 +13,7 @@ There are six microservices that will work together to demonstrate this pattern.
 
 1.	_Booking Service_ creates a new booking request, set the state to _pending_, publish an event called _**CREATED_BOOKING_EVENT**_.
 
-1. Then _Manager Service_ approves the booking request, set the state to _approved_, publish _**APPROVED_BOOKING_EVENT**_.
+1. Then _Manager Service_ listens _**CREATED_BOOKING_EVENT**_, approves the booking request, set the booking state to _approved_, publish _**APPROVED_BOOKING_EVENT**_.
 
 1. The _Billing Service_ listens to the _**APPROVED_BOOKING_EVENT**_ then creates a billing item and publishes an event _**BILLED_BOOKING_EVENT**_.
 
