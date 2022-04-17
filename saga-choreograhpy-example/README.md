@@ -21,8 +21,8 @@ There are six microservices that will work together to demonstrate this pattern.
 
 1. The _Payment Service_ listens to the _**PAYMENT_SUBMITTED_BOOKING_EVENT**_  it will then process and verify the payment that has been made and once successful it will trigger the _**PAID_BOOKING_EVENT**_.
 
-1.	_Invoice Service_ listens to the _**PAID_BOOKING_EVENT**_ it will generate the invoice for the driver and triggers the _**INVOICE_GENERATED_EVENT**_ event.
+1.	_Invoice Service_ listens to the _**PAID_BOOKING_EVENT**_ it will generate the invoice for the driver and triggers the _**INVOICE_GENERATED_EVENT**_.
 
-1. Lastly, the _Booking Service_ listens to the _**INVOICE_GENERATED_EVENT**_ this will determine that the booking was successful and it will set the state into _paid_.
+1. Lastly, the _Booking Service_ listens to the _**INVOICE_GENERATED_EVENT**_ this will determine that the booking was successful and it will set the booking state into _paid_.
 
 ## WIP: Compensating (Rollback) Transaction in Choreograhpy pattern
