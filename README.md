@@ -1,9 +1,9 @@
 # Python Microservice Patterns
 
 ##### Table of Contents
-[Saga Patterns](#saga-patterns)
+[Saga](#saga)
 
-## Saga Patterns
+## Saga
 When you use architecture with Database per Service then Saga pattern is a way to go for distributed transactions.
 
 A Saga is a sequence of a local transactions and each transaction will publish messages or events that triggers the next local transaction.
