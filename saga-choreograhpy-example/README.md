@@ -11,7 +11,7 @@ There are six microservices that will work together to demonstrate this pattern.
 
 ![saga-choreography-pattern](https://github.com/roelzkie15/python-microservice-patterns/blob/75283655fdaa9ed06ca2db77e6946021320ba223/saga-choreograhpy-example/resources/saga-choreography-pattern.png)
 
-1.	_Booking Service_ creates a new booking request, set the state to _pending_, publish an event called _**CREATE_BOOKING_EVENT**_.
+1.	_Booking Service_ creates a new booking request, set the state to _pending_, publish an event called _**CREATED_BOOKING_EVENT**_.
 
 1. Then _Manager Service_ approves the booking request, set the state to _approved_, publish _**APPROVED_BOOKING_EVENT**_.
 
