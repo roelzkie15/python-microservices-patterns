@@ -31,4 +31,4 @@ There are five microservices that will work together to demonstrate this pattern
 
 1. The _Booking_ and _Billing_ services are listening to the _**INSUFFICIENT_FUND_EVENT**_ , it will then set both the booking request and the billing item to _failed_ states.
 
-> **Important:** Participating microservices should recognize transactions by using unique identifier from a certain event to know what transaction is being processed.
+> **Important:** Participating microservices should recognize transactions by using unique identifiers from a certain event to know what transaction is being processed.
