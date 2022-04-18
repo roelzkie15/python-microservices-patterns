@@ -1,6 +1,6 @@
 # Saga Choreography Example
 
-There are six microservices that will work together to demonstrate this pattern. We will try to imitate a simple car parking app logic that will handle booking requests, billings, payments, and invoices.
+There are five microservices that will work together to demonstrate this pattern. We will try to imitate a simple booking logic that will handle booking requests, billings, payments, and invoices.
 
 ## Techstack to implement servers:
 - FastAPI
@@ -17,12 +17,14 @@ There are six microservices that will work together to demonstrate this pattern.
 
 1. The _Billing Service_ listens to the _**APPROVED_BOOKING_EVENT**_ then creates a billing item and publishes an event _**BILLED_BOOKING_EVENT**_.
 
-1. The _Driver Service_ listens to the _**BILLED_BOOKING_EVENT**_, driver will be notified for the billing and be prompted to submit payment that will produce an event called _**PAYMENT_SUBMITTED_BOOKING_EVENT**_.
+1. The _Payment Service_ listens to the _**BILLED_BOOKING_EVENT**_ , payment options will be available for the customer and once the user submitted a a successful payment transaction, it will publish the _**PAID_BOOKING_EVENT**_.
 
-1. The _Payment Service_ listens to the _**PAYMENT_SUBMITTED_BOOKING_EVENT**_  it will then process and verify the payment that has been made and once successful it will trigger the _**PAID_BOOKING_EVENT**_.
+1.	_Invoice Service_ listens to the _**PAID_BOOKING_EVENT**_ it will generate the invoice for the customer and triggers the _**INVOICE_GENERATED_EVENT**_.
 
-1.	_Invoice Service_ listens to the _**PAID_BOOKING_EVENT**_ it will generate the invoice for the driver and triggers the _**INVOICE_GENERATED_EVENT**_.
+1. Lastly, the _Booking Service_ listens to the _**INVOICE_GENERATED_EVENT**_ this will determine that the booking was successful and it will set the booking state into _reserved_.
 
-1. Lastly, the _Booking Service_ listens to the _**INVOICE_GENERATED_EVENT**_ this will determine that the booking was successful and it will set the booking state into _paid_.
+## Compensating (Rollback) Transaction in Choreograhpy pattern
 
-## WIP: Compensating (Rollback) Transaction in Choreograhpy pattern
+1. The _Payment service_ listens to the _**BILLED_BOOKING_EVENT**_, payment options will appear on the customer user interface and will submit  a payment transaction, then the payment service will check the customer available credits against the transaction and if the fund is not enough it will fire the _**INSUFFICIENT_FUND_EVENT**_.
+
+2. The _Booking_ and _Billing_ services are listening to the _**INSUFFICIENT_FUND_EVENT**_ , it will then set both the booking request and the billing item to _failed_ states.
