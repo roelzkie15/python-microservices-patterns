@@ -1,4 +1,4 @@
-# Python Microservice Patterns
+# Python Microservices Patterns
 
 ##### Table of Contents
 [Saga](#saga)
