@@ -9,7 +9,7 @@ There are five microservices that will work together to demonstrate this pattern
 
 ## Saga's Choreography Publish/Subscribe Event
 
-![saga-choreography-pattern](https://github.com/roelzkie15/python-microservice-patterns/blob/75283655fdaa9ed06ca2db77e6946021320ba223/saga-choreograhpy-example/resources/saga-choreography-pattern.png)
+![saga-choreography-pattern](https://github.com/roelzkie15/python-microservices-patterns/blob/f53b949850bb759730c4b97859ea9b7445a2b3e7/saga-choreograhpy-example/resources/saga-choreography-pattern.png)
 
 1.	_Booking Service_ creates a new booking request, set the state to _pending_, publish an event called _**CREATED_BOOKING_EVENT**_.
 
@@ -24,6 +24,8 @@ There are five microservices that will work together to demonstrate this pattern
 1. Lastly, the _Booking Service_ listens to the _**INVOICE_GENERATED_EVENT**_ this will determine that the booking was successful and it will set the booking state into _reserved_.
 
 ## Compensating (Rollback) Transaction in Choreograhpy pattern
+
+![saga-choreography-rollback-pattern](https://github.com/roelzkie15/python-microservices-patterns/blob/f53b949850bb759730c4b97859ea9b7445a2b3e7/saga-choreograhpy-example/resources/saga-choreography-pattern-rollback.png)
 
 1. The _Payment service_ listens to the _**BILLED_BOOKING_EVENT**_, payment options will appear on the customer user interface and will submit  a payment transaction, then the payment service will check the customer available credits against the transaction and if the fund is not enough it will fire the _**INSUFFICIENT_FUND_EVENT**_.
 
