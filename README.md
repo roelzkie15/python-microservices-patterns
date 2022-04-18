@@ -15,4 +15,6 @@ There are two types of Saga patterns:
 
 - __Orchestration__ - Where microservices have an orchestrator to command what participating microservices should trigger the next local transaction and should receive a reply from that local transaction.
 
+> Visit the link above to see the examples
+
 ## WIP: More patterns to come...
