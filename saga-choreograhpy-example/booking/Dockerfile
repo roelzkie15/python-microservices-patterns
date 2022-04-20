@@ -6,7 +6,8 @@ RUN pip install -U \
     pip \
     setuptools \
     wheel
-RUN pip install poetry
+
+RUN pip install -U poetry
 
 WORKDIR /code
 
