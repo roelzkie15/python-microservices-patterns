@@ -161,3 +161,6 @@ cython_debug/
 
 # PostgreSQL data
 postgres-data/
+
+# Redis
+redis-data/
