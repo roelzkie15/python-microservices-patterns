@@ -8,7 +8,7 @@ services:
     environment:
       - POSTGRES_PASSWORD=postgres
     volumes:
-      - $PWD/postgres-data:/var/lib/postgresql/data
+      - $PWD/postgres/data:/var/lib/postgresql/data
     ports:
       - "5434:5432"
 
@@ -39,6 +39,7 @@ services:
       - '6379:6379'
     command: redis-server --requirepass 8d0b13922dd9fb --loglevel warning
     volumes:
-      - $PWD/redis-data:/data
+      - $PWD/redis/data:/data
+      - $PWD/redis/redis.conf:/usr/local/etc/redis/redis.conf
     environment:
      - REDIS_REPLICATION_MODE=master
