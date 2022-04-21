@@ -8,10 +8,10 @@ authors = ["Roel Delos Reyes <badcoder28@gmail.com>"]
 python = "3.10.4"
 fastapi = "0.75.2"
 sqlmodel = "0.0.6"
-redis = "4.2.2"
 psycopg2-binary = "2.9.3"
 uvicorn = "0.17.6"
 pydantic = "^1.9.0"
+aioredis = "^2.0.1"
 
 [tool.poetry.dev-dependencies]
 
