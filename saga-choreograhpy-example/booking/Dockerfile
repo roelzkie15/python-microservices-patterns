@@ -2,12 +2,11 @@ FROM python:3.10.4-slim-buster
 
 ENV PYTHONUNBUFFERED 1
 
-RUN pip install -U \
+RUN pip install \
     pip \
     setuptools \
-    wheel
-
-RUN pip install -U poetry
+    wheel \
+    poetry
 
 WORKDIR /code
 
