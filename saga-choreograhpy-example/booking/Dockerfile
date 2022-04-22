@@ -1,22 +1,25 @@
-FROM python:3.10.4-slim-buster
+FROM python:3.10.3-slim-buster
 
 ENV PYTHONUNBUFFERED 1
 
-RUN pip install \
+RUN apt-get update
+
+RUN pip install -U \
     pip \
     setuptools \
-    wheel \
-    poetry
+    wheel
+
+RUN pip --no-cache-dir install poetry
 
 WORKDIR /code
 
-COPY ./pyproject.toml /code/pyproject.toml
-COPY ./poetry.lock /code/poetry.lock
+COPY pyproject.toml .
+COPY poetry.lock .
 
 RUN poetry config virtualenvs.in-project false
-RUN poetry install --no-root
+RUN poetry install
 
-COPY . /code
+COPY . .
 
 CMD ["chmod", "+x", "/code/start_dev.sh"]
 

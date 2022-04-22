@@ -5,7 +5,7 @@ description = "Saga's choreography pattern example"
 authors = ["Roel Delos Reyes <badcoder28@gmail.com>"]
 
 [tool.poetry.dependencies]
-python = "3.10.4"
+python = "3.10.3"
 fastapi = "0.75.2"
 sqlmodel = "0.0.6"
 psycopg2-binary = "2.9.3"
