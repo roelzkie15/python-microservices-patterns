@@ -12,6 +12,18 @@ services:
     ports:
       - "5434:5432"
 
+  rabbit:
+    image: rabbitmq:3.9.15-management-alpine
+    restart: unless-stopped
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+      - RABBITMQ_NODE_PORT=5671
+    ports:
+      - '15671:15671'
+    expose:
+      - '5671'
+
   booking:
     build: $PWD/booking
     restart: unless-stopped
@@ -23,23 +35,9 @@ services:
     environment:
       - ENVIRONMENT=dev
       - TESTING=0
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - REDIS_PASSWORD=8d0b13922dd9fb
       - DB_NAME=postgres
       - DB_PASSWORD=postgres
+      - RABBITMQ_BROKER_URL=amqp://guest:guest@rabbit:5671
     depends_on:
       - db
-      - redis
-
-  redis:
-    image: redis:6.2.6-alpine
-    restart: unless-stopped
-    ports:
-      - '6379:6379'
-    command: redis-server --requirepass 8d0b13922dd9fb --loglevel warning
-    volumes:
-      - $PWD/redis/data:/data
-      - $PWD/redis/redis.conf:/usr/local/etc/redis/redis.conf
-    environment:
-     - REDIS_REPLICATION_MODE=master
+      - rabbit

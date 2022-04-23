@@ -4,8 +4,9 @@ There are five microservices that will work together to demonstrate this pattern
 
 ## Techstack to implement servers
 - FastAPI
-- Redis (Pub/Sub)
+- RabbitMQ
 - Postgres
+- GraphQL
 
 ## Saga's Choreography Publish/Subscribe Event
 

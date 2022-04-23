@@ -11,7 +11,6 @@ sqlmodel = "0.0.6"
 psycopg2-binary = "2.9.3"
 uvicorn = "0.17.6"
 pydantic = "^1.9.0"
-aioredis = "^2.0.1"
 
 [tool.poetry.dev-dependencies]
 
