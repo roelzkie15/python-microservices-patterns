@@ -1,26 +1,30 @@
 from aio_pika import Message
 
 
-async def event_producers(app, event: str, queue_name, message) -> None:
+async def event_producer(
+    app, exchange: str, message, binding_key: str
+) -> None:
+    '''
+    Send event/message to a specific exchange and binding-key.
+    
+    If an existing queue is bound to the given binding-key, the message will be stored
+    to that event-store (Queue) otherwise the message will be lost.
+    '''
     conn = app.state.amqp_connection
     # Creating channel
     channel = await conn.channel()
 
     # Declare exchange
     exchange = await channel.declare_exchange(
-        'BOOKING_SERVICE_EXCHANGE',
+        exchange,
         type='topic',
         durable=True
     )
-
-    queue = await channel.declare_queue(queue_name, auto_delete=True)
-    await queue.bind(exchange, event)
 
     await exchange.publish(
         Message(
             body=message.encode(),
             content_type="application/json",
-            headers={"foo": "bar"},
         ),
-        routing_key=event,
+        routing_key=binding_key,
     )
