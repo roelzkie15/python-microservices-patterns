@@ -10,7 +10,7 @@ services:
     volumes:
       - $PWD/postgres/data:/var/lib/postgresql/data
     ports:
-      - "5434:5432"
+      - '5434:5432'
 
   rabbit:
     image: rabbitmq:3.9.15-management-alpine
@@ -27,11 +27,16 @@ services:
   booking:
     build: $PWD/booking
     restart: unless-stopped
-    command: /code/start_dev.sh
+    entrypoint: ['/bin/sh','-c']
+    command: 
+      - |
+        /code/wait-for-it.sh -t 0 db:5432
+        /code/wait-for-it.sh -t 0 rabbit:5671
+        /code/start_dev.sh
     volumes:
       - $PWD/booking:/code
     ports:
-      - "8000:8000"
+      - '8000:8000'
     environment:
       - ENVIRONMENT=dev
       - TESTING=0

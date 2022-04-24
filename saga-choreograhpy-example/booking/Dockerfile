@@ -21,5 +21,5 @@ RUN poetry install
 
 COPY . .
 
-CMD ["chmod", "+x", "/code/start_dev.sh"]
+CMD ["chmod", "+x", "/code/start_dev.sh", '/code/wait-for-it.sh']
 
