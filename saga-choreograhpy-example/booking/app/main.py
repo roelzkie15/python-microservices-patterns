@@ -15,6 +15,7 @@ async def startup():
     await init_pika_client(app)
     await init_consumer(app)
 
+
 @app.get('/')
 async def root(settings: Settings = Depends(get_settings)):
     return {'message': 'Hello World'}
@@ -23,7 +24,7 @@ async def root(settings: Settings = Depends(get_settings)):
 @app.get('/publish')
 async def publish():
     await event_producers(app,
-        'INVOICE_GENERATED_EVENT', 'INVOICE_EVENT_QUEUE',
-        "{'message': 'Booking reserved!'}"
-    )
+                          'INVOICE_GENERATED_EVENT', 'INVOICE_EVENT_QUEUE',
+                          "{'message': 'Booking reserved!'}"
+                          )
     return {'message': 'published'}

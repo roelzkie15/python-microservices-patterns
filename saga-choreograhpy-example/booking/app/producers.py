@@ -1,7 +1,5 @@
 from aio_pika import Message
 
-from app.pika_client import init_pika_client
-
 
 async def event_producers(app, event: str, queue_name, message) -> None:
     conn = app.state.amqp_connection
