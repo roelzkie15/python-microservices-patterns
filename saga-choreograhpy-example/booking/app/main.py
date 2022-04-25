@@ -1,10 +1,9 @@
 
 from fastapi import Depends, FastAPI
 
-from app.consumers import init_consumers
+from app.amqp_client import AMQPClient
 from app.dependencies import get_settings
-from app.pika_client import init_pika_client
-# from app.producers import event_producer
+from app.services import notify_user, update_booking_status_from_event
 from app.settings import Settings
 
 app = FastAPI()
@@ -12,9 +11,15 @@ app = FastAPI()
 
 @app.on_event('startup')
 async def startup():
-    await init_pika_client(app)
-    await init_consumers(app)
+   app.state.amqp_client = await AMQPClient('BOOKING_EVENT_STORE').init()
 
+   await app.state.amqp_client.event_consumer(
+       update_booking_status_from_event, 'invoice.generated', 'invoice_file_event_queue'
+   )
+
+   await app.state.amqp_client.event_consumer(
+       notify_user, 'invoice.failed',
+   )
 
 @app.get('/')
 async def root(settings: Settings = Depends(get_settings)):
@@ -22,10 +27,11 @@ async def root(settings: Settings = Depends(get_settings)):
 
 
 # TODO: Remove this path later.
-# @app.get('/publish')
-# async def publish():
-#     await event_producer(
-#         app, 'BOOKING_SERVICE_EXCHANGE',
-#         "{'message': 'Booking reserved!'}",
-#     )
-#     return {'message': 'published'}
+@app.get('/publish')
+async def publish():
+    await app.state.amqp_client.event_producer(
+        'BOOKING_EVENT_STORE',
+        "{'message': 'Booking reserved!'}",
+        'invoice.generated'
+    )
+    return {'message': 'published'}
