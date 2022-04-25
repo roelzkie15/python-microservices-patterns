@@ -11,15 +11,17 @@ app = FastAPI()
 
 @app.on_event('startup')
 async def startup():
-   app.state.amqp_client = await AMQPClient('BOOKING_EVENT_STORE').init()
+    app.state.amqp_client = await AMQPClient('BOOKING_EVENT_STORE').init()
 
-   await app.state.amqp_client.event_consumer(
-       update_booking_status_from_event, 'invoice.generated', 'invoice_file_event_queue'
-   )
+    await app.state.amqp_client.event_consumer(
+        update_booking_status_from_event, 'invoice.generated', 'invoice_file_event_queue'
+    )
 
-   await app.state.amqp_client.event_consumer(
-       notify_user, 'invoice.failed',
-   )
+    # Creating a consumer without queue name. It will generate a random name.
+    await app.state.amqp_client.event_consumer(
+        notify_user, 'invoice.failed',
+    )
+
 
 @app.get('/')
 async def root(settings: Settings = Depends(get_settings)):
