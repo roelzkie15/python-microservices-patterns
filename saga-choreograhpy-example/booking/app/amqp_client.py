@@ -16,9 +16,7 @@ class AMQPClient:
     async def init(self) -> None:
 
         '''
-        Inititalize AMQP client to watch messages from the BOOKING_SERVICE_EXCHANGE.
-
-        This will declare exchange and channel.
+        Inititalize AMQP client to watch messages from the given exchange.
         '''
 
         settings = get_settings()
@@ -59,13 +57,13 @@ class AMQPClient:
         self, exchange: str, message, binding_key: str
     ) -> None:
         '''
-        Send event/message to a specific exchange and binding-key.
+        Send event/message to a specific exchange with binding-key.
 
         If an existing queue is bound to the given binding-key, the message will be stored
-        to that event-store (Queue) otherwise the message will be lost.
+        to that queue otherwise the message will be lost.
 
         NOTE: The binding_key is mandatory so we can explicitly route the message/event
-            to the right queue or event-store.
+            to the right queue.
         '''
 
         # Declare exchange
