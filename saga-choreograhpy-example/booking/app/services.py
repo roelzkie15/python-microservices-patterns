@@ -1,5 +1,11 @@
-async def update_booking_status_from_event(data: dict) -> None:
-    print('status updated!')
+from typing import List
 
-async def notify_user(data: dict) -> None:
-    print('User notified!')
+from app.mocks import LIST_OF_BOOKINGS
+from app.types import Booking
+
+
+async def booking_details(id: int) -> Booking:
+    return [booking for booking in LIST_OF_BOOKINGS if booking.id == id][0]
+
+async def booking_list() -> List[Booking]:
+    return LIST_OF_BOOKINGS
