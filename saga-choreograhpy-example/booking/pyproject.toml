@@ -9,9 +9,10 @@ python = "3.10.3"
 fastapi = "0.75.2"
 sqlmodel = "0.0.6"
 psycopg2-binary = "2.9.3"
-uvicorn = "0.17.6"
+uvicorn = {extras = ["standard"], version = "^0.17.6"}
 pydantic = "^1.9.0"
 aio-pika = "^7.2.0"
+strawberry-graphql = {extras = ["fastapi"], version = "^0.109.0"}
 
 [tool.poetry.dev-dependencies]
 
