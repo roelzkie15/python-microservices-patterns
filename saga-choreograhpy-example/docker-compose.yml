@@ -40,8 +40,7 @@ services:
     environment:
       - ENVIRONMENT=dev
       - TESTING=0
-      - DB_NAME=postgres
-      - DB_PASSWORD=postgres
+      - DB_URL=postgresql://postgres:postgres@db:5432/postgres
       - RABBITMQ_BROKER_URL=amqp://guest:guest@rabbit:5671
     depends_on:
       - db
