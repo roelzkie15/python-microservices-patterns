@@ -10,13 +10,9 @@ from app.dependencies import get_settings
 
 class AMQPClient:
 
-    def __init__(self, exchange_name: str) -> None:
-        self.EXCHANGE_NAME = exchange_name
-
     async def init(self) -> None:
-
         '''
-        Inititalize AMQP client to watch messages from the given exchange.
+        Inititalize AMQP client.
         '''
 
         settings = get_settings()
@@ -28,14 +24,21 @@ class AMQPClient:
         self.channel = await self.connection.channel()
         await self.channel.set_qos(prefetch_count=1)
 
-        # Declare exchange and watch only messages from this Exchange
+        return self
+
+    async def event_store(self, exchange_name):
+        '''
+        Create an event-store.
+
+        exchange_name   -   Create an exchange to store events (event-store).
+        '''
+
         self.exchange = await self.channel.declare_exchange(
-            self.EXCHANGE_NAME,
+            exchange_name,
             type='topic',
             durable=True
         )
 
-        return self
 
     async def event_consumer(
         self, callback: Callable, event: str = '#', queue_name: str | None = None,
