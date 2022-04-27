@@ -3,6 +3,6 @@ import strawberry
 
 @strawberry.type
 class Booking:
-    id: int
+    uuid: str
     name: str
     status: str = 'created'

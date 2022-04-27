@@ -1,8 +1,9 @@
 import strawberry
 from strawberry.types import Info
 
-from app.mocks import LIST_OF_BOOKINGS
+from app.mocks import BOOKING_LIST
 from app.types import Booking
+from uuid import uuid4
 
 
 @strawberry.type
@@ -10,8 +11,8 @@ class Mutation:
     @strawberry.mutation
     def create_booking(self, name: str, info: Info) -> Booking:
         booking = Booking(
-            id=len(LIST_OF_BOOKINGS) + 1,
+            uuid=str(uuid4()),
             name=name
         )
-        LIST_OF_BOOKINGS.append(booking)
+        BOOKING_LIST.append(booking)
         return booking
