@@ -6,6 +6,7 @@ import aio_pika
 from aio_pika import Message
 
 from app.dependencies import get_settings
+from app.models import AMQPMessage
 
 
 class AMQPClient:
@@ -28,7 +29,7 @@ class AMQPClient:
 
     async def event_store(self, exchange_name):
         '''
-        Create an event-store.
+        Create an event-store. Client can send and consume events/messages from this event-store.
 
         exchange_name   -   Create an exchange to store events (event-store).
         '''
@@ -38,7 +39,6 @@ class AMQPClient:
             type='topic',
             durable=True
         )
-
 
     async def event_consumer(
         self, callback: Callable, event: str = '#', queue_name: str | None = None,
@@ -57,7 +57,7 @@ class AMQPClient:
         await queue.consume(partial(self._process_message, callback=callback))
 
     async def event_producer(
-        self, exchange: str, message, binding_key: str
+        self, exchange: str, binding_key: str, message: AMQPMessage
     ) -> None:
         '''
         Send event/message to a specific exchange with binding-key.
@@ -78,8 +78,8 @@ class AMQPClient:
 
         await exchange.publish(
             Message(
-                body=message.encode(),
-                content_type="application/json",
+                body=str(message.dict()).encode(),
+                content_type='application/json',
             ),
             routing_key=binding_key,
         )
