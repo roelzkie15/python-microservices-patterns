@@ -11,3 +11,6 @@ async def booking_details(uuid: str) -> Booking:
 
 async def booking_list() -> List[Booking]:
     return BOOKING_LIST
+
+async def test_consume(message_body: bytes) -> None:
+    print('test consume: ', message_body.decode())
