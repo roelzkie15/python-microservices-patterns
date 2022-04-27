@@ -4,15 +4,21 @@ from strawberry.fastapi import GraphQLRouter
 
 from app.amqp_client import AMQPClient
 from app.schema import schema
+from app.services import test_consume
 
 app = FastAPI()
 
 
 @app.on_event('startup')
 async def startup():
-    app.state.amqp_client = await AMQPClient().init()
-    await app.state.amqp_client.event_store('BOOKING_EVENT_STORE')
+    amqp_client:AMQPClient = await AMQPClient().init()
 
+    await amqp_client.event_store('BOOKING_EVENT_STORE')
+    await amqp_client.event_store('MANAGER_EVENT_STORE')
+
+    await amqp_client.event_consumer(test_consume, 'booking.created', 'booking_events')
+
+    app.state.amqp_client = amqp_client
 
 @app.on_event('shutdown')
 async def shutdown():
@@ -21,7 +27,7 @@ async def shutdown():
 
 async def get_context():
     return {
-        'amqp_client': app.state.amqp_client,
+        'amqp_client': app.state.amqp_client
     }
 
 
