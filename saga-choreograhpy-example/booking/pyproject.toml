@@ -13,6 +13,7 @@ uvicorn = {extras = ["standard"], version = "^0.17.6"}
 pydantic = "^1.9.0"
 aio-pika = "^7.2.0"
 strawberry-graphql = {extras = ["fastapi"], version = "^0.109.0"}
+attrs = "^21.4.0"
 
 [tool.poetry.dev-dependencies]
 

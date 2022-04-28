@@ -3,13 +3,13 @@ from strawberry.types import Info
 
 
 from app.mocks import BOOKING_LIST
-from app.types import Booking
+from app.types import BookingType
 
 
-async def booking_details(uuid: str) -> Booking:
+async def booking_details(uuid: str) -> BookingType:
     return [booking for booking in BOOKING_LIST if booking.uuid == uuid][0]
 
-async def booking_list() -> List[Booking]:
+async def booking_list() -> List[BookingType]:
     return BOOKING_LIST
 
 async def test_consume(message_body: bytes) -> None:

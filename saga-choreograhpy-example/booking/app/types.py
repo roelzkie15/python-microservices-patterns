@@ -2,7 +2,7 @@ import strawberry
 
 
 @strawberry.type
-class Booking:
+class BookingType:
     uuid: str
     name: str
     status: str = 'created'

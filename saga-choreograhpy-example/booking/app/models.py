@@ -1,8 +1,16 @@
 from typing import Any
 
-from pydantic import BaseModel
+from attrs import define
 
 
-class AMQPMessage(BaseModel):
+@define
+class Booking:
+    uuid: str
+    name: str
+    status: str = 'created'
+
+
+@define
+class AMQPMessage:
     id: str
     body: Any

@@ -57,6 +57,20 @@ python-versions = ">=3.7"
 tests = ["pytest", "pytest-asyncio", "mypy (>=0.800)"]
 
 [[package]]
+name = "attrs"
+version = "21.4.0"
+description = "Classes Without Boilerplate"
+category = "main"
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
+
+[package.extras]
+dev = ["coverage[toml] (>=5.0.2)", "hypothesis", "pympler", "pytest (>=4.3.0)", "six", "mypy", "pytest-mypy-plugins", "zope.interface", "furo", "sphinx", "sphinx-notfound-page", "pre-commit", "cloudpickle"]
+docs = ["furo", "sphinx", "zope.interface", "sphinx-notfound-page"]
+tests = ["coverage[toml] (>=5.0.2)", "hypothesis", "pympler", "pytest (>=4.3.0)", "six", "mypy", "pytest-mypy-plugins", "zope.interface", "cloudpickle"]
+tests_no_zope = ["coverage[toml] (>=5.0.2)", "hypothesis", "pympler", "pytest (>=4.3.0)", "six", "mypy", "pytest-mypy-plugins", "cloudpickle"]
+
+[[package]]
 name = "backports.cached-property"
 version = "1.0.1"
 description = "cached_property() - computed once per instance, cached as attribute"
@@ -327,7 +341,7 @@ full = ["itsdangerous", "jinja2", "python-multipart", "pyyaml", "requests"]
 
 [[package]]
 name = "strawberry-graphql"
-version = "0.109.0"
+version = "0.109.1"
 description = "A library for creating GraphQL APIs"
 category = "main"
 optional = false
@@ -433,7 +447,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "3.10.3"
-content-hash = "ad6080f6dd206a6ff6321eac5b01452ce473a24edf1ac9f633be0c5319cd08bc"
+content-hash = "b58392a6ced6b4d5b2ab9cb9106c33d133c9715341d7363dc4476b62538353c8"
 
 [metadata.files]
 aio-pika = [
@@ -450,6 +464,10 @@ anyio = [
 asgiref = [
     {file = "asgiref-3.5.0-py3-none-any.whl", hash = "sha256:88d59c13d634dcffe0510be048210188edd79aeccb6a6c9028cdad6f31d730a9"},
     {file = "asgiref-3.5.0.tar.gz", hash = "sha256:2f8abc20f7248433085eda803936d98992f1343ddb022065779f37c5da0181d0"},
+]
+attrs = [
+    {file = "attrs-21.4.0-py2.py3-none-any.whl", hash = "sha256:2d27e3784d7a565d36ab851fe94887c5eccd6a463168875832a1be79c82828b4"},
+    {file = "attrs-21.4.0.tar.gz", hash = "sha256:626ba8234211db98e869df76230a137c4c40a12d72445c45d5f5b716f076e2fd"},
 ]
 "backports.cached-property" = [
     {file = "backports.cached-property-1.0.1.tar.gz", hash = "sha256:1a5ef1e750f8bc7d0204c807aae8e0f450c655be0cf4b30407a35fd4bb27186c"},
@@ -840,8 +858,8 @@ starlette = [
     {file = "starlette-0.17.1.tar.gz", hash = "sha256:57eab3cc975a28af62f6faec94d355a410634940f10b30d68d31cb5ec1b44ae8"},
 ]
 strawberry-graphql = [
-    {file = "strawberry-graphql-0.109.0.tar.gz", hash = "sha256:2054e0c4677ed0e6610d9b6a73d56d59e9551c1b44d6489d9c583893dbe4c041"},
-    {file = "strawberry_graphql-0.109.0-py3-none-any.whl", hash = "sha256:3790b7ae1c13d445d2923167ea0d310bebe0fa5a2bc70013bba68ac074d97a86"},
+    {file = "strawberry-graphql-0.109.1.tar.gz", hash = "sha256:b78a5ef5658ad238b33c133d661bb73f91b664d74b5ebe16b767819e960013d7"},
+    {file = "strawberry_graphql-0.109.1-py3-none-any.whl", hash = "sha256:e9fadf5c5f3c01ebcba4ea35b5bc610bb8cb878e8a17406127953dd55eb474a0"},
 ]
 typing-extensions = [
     {file = "typing_extensions-4.2.0-py3-none-any.whl", hash = "sha256:6657594ee297170d19f67d55c05852a874e7eb634f4f753dbd667855e07c1708"},

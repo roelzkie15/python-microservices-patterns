@@ -4,6 +4,7 @@ from typing import Callable
 
 import aio_pika
 from aio_pika import Message
+from attrs import asdict
 
 from app.dependencies import get_settings
 from app.models import AMQPMessage
@@ -27,33 +28,27 @@ class AMQPClient:
 
         return self
 
-    async def event_store(self, exchange_name):
-        '''
-        Create an event-store. Client can send and consume events/messages from this event-store.
-
-        exchange_name   -   Create an exchange to store events (event-store).
-        '''
-
-        self.exchange = await self.channel.declare_exchange(
-            exchange_name,
-            type='topic',
-            durable=True
-        )
-
     async def event_consumer(
-        self, callback: Callable, event: str = '#', queue_name: str | None = None,
+        self, callback: Callable, event_store: str, event: str = '#', queue_name: str | None = None,
     ) -> None:
         '''
         Create an event consumer.
 
         callback    -   A function that will process the incoming message.
+        event_store -   Declare an exchange as an event store. We store send messages/events
+                        to this exchange.
         event       -   Serves as a binding key or a type of event that occurred.
         queue_name  -   Create a queue to set of events from the Exchange (Optional).
                         If not specified it will still create a queue with a random name.
         '''
-
+        exchange = await self.channel.declare_exchange(
+            event_store,
+            type='topic',
+            durable=True
+        )
         queue = await self.channel.declare_queue(queue_name, auto_delete=True)
-        await queue.bind(self.exchange, event)
+
+        await queue.bind(exchange, event)
         await queue.consume(partial(self._process_message, callback=callback))
 
     async def event_producer(
@@ -78,7 +73,7 @@ class AMQPClient:
 
         await exchange.publish(
             Message(
-                body=str(message.dict()).encode(),
+                body=str(asdict(message)).encode(),
                 content_type='application/json',
             ),
             routing_key=binding_key,
