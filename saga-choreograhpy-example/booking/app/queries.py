@@ -1,10 +1,11 @@
 
 from typing import List
-from strawberry.types import Info
-import strawberry
 
+import strawberry
+from strawberry.types import Info
+
+from app.object_types import BookingType
 from app.services import booking_details, booking_list
-from app.types import BookingType
 
 
 @strawberry.type

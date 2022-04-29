@@ -7,7 +7,7 @@ from aio_pika import Message
 from attrs import asdict
 
 from app.dependencies import get_settings
-from app.models import AMQPMessage
+from app.types import AMQPMessage
 
 
 class AMQPClient:

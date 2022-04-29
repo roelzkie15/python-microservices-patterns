@@ -5,8 +5,8 @@ from strawberry.types import Info
 
 from app.amqp_client import AMQPClient
 from app.mocks import BOOKING_LIST
-from app.models import AMQPMessage, Booking
-from app.types import BookingType
+from app.object_types import BookingType
+from app.types import AMQPMessage, Booking
 
 
 @strawberry.type
