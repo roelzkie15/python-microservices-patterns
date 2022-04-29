@@ -1,16 +1,9 @@
-from typing import Any
+from uuid import UUID, uuid4
 
-from attrs import define
+from sqlmodel import Field, SQLModel
 
 
-@define
-class Booking:
-    uuid: str
+class Booking(SQLModel, table=True):
+    uuid: UUID = Field(default=uuid4(), primary_key=True)
     name: str
-    status: str = 'created'
-
-
-@define
-class AMQPMessage:
-    id: str
-    body: Any
+    status: str
