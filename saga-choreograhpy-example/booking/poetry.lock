@@ -116,6 +116,18 @@ doc = ["mkdocs (>=1.1.2,<2.0.0)", "mkdocs-material (>=8.1.4,<9.0.0)", "mdx-inclu
 test = ["pytest (>=6.2.4,<7.0.0)", "pytest-cov (>=2.12.0,<4.0.0)", "mypy (==0.910)", "flake8 (>=3.8.3,<4.0.0)", "black (==22.3.0)", "isort (>=5.0.6,<6.0.0)", "requests (>=2.24.0,<3.0.0)", "httpx (>=0.14.0,<0.19.0)", "email_validator (>=1.1.1,<2.0.0)", "sqlalchemy (>=1.3.18,<1.5.0)", "peewee (>=3.13.3,<4.0.0)", "databases[sqlite] (>=0.3.2,<0.6.0)", "orjson (>=3.2.1,<4.0.0)", "ujson (>=4.0.1,!=4.0.2,!=4.1.0,!=4.2.0,!=4.3.0,!=5.0.0,!=5.1.0,<6.0.0)", "python-multipart (>=0.0.5,<0.0.6)", "flask (>=1.1.2,<3.0.0)", "anyio[trio] (>=3.2.1,<4.0.0)", "types-ujson (==4.2.1)", "types-orjson (==3.6.2)", "types-dataclasses (==0.6.5)"]
 
 [[package]]
+name = "fire"
+version = "0.4.0"
+description = "A library for automatically generating command line interfaces."
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+six = "*"
+termcolor = "*"
+
+[[package]]
 name = "graphql-core"
 version = "3.2.1"
 description = "GraphQL implementation for Python, a port of GraphQL.js, the JavaScript reference implementation for GraphQL."
@@ -370,6 +382,14 @@ aiohttp = ["aiohttp (>=3.7.4.post0,<4.0.0)"]
 fastapi = ["fastapi (>=0.65.2)"]
 
 [[package]]
+name = "termcolor"
+version = "1.1.0"
+description = "ANSII Color formatting for output in terminal."
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "typing-extensions"
 version = "4.2.0"
 description = "Backported and Experimental Type Hints for Python 3.7+"
@@ -447,7 +467,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "3.10.3"
-content-hash = "b58392a6ced6b4d5b2ab9cb9106c33d133c9715341d7363dc4476b62538353c8"
+content-hash = "62e4c3bd0c10099d50759032686462cba1842a12f060d166c9d89b6fd3c94722"
 
 [metadata.files]
 aio-pika = [
@@ -484,6 +504,9 @@ colorama = [
 fastapi = [
     {file = "fastapi-0.75.2-py3-none-any.whl", hash = "sha256:a70d31f4249b6b42dbe267667d22f83af645b2d857876c97f83ca9573215784f"},
     {file = "fastapi-0.75.2.tar.gz", hash = "sha256:b5dac161ee19d33346040d3f44d8b7a9ac09b37df9efff95891f5e7641fa482f"},
+]
+fire = [
+    {file = "fire-0.4.0.tar.gz", hash = "sha256:c5e2b8763699d1142393a46d0e3e790c5eb2f0706082df8f647878842c216a62"},
 ]
 graphql-core = [
     {file = "graphql-core-3.2.1.tar.gz", hash = "sha256:9d1bf141427b7d54be944587c8349df791ce60ade2e3cccaf9c56368c133c201"},
@@ -860,6 +883,9 @@ starlette = [
 strawberry-graphql = [
     {file = "strawberry-graphql-0.109.1.tar.gz", hash = "sha256:b78a5ef5658ad238b33c133d661bb73f91b664d74b5ebe16b767819e960013d7"},
     {file = "strawberry_graphql-0.109.1-py3-none-any.whl", hash = "sha256:e9fadf5c5f3c01ebcba4ea35b5bc610bb8cb878e8a17406127953dd55eb474a0"},
+]
+termcolor = [
+    {file = "termcolor-1.1.0.tar.gz", hash = "sha256:1d6d69ce66211143803fbc56652b41d73b4a400a2891d7bf7a1cdf4c02de613b"},
 ]
 typing-extensions = [
     {file = "typing_extensions-4.2.0-py3-none-any.whl", hash = "sha256:6657594ee297170d19f67d55c05852a874e7eb634f4f753dbd667855e07c1708"},
