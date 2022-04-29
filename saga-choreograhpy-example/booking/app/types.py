@@ -1,8 +1,14 @@
-import strawberry
+from attrs import define
 
 
-@strawberry.type
-class BookingType:
+@define
+class Booking:
     uuid: str
     name: str
     status: str = 'created'
+
+
+@define
+class AMQPMessage:
+    id: str
+    body: bytes
