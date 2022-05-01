@@ -8,4 +8,4 @@ from app.dependencies import get_settings
 
 
 settings = get_settings()
-engine = create_engine(settings.DB_URL, echo=True)
+engine = create_engine(settings.DATABASE_URL, echo=True)
