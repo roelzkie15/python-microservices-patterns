@@ -1,19 +1,24 @@
 from typing import List
+from uuid import UUID
 
-from sqlmodel import Session
-from strawberry.types import Info
+from sqlmodel import Session, select
 
 from app.db import engine
-from app.mocks import BOOKING_LIST
 from app.models import Booking
 
 
 async def booking_details(uuid: str) -> Booking:
-    return [booking for booking in BOOKING_LIST if booking.uuid == uuid][0]
+    with Session(engine) as session:
+        statement = select(Booking).where(Booking.uuid == UUID(uuid))
+        results = session.exec(statement)
+        return results.one()
 
 
 async def booking_list() -> List[Booking]:
-    return BOOKING_LIST
+    with Session(engine) as session:
+        statement = select(Booking)
+        results = session.exec(statement)
+        return results.all()
 
 
 async def create_booking(desc: str) -> Booking:
@@ -25,6 +30,7 @@ async def create_booking(desc: str) -> Booking:
         session.refresh(booking)
 
         return booking
+
 
 async def test_consume(message_body: bytes) -> None:
     print('test consume: ', message_body.decode())
