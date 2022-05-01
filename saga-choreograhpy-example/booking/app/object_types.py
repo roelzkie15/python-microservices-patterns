@@ -1,8 +1,8 @@
+from pyexpat import model
 import strawberry
+from app.models import Booking
 
 
-@strawberry.type
+@strawberry.experimental.pydantic.type(model=Booking, all_fields=True)
 class BookingType:
-    uuid: str
-    name: str
-    status: str
+    pass

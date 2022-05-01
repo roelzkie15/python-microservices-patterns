@@ -1,4 +1,4 @@
-from app.types import Booking
+from app.models import Booking
 
 BOOKING_LIST = [
     Booking(uuid='e2379980-ddb4-47ea-84a4-88ded95397ac', name='john doe', status='created'),
