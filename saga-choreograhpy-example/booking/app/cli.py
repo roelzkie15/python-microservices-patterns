@@ -14,8 +14,8 @@ class BookingAppEngine:
     def drop_all_tables(self):
         SQLModel.metadata.drop_all(engine)
 
-    async def create_booking(self, name: str):
-        booking = await create_booking(name=name)
+    async def create_booking(self, desc: str):
+        booking = await create_booking(desc=desc)
         print(f'New booking was created: {booking.uuid}')
 
 

@@ -5,17 +5,17 @@ from strawberry.types import Info
 
 from app.amqp_client import AMQPClient
 from app.mocks import BOOKING_LIST
+from app.models import AMQPMessage, Booking
 from app.object_types import BookingType
-from app.types import AMQPMessage, Booking
 
 
 @strawberry.type
 class Mutation:
     @strawberry.mutation
-    async def create_booking(self, name: str, info: Info) -> BookingType:
+    async def create_booking(self, desc: str, info: Info) -> BookingType:
         booking = Booking(
             uuid=str(uuid4()),
-            name=name
+            desc=desc
         )
         BOOKING_LIST.append(booking)
 

@@ -16,9 +16,9 @@ async def booking_list() -> List[Booking]:
     return BOOKING_LIST
 
 
-async def create_booking(name: str) -> Booking:
+async def create_booking(desc: str) -> Booking:
     with Session(engine) as session:
-        booking = Booking(name=name)
+        booking = Booking(desc=desc)
 
         session.add(booking)
         session.commit()
