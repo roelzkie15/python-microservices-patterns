@@ -1,3 +1,4 @@
+from typing import Any
 from uuid import UUID, uuid4
 
 from pydantic import BaseModel
@@ -12,4 +13,4 @@ class Booking(SQLModel, table=True):
 
 class AMQPMessage(BaseModel):
     id: str
-    body: bytes
+    content: Any
