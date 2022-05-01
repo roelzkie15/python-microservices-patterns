@@ -4,10 +4,9 @@ from typing import Callable
 
 import aio_pika
 from aio_pika import Message
-from attrs import asdict
 
 from app.dependencies import get_settings
-from app.types import AMQPMessage
+from app.models import AMQPMessage
 
 
 class AMQPClient:
@@ -73,7 +72,7 @@ class AMQPClient:
 
         await exchange.publish(
             Message(
-                body=str(asdict(message)).encode(),
+                body=str(message.dict()).encode(),
                 content_type='application/json',
             ),
             routing_key=binding_key,
