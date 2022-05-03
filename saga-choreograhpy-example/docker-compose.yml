@@ -28,7 +28,7 @@ services:
     build: $PWD/booking
     restart: unless-stopped
     entrypoint: ['/bin/sh','-c']
-    command: 
+    command:
       - |
         /code/wait-for-it.sh -t 0 db:5432
         /code/wait-for-it.sh -t 0 rabbit:5671
@@ -37,6 +37,28 @@ services:
       - $PWD/booking:/code
     ports:
       - '8000:8000'
+    environment:
+      - ENVIRONMENT=dev
+      - TESTING=0
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/postgres
+      - RABBITMQ_BROKER_URL=amqp://guest:guest@rabbit:5671
+    depends_on:
+      - db
+      - rabbit
+
+  manager:
+    build: $PWD/manager
+    restart: unless-stopped
+    entrypoint: ['/bin/sh','-c']
+    command:
+      - |
+        /code/wait-for-it.sh -t 0 db:5432
+        /code/wait-for-it.sh -t 0 rabbit:5671
+        /code/start_dev.sh
+    volumes:
+      - $PWD/manager:/code
+    ports:
+      - '8001:8000'
     environment:
       - ENVIRONMENT=dev
       - TESTING=0
