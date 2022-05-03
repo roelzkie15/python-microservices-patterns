@@ -1,12 +1,7 @@
 
 import fire
-from sqlmodel import SQLModel
 
-# This is needed
-# https://sqlmodel.tiangolo.com/tutorial/create-db-and-table/#sqlmodel-metadata-order-matters
-from app import models
-
-from app.db import engine
+from app.db import SQLModel, engine
 from app.services import create_booking
 
 

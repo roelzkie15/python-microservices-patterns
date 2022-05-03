@@ -1,7 +1,9 @@
-import fire
-from sqlmodel import create_engine
+from sqlmodel import SQLModel, create_engine
+from sqlalchemy import MetaData
 
 from app.dependencies import get_settings
 
 settings = get_settings()
 engine = create_engine(settings.DATABASE_URL, echo=True)
+
+SQLModel.metadata = MetaData(schema='booking_schema')
