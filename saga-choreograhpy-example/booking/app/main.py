@@ -22,6 +22,11 @@ async def startup():
 @app.on_event('shutdown')
 async def shutdown():
     await app.state.amqp_client.connection.close()
+    
+
+@app.get('/health')
+async def root():
+    return {'message': 'Booking server is running'}
 
 
 async def get_context():
