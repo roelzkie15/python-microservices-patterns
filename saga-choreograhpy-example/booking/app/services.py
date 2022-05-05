@@ -1,6 +1,7 @@
 from typing import List
-from uuid import UUID
+from uuid import UUID, uuid4
 
+from aio_pika import IncomingMessage
 from sqlmodel import Session, select
 
 from app.db import engine
@@ -23,7 +24,7 @@ async def booking_list() -> List[Booking]:
 
 async def create_booking(desc: str) -> Booking:
     with Session(engine) as session:
-        booking = Booking(desc=desc)
+        booking = Booking(uuid= str(uuid4()),desc=desc)
 
         session.add(booking)
         session.commit()
@@ -32,5 +33,7 @@ async def create_booking(desc: str) -> Booking:
         return booking
 
 
-async def test_consume(message_body: bytes) -> None:
-    print('test consume: ', message_body.decode())
+async def test_consume(message: IncomingMessage) -> None:
+    print('test consume: ', message.body.decode())
+
+    await message.ack()

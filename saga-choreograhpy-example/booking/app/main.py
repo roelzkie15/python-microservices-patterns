@@ -14,7 +14,7 @@ app = FastAPI()
 async def startup():
     amqp_client: AMQPClient = await AMQPClient().init()
 
-    await amqp_client.event_consumer(test_consume, 'MANAGER_EVENT_STORE', 'booking.created', 'booking_events')
+    # await amqp_client.event_consumer(test_consume, 'MANAGER_EVENT_STORE', 'booking.created', 'booking_events')
 
     app.state.amqp_client = amqp_client
 
@@ -22,7 +22,7 @@ async def startup():
 @app.on_event('shutdown')
 async def shutdown():
     await app.state.amqp_client.connection.close()
-    
+
 
 @app.get('/health')
 async def root():
