@@ -1,5 +1,5 @@
-from sqlmodel import SQLModel, create_engine
 from sqlalchemy import MetaData
+from sqlmodel import SQLModel, create_engine
 
 from app.dependencies import get_settings
 

@@ -3,7 +3,7 @@ import fire
 from app.db import SQLModel, engine
 
 
-class BookingAppEngine:
+class ManagerAppEngine:
 
     def create_all_tables(self):
         SQLModel.metadata.create_all(engine)
@@ -13,4 +13,4 @@ class BookingAppEngine:
 
 
 if __name__ == '__main__':
-    fire.Fire(BookingAppEngine)
+    fire.Fire(ManagerAppEngine)
