@@ -1,7 +1,8 @@
-from sqlalchemy import create_engine, MetaData
+import contextlib
+
+from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-
 
 from app.dependencies import get_settings
 
@@ -12,3 +13,12 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()
 Base.metadata.schema = 'booking_schema'
+
+
+@contextlib.contextmanager
+def Session():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()

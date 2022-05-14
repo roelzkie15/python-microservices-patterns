@@ -2,29 +2,24 @@ from typing import List
 from uuid import UUID, uuid4
 
 from aio_pika import IncomingMessage
-from sqlmodel import Session, select
 
-from app.db import engine
+from app.db import engine, Session
 from app.models import Booking
 
 
 async def booking_details(uuid: str) -> Booking:
-    with Session(engine) as session:
-        statement = select(Booking).where(Booking.uuid == uuid)
-        results = session.exec(statement)
-        return results.one()
+    with Session() as session:
+        return session.query(Booking).filter(Booking.uuid == uuid).one()
 
 
 async def booking_list() -> List[Booking]:
-    with Session(engine) as session:
-        statement = select(Booking)
-        results = session.exec(statement)
-        return results.all()
+    with Session() as session:
+        return session.query(Booking).all()
 
 
 async def create_booking(desc: str) -> Booking:
-    with Session(engine) as session:
-        booking = Booking(uuid= str(uuid4()),desc=desc)
+    with Session() as session:
+        booking = Booking(uuid= str(uuid4()), desc=desc)
 
         session.add(booking)
         session.commit()
