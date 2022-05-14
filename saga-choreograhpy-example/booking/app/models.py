@@ -1,16 +1,17 @@
 from typing import Any
-from uuid import UUID
 
 from pydantic import BaseModel
-from sqlmodel import Field
+from sqlalchemy import Column, String
 
-from app.db import SQLModel
+from app.db import Base
 
 
-class Booking(SQLModel, table=True):
-    uuid: UUID = Field(default=None, primary_key=True)
-    desc: str
-    status: str = Field(default='created')
+class Booking(Base):
+    __tablename__ = 'booking'
+
+    uuid = Column(String, primary_key=True, unique=True, index=True)
+    desc = Column(String)
+    status = Column(String, nullable=False, default='created')
 
 
 class AMQPMessage(BaseModel):

@@ -16,6 +16,7 @@ strawberry-graphql = {extras = ["fastapi"], version = "^0.109.0"}
 attrs = "^21.4.0"
 fire = "^0.4.0"
 alembic = "^1.7.7"
+SQLAlchemy = "^1.4.36"
 
 [tool.poetry.dev-dependencies]
 

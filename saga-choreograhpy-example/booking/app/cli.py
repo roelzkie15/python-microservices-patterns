@@ -1,17 +1,17 @@
 
 import fire
 
-from app.db import SQLModel, engine
+from app.db import Base, engine
 from app.services import create_booking
 
 
 class BookingAppEngine:
 
     def create_all_tables(self):
-        SQLModel.metadata.create_all(engine)
+        Base.metadata.create_all(engine)
 
     def drop_all_tables(self):
-        SQLModel.metadata.drop_all(engine)
+        Base.metadata.drop_all(engine)
 
     async def create_booking(self, desc: str):
         booking = await create_booking(desc=desc)

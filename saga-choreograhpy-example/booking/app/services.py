@@ -10,7 +10,7 @@ from app.models import Booking
 
 async def booking_details(uuid: str) -> Booking:
     with Session(engine) as session:
-        statement = select(Booking).where(Booking.uuid == UUID(uuid))
+        statement = select(Booking).where(Booking.uuid == uuid)
         results = session.exec(statement)
         return results.one()
 
