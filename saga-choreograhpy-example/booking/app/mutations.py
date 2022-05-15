@@ -4,11 +4,10 @@ import strawberry
 from strawberry.types import Info
 
 from app.amqp_client import AMQPClient
-from app.mocks import BOOKING_LIST
 from app.models import AMQPMessage
 from app.object_types import BookingType
-from app.services import create_booking
 from app.pydantic_models import PydanticBooking
+from app.services import create_booking
 
 
 @strawberry.type
