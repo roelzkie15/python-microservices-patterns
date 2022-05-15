@@ -1,16 +1,16 @@
-from email.policy import default
 from typing import Any
-from uuid import UUID
 
 from pydantic import BaseModel
-from sqlmodel import Field
+from sqlalchemy import Column, String
 
-from app.db import SQLModel
+from app.db import Base
 
 
-class BookingRequest(SQLModel, table=True):
-    booking_id: UUID = Field(default=None, primary_key=True)
-    approved: bool = Field(default=True)
+class BookingRequest(Base):
+    __tablename__ = 'booking_request'
+
+    booking_id = Column(String, primary_key=True, unique=True, index=True)
+    approved = Column(String, nullable=False, default=False)
 
 
 class AMQPMessage(BaseModel):

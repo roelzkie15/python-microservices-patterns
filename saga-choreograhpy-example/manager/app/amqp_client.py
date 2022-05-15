@@ -84,4 +84,5 @@ class AMQPClient:
         message content.
         '''
         async with message.process(ignore_processed=True):
+            await message.ack()
             await callback(message)

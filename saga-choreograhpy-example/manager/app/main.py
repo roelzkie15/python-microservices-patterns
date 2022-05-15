@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from strawberry.fastapi import GraphQLRouter
 
 from app.amqp_client import AMQPClient
-from app.services import create_booking_request
+from app.services import create_booking_request_from_event
 
 app = FastAPI()
 
@@ -13,7 +13,7 @@ app = FastAPI()
 async def startup():
     amqp_client: AMQPClient = await AMQPClient().init()
 
-    await amqp_client.event_consumer(create_booking_request, 'MANAGER_EVENT_STORE', 'booking.created', 'booking_events')
+    await amqp_client.event_consumer(create_booking_request_from_event, 'MANAGER_EVENT_STORE', 'booking.created', 'booking_events')
 
     app.state.amqp_client = amqp_client
 
