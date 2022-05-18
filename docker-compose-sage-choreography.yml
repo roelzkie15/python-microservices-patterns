@@ -8,7 +8,7 @@ services:
     environment:
       - POSTGRES_PASSWORD=postgres
     volumes:
-      - $PWD/postgres/data:/var/lib/postgresql/data
+      - $PWD/saga-choreograhpy-example/postgres/data:/var/lib/postgresql/data
     ports:
       - '5434:5432'
 
@@ -25,7 +25,7 @@ services:
       - '5671'
 
   booking:
-    build: $PWD/booking
+    build: $PWD/saga-choreograhpy-example/booking
     restart: unless-stopped
     entrypoint: ['/bin/sh','-c']
     command:
@@ -34,7 +34,7 @@ services:
         /code/wait-for-it.sh -t 0 rabbit:5671
         /code/start_dev.sh
     volumes:
-      - $PWD/booking:/code
+      - $PWD/saga-choreograhpy-example/booking:/code
     ports:
       - '8000:8000'
     environment:
@@ -47,7 +47,7 @@ services:
       - rabbit
 
   manager:
-    build: $PWD/manager
+    build: $PWD/saga-choreograhpy-example/manager
     restart: unless-stopped
     entrypoint: ['/bin/sh','-c']
     command:
@@ -56,7 +56,7 @@ services:
         /code/wait-for-it.sh -t 0 rabbit:5671
         /code/start_dev.sh
     volumes:
-      - $PWD/manager:/code
+      - $PWD/saga-choreograhpy-example/manager:/code
     ports:
       - '8001:8000'
     environment:
