@@ -5,6 +5,7 @@ from sqlalchemy import pool
 
 from alembic import context
 
+from app import logging
 from app.dependencies import get_settings
 
 app_settings = get_settings()
@@ -23,8 +24,8 @@ if config.config_file_name is not None:
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 from app.db import Base
+from app.models import *
 
-from app.models import BookingRequest
 config.set_main_option('sqlalchemy.url', app_settings.DATABASE_URL)
 target_metadata = [Base.metadata]
 
@@ -50,6 +51,7 @@ def run_migrations_offline():
         url=url,
         target_metadata=target_metadata,
         literal_binds=True,
+        compare_type=True,
         dialect_opts={"paramstyle": "named"},
     )
 
@@ -64,6 +66,18 @@ def run_migrations_online():
     and associate a connection with the context.
 
     """
+
+    # this callback is used to prevent an auto-migration from being generated
+    # when there are no changes to the schema
+    # reference: http://alembic.zzzcomputing.com/en/latest/cookbook.html
+    def process_revision_directives(context, revision, directives):
+        if getattr(config.cmd_opts, 'autogenerate', False):
+            script = directives[0]
+            if script.upgrade_ops.is_empty():
+                directives[:] = []
+                logging.info('No changes in schema detected.')
+
+
     connectable = engine_from_config(
         config.get_section(config.config_ini_section),
         prefix="sqlalchemy.",
@@ -76,7 +90,9 @@ def run_migrations_online():
         connection.dialect.default_schema_name = schema
 
         context.configure(
-            connection=connection, target_metadata=target_metadata
+            connection=connection, target_metadata=target_metadata,
+            process_revision_directives=process_revision_directives,
+            compare_type=True
         )
 
         with context.begin_transaction():

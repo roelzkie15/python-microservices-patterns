@@ -16,6 +16,7 @@ attrs = "^21.4.0"
 fire = "^0.4.0"
 alembic = "^1.7.7"
 psycopg2-binary = "2.9.3"
+pydantic-sqlalchemy = "^0.0.9"
 
 [tool.poetry.dev-dependencies]
 
