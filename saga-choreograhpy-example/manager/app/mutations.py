@@ -1,7 +1,7 @@
 import strawberry
 from strawberry.types import Info
 
-from app.exceptions import ValidationException
+from app.amqp_client import AMQPClient, AMQPMessage
 from app.object_types import AlreadyApprovedError, ApproveActionResponse
 from app.pydantic_models import PydanticBookingRequest
 from app.services import approve_booking_request, booking_request_details
@@ -16,4 +16,11 @@ class Mutation:
             return AlreadyApprovedError(message=f'Booking request with ID {uuid} is already approved.')
 
         approved_booking_request = await approve_booking_request(booking_request)
-        return PydanticBookingRequest.from_orm(approved_booking_request)
+        context = PydanticBookingRequest.from_orm(approved_booking_request)
+
+        # amqp_client: AMQPClient = info.context['amqp_client']
+        # await amqp_client.event_producer(
+        #     'BILLING_EVENT_STORE', 'booking.approved', message=AMQPMessage(id=str(uuid), content=context.dict())
+        # )
+
+        return context

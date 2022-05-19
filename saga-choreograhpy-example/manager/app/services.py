@@ -6,7 +6,6 @@ from sqlalchemy.sql import exists
 
 from app import logging
 from app.db import Session
-from app.exceptions import ValidationException
 from app.models import BookingRequest
 
 
