@@ -18,9 +18,9 @@ class Mutation:
         approved_booking_request = await approve_booking_request(booking_request)
         context = PydanticBookingRequest.from_orm(approved_booking_request)
 
-        # amqp_client: AMQPClient = info.context['amqp_client']
-        # await amqp_client.event_producer(
-        #     'BILLING_EVENT_STORE', 'booking.approved', message=AMQPMessage(id=str(uuid), content=context.dict())
-        # )
+        amqp_client: AMQPClient = info.context['amqp_client']
+        await amqp_client.event_producer(
+            'BILLING_EVENT_STORE', 'booking.approved', message=AMQPMessage(id=str(uuid), content=context.dict())
+        )
 
         return context

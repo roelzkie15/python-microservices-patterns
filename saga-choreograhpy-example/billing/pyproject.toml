@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "saga-choreograhpy-example-billing-service"
+version = "0.1.0"
+description = "Saga's choreography pattern example - Billing service"
+authors = ["Roel Delos Reyes <badcoder28@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "3.10.3"
+fastapi = "0.75.2"
+sqlmodel = "0.0.6"
+uvicorn = {extras = ["standard"], version = "^0.17.6"}
+pydantic = "^1.9.0"
+aio-pika = "^7.2.0"
+strawberry-graphql = {extras = ["fastapi"], version = "^0.109.0"}
+attrs = "^21.4.0"
+fire = "^0.4.0"
+alembic = "^1.7.7"
+psycopg2-binary = "2.9.3"
+pydantic-sqlalchemy = "^0.0.9"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

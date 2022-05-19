@@ -54,6 +54,7 @@ services:
       - |
         /code/wait-for-it.sh -t 0 db:5432
         /code/wait-for-it.sh -t 0 rabbit:5671
+        /code/wait-for-it.sh -t 0 booking:8000
         /code/start_dev.sh
     volumes:
       - $PWD/saga-choreograhpy-example/manager:/code
@@ -67,3 +68,28 @@ services:
     depends_on:
       - db
       - rabbit
+      - booking
+
+  billing:
+    build: $PWD/saga-choreograhpy-example/billing
+    restart: unless-stopped
+    entrypoint: ['/bin/sh','-c']
+    command:
+      - |
+        /code/wait-for-it.sh -t 0 db:5432
+        /code/wait-for-it.sh -t 0 rabbit:5671
+        /code/wait-for-it.sh -t 0 manager:8000
+        /code/start_dev.sh
+    volumes:
+      - $PWD/saga-choreograhpy-example/billing:/code
+    ports:
+      - '8002:8000'
+    environment:
+      - ENVIRONMENT=dev
+      - TESTING=0
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/postgres
+      - RABBITMQ_BROKER_URL=amqp://guest:guest@rabbit:5671
+    depends_on:
+      - db
+      - rabbit
+      - manager
