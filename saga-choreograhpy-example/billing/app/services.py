@@ -1,11 +1,12 @@
 import ast
+from decimal import Decimal
+from typing import List
 
 from aio_pika import IncomingMessage
 
 from app import logging
-from app.models import BillingRequest
 from app.db import Session
-from decimal import Decimal
+from app.models import BillingRequest
 
 
 async def create_billing_request_from_event(message: IncomingMessage):
@@ -18,6 +19,7 @@ async def create_billing_request_from_event(message: IncomingMessage):
 
     return br
 
+
 async def create_billing_request(uuid: str, total: Decimal = Decimal('100.00')) -> BillingRequest:
     with Session() as session:
         br = BillingRequest(booking_id=uuid, total=total)
@@ -26,3 +28,13 @@ async def create_billing_request(uuid: str, total: Decimal = Decimal('100.00')) 
         session.refresh(br)
 
         return br
+
+
+async def billing_request_list() -> List[BillingRequest]:
+    with Session() as session:
+        return session.query(BillingRequest).all()
+
+
+async def billing_request_details(uuid: str) -> BillingRequest:
+    with Session() as session:
+        return session.query(BillingRequest).filter(BillingRequest.booking_id == uuid).one()

@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from strawberry.fastapi import GraphQLRouter
 
 from app.amqp_client import AMQPClient
-# from app.schema import schema
+from app.schema import schema
 from app.services import create_billing_request_from_event
 
 app = FastAPI()
@@ -35,5 +35,5 @@ async def get_context():
     }
 
 
-# graphql_app = GraphQLRouter(schema, context_getter=get_context)
-# app.include_router(graphql_app, prefix='/graphql')
+graphql_app = GraphQLRouter(schema, context_getter=get_context)
+app.include_router(graphql_app, prefix='/graphql')
