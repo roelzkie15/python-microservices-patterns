@@ -5,6 +5,7 @@ from aio_pika import IncomingMessage
 from app import logging
 from app.models import BillingRequest
 from app.db import Session
+from decimal import Decimal
 
 
 async def create_billing_request_from_event(message: IncomingMessage):
@@ -17,9 +18,9 @@ async def create_billing_request_from_event(message: IncomingMessage):
 
     return br
 
-async def create_billing_request(uuid: str) -> BillingRequest:
+async def create_billing_request(uuid: str, total: Decimal = Decimal('100.00')) -> BillingRequest:
     with Session() as session:
-        br = BillingRequest(booking_id=uuid)
+        br = BillingRequest(booking_id=uuid, total=total)
         session.add(br)
         session.commit()
         session.refresh(br)
