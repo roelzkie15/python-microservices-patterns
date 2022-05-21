@@ -19,7 +19,7 @@ async def booking_list() -> List[Booking]:
 
 async def create_booking(desc: str) -> Booking:
     with Session() as session:
-        booking = Booking(uuid= str(uuid4()), desc=desc)
+        booking = Booking(uuid= str(uuid4()), description=desc)
 
         session.add(booking)
         session.commit()

@@ -7,11 +7,12 @@ from app.db import Base
 
 
 class Booking(Base):
-    __tablename__ = 'booking'
+    __tablename__ = 'bookings'
 
     uuid = Column(String, primary_key=True, unique=True, index=True)
-    desc = Column(String)
     status = Column(String, nullable=False, default='created')
+
+    parking_space_uuid = Column(String, nullable=True)
 
 
 class AMQPMessage(BaseModel):
