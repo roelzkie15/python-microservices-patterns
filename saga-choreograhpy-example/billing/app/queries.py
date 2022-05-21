@@ -13,8 +13,8 @@ from app.services import billing_request_details, billing_request_list
 class Query:
 
     @strawberry.field
-    async def billing_request_details(self, uuid: str, info: Info) -> BillingRequestType:
-        br = await billing_request_details(uuid)
+    async def billing_request_details(self, id: int, info: Info) -> BillingRequestType:
+        br = await billing_request_details(id)
         return PydanticBillingRequest.from_orm(br)
 
     @strawberry.field

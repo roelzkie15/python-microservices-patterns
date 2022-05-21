@@ -19,7 +19,7 @@ class Mutation:
 
         amqp_client: AMQPClient = info.context['amqp_client']
         await amqp_client.event_producer(
-            'MANAGER_EVENT_STORE', 'booking.created', message=AMQPMessage(id=str(booking.uuid), content=pydantic_booking.dict())
+            'BOOKING_TX_EVENT_STORE', 'booking.created', message=AMQPMessage(id=str(booking.uuid), content=pydantic_booking.dict())
         )
 
         return pydantic_booking

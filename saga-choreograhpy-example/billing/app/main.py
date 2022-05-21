@@ -14,7 +14,7 @@ app = FastAPI()
 async def startup():
     amqp_client: AMQPClient = await AMQPClient().init()
 
-    await amqp_client.event_consumer(create_billing_request_from_event, 'BILLING_EVENT_STORE', 'booking.approved', 'billing_events')
+    await amqp_client.event_consumer(create_billing_request_from_event, 'BOOKING_TX_EVENT_STORE', 'booking.created', 'booking_events')
 
     app.state.amqp_client = amqp_client
 

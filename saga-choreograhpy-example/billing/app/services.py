@@ -15,14 +15,14 @@ async def create_billing_request_from_event(message: IncomingMessage):
 
     br = await create_billing_request(decoded_message['id'])
 
-    logging.info(f'Booking request with ID {br.booking_id} was created!')
+    logging.info(f'Booking request with ID {br.id} was created!')
 
     return br
 
 
 async def create_billing_request(uuid: str, total: Decimal = Decimal('100.00')) -> BillingRequest:
     with Session() as session:
-        br = BillingRequest(booking_id=uuid, total=total)
+        br = BillingRequest(reference_no=uuid, total=total)
         session.add(br)
         session.commit()
         session.refresh(br)
@@ -35,6 +35,6 @@ async def billing_request_list() -> List[BillingRequest]:
         return session.query(BillingRequest).all()
 
 
-async def billing_request_details(uuid: str) -> BillingRequest:
+async def billing_request_details(id: int) -> BillingRequest:
     with Session() as session:
-        return session.query(BillingRequest).filter(BillingRequest.booking_id == uuid).one()
+        return session.query(BillingRequest).filter(BillingRequest.id == id).one()
