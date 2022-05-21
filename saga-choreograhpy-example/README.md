@@ -24,5 +24,8 @@ There are five microservices that will work together to demonstrate this pattern
 
 ![saga-choreography-rollback-pattern](https://github.com/roelzkie15/python-microservices-patterns/blob/master/saga-choreograhpy-example/resources/saga-choreography-pattern-rb-transaction.png)
 
-1. _**Billing Service**_ publishes **PAYMENT_FAILED_EVENT**, and _**Booking Service**_ listens to it and update booking request status to _failed_.
+1. _**Parking Service**_ publishes **PARKING_UNAVAILABLE_EVENT**, and _**Booking Service**_ listens to it and updates booking request status to _failed_.
+
+1. _**Billing Service**_ listens to **PARKING_UNAVAILABLE_EVENT** updates billing status to _failed_ and refund payment to customer.
+
 > **Important:** Participating microservices should recognize transactions by using unique identifiers from a certain event to know what transaction is being processed.
