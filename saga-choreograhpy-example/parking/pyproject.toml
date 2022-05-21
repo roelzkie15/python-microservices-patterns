@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "saga-choreograhpy-example-manager-service"
+name = "saga-choreograhpy-example-parking-service"
 version = "0.1.0"
-description = "Saga's choreography pattern example - Manager service"
+description = "Saga's choreography pattern example - Parking service"
 authors = ["Roel Delos Reyes <badcoder28@gmail.com>"]
 
 [tool.poetry.dependencies]
