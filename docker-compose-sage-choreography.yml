@@ -46,8 +46,8 @@ services:
       - db
       - rabbit
 
-  manager:
-    build: $PWD/saga-choreograhpy-example/manager
+  billing:
+    build: $PWD/saga-choreograhpy-example/billing
     restart: unless-stopped
     entrypoint: ['/bin/sh','-c']
     command:
@@ -57,7 +57,7 @@ services:
         /code/wait-for-it.sh -t 0 booking:8000
         /code/start_dev.sh
     volumes:
-      - $PWD/saga-choreograhpy-example/manager:/code
+      - $PWD/saga-choreograhpy-example/billing:/code
     ports:
       - '8001:8000'
     environment:
@@ -70,18 +70,18 @@ services:
       - rabbit
       - booking
 
-  billing:
-    build: $PWD/saga-choreograhpy-example/billing
+  parking:
+    build: $PWD/saga-choreograhpy-example/parking
     restart: unless-stopped
     entrypoint: ['/bin/sh','-c']
     command:
       - |
         /code/wait-for-it.sh -t 0 db:5432
         /code/wait-for-it.sh -t 0 rabbit:5671
-        /code/wait-for-it.sh -t 0 manager:8000
+        /code/wait-for-it.sh -t 0 billing:8000
         /code/start_dev.sh
     volumes:
-      - $PWD/saga-choreograhpy-example/billing:/code
+      - $PWD/saga-choreograhpy-example/parking:/code
     ports:
       - '8002:8000'
     environment:
@@ -92,4 +92,4 @@ services:
     depends_on:
       - db
       - rabbit
-      - manager
+      - booking
