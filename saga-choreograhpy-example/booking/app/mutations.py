@@ -13,8 +13,8 @@ from app.services import create_booking
 @strawberry.type
 class Mutation:
     @strawberry.mutation
-    async def create_booking(self, desc: str, info: Info) -> BookingType:
-        booking = await create_booking(desc=desc)
+    async def create_booking(self, description: str, info: Info) -> BookingType:
+        booking = await create_booking(description=description)
         pydantic_booking = PydanticBooking.from_orm(booking)
 
         amqp_client: AMQPClient = info.context['amqp_client']

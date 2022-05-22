@@ -1,9 +1,9 @@
 from typing import List
-from uuid import UUID, uuid4
+from uuid import uuid4
 
 from aio_pika import IncomingMessage
 
-from app.db import engine, Session
+from app.db import Session
 from app.models import Booking
 
 
@@ -17,9 +17,9 @@ async def booking_list() -> List[Booking]:
         return session.query(Booking).all()
 
 
-async def create_booking(desc: str) -> Booking:
+async def create_booking(description: str) -> Booking:
     with Session() as session:
-        booking = Booking(uuid= str(uuid4()), description=desc)
+        booking = Booking(uuid= str(uuid4()), description=description)
 
         session.add(booking)
         session.commit()
