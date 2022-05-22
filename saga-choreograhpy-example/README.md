@@ -1,8 +1,9 @@
 # Saga Choreography Example
 
-There are five microservices that will work together to demonstrate this pattern. We will try to imitate a simple booking logic that will handle booking requests, billings, payments, and invoices.
+There are 3 microservices that will work together to demonstrate this pattern. We will try to imitate a simple booking logic that will handle booking requests, billings and parking slots.
 
 ## Techstack to implement servers
+
 - FastAPI
 - RabbitMQ
 - Postgres
