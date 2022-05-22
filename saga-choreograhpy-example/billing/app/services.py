@@ -7,13 +7,15 @@ from sqlalchemy.orm import Session
 
 from app import logging
 from app.models import BillingRequest, PaymentReconciliation
+from app.db import Session
 
 
 async def create_billing_request_from_event(message: IncomingMessage):
     decoded_message = ast.literal_eval(str(message.body.decode()))
     logging.info(f'Received message {str(decoded_message)}')
 
-    br = await create_billing_request(decoded_message['id'])
+    with Session() as session:
+        br = await create_billing_request(session, decoded_message['id'])
 
     logging.info(f'Booking request with ID {br.id} was created!')
 

@@ -9,10 +9,8 @@ from app.object_types import (BillingRequestType,
                               BillingRequestWithReconciliationType,
                               PaymentReconciliationType)
 from app.pydantic_models import (
-    PydanticBillingRequest,
-    PydanticBillingRequestWithPaymentReconciliation,
-    PydanticPaymentReconciliation
-)
+    PydanticBillingRequest, PydanticBillingRequestWithPaymentReconciliation,
+    PydanticPaymentReconciliation)
 from app.services import (billing_request_details, billing_request_list,
                           payment_reconciliation_details,
                           payment_reconciliation_list)
