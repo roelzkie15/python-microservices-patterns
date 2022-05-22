@@ -1,9 +1,10 @@
 
 
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI, Request
 from strawberry.fastapi import GraphQLRouter
 
 from app.amqp_client import AMQPClient
+from app.db import Session
 from app.schema import schema
 from app.services import create_billing_request_from_event
 
@@ -22,18 +23,21 @@ async def startup():
 @app.on_event('shutdown')
 async def shutdown():
     await app.state.amqp_client.connection.close()
-    
+
 
 @app.get('/health')
 async def root():
     return {'message': 'Billing server is running'}
 
 
-async def get_context():
-    return {
-        'amqp_client': app.state.amqp_client
-    }
+@app.middleware('http')
+async def add_session_in_app_state(request: Request, call_next):
+    with Session() as session:
+        request.app.state.session = session
+        response = await call_next(request)
+
+    return response
 
 
-graphql_app = GraphQLRouter(schema, context_getter=get_context)
+graphql_app = GraphQLRouter(schema)
 app.include_router(graphql_app, prefix='/graphql')

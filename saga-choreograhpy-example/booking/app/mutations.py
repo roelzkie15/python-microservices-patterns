@@ -1,5 +1,3 @@
-from uuid import uuid4
-
 import strawberry
 from strawberry.types import Info
 

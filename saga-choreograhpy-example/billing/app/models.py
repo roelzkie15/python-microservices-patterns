@@ -1,9 +1,10 @@
-from email.policy import default
-from enum import unique
+from decimal import Decimal
 from typing import Any
 
 from pydantic import BaseModel
-from sqlalchemy import Column, Integer, Numeric, String
+from sqlalchemy import Column, ForeignKey, Integer, Numeric, String
+from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.orm import backref, relationship
 
 from app.db import Base
 
@@ -16,6 +17,34 @@ class BillingRequest(Base):
     status = Column(String, default='pending')
 
     reference_no = Column(String, unique=True, nullable=False)
+
+    @hybrid_property
+    def total_paid(self):
+        return Decimal(sum([payment.amount for payment in self.payment_reconciliations]))
+
+    @hybrid_property
+    def balance(self):
+        return Decimal(self.total - self.total_paid)
+
+    def calculate_total_payment(self, amount: Decimal) -> Decimal:
+        '''
+        Sum of total payment including incoming payment.
+        '''
+        return Decimal(amount + self.total_paid)
+
+
+class PaymentReconciliation(Base):
+    __tablename__ = 'payment_reconciliations'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    amount = Column(Numeric(precision=12, scale=2), nullable=False)
+
+    billing_request_id = Column(Integer, ForeignKey('billing_requests.id'))
+    billing_request = relationship(
+        'BillingRequest',
+        backref=backref('payment_reconciliations', lazy='dynamic')
+    )
+
 
 class AMQPMessage(BaseModel):
     id: str
