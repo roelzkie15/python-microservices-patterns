@@ -5,9 +5,14 @@ import strawberry
 from sqlalchemy.orm import Session
 from strawberry.types import Info
 
-from app.object_types import BillingRequestType, PaymentReconciliationType
-from app.pydantic_models import (PydanticBillingRequest,
-                                 PydanticPaymentReconciliation)
+from app.object_types import (BillingRequestType,
+                              BillingRequestWithReconciliationType,
+                              PaymentReconciliationType)
+from app.pydantic_models import (
+    PydanticBillingRequest,
+    PydanticBillingRequestWithPaymentReconciliation,
+    PydanticPaymentReconciliation
+)
 from app.services import (billing_request_details, billing_request_list,
                           payment_reconciliation_details,
                           payment_reconciliation_list)
@@ -17,11 +22,11 @@ from app.services import (billing_request_details, billing_request_list,
 class Query:
 
     @strawberry.field
-    async def billing_request_details(self, id: int, info: Info) -> BillingRequestType:
+    async def billing_request_details(self, id: int, info: Info) -> BillingRequestWithReconciliationType:
         session: Session = info.context['request'].app.state.session
 
         br = await billing_request_details(session, id)
-        return PydanticBillingRequest.from_orm(br)
+        return PydanticBillingRequestWithPaymentReconciliation.from_orm(br)
 
     @strawberry.field
     async def billing_request_list(self, info: Info) -> List[BillingRequestType]:

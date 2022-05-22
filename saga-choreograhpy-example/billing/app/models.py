@@ -4,7 +4,7 @@ from typing import Any
 from pydantic import BaseModel
 from sqlalchemy import Column, ForeignKey, Integer, Numeric, String
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import backref, relationship
+from sqlalchemy.orm import relationship
 
 from app.db import Base
 
@@ -17,6 +17,11 @@ class BillingRequest(Base):
     status = Column(String, default='pending')
 
     reference_no = Column(String, unique=True, nullable=False)
+
+    payment_reconciliations = relationship(
+        'PaymentReconciliation',
+        backref='billing_request',
+    )
 
     @hybrid_property
     def total_paid(self):
@@ -40,10 +45,6 @@ class PaymentReconciliation(Base):
     amount = Column(Numeric(precision=12, scale=2), nullable=False)
 
     billing_request_id = Column(Integer, ForeignKey('billing_requests.id'))
-    billing_request = relationship(
-        'BillingRequest',
-        backref=backref('payment_reconciliations', lazy='dynamic')
-    )
 
 
 class AMQPMessage(BaseModel):
