@@ -7,16 +7,21 @@ from strawberry.types import Info
 from app.object_types import BookingType
 from app.pydantic_models import PydanticBooking
 from app.services import booking_details, booking_list
+from sqlalchemy.orm import Session
 
 
 @strawberry.type
 class Query:
     @strawberry.field
     async def booking(self, uuid: str, info: Info) -> BookingType:
-        booking = await booking_details(uuid)
+        session: Session = info.context['request'].app.state.session
+
+        booking = await booking_details(session, uuid)
         return PydanticBooking.from_orm(booking)
 
     @strawberry.field
     async def bookings(self, info: Info) -> List[BookingType]:
-        bookings = await booking_list()
+        session: Session = info.context['request'].app.state.session
+
+        bookings = await booking_list(session)
         return [PydanticBooking.from_orm(booking) for booking in bookings]
