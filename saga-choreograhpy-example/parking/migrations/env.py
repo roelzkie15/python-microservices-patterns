@@ -24,8 +24,8 @@ if config.config_file_name is not None:
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 from app.db import Base
-from app.models import *
 
+from app.models import ParkingSlot
 config.set_main_option('sqlalchemy.url', app_settings.DATABASE_URL)
 target_metadata = [Base.metadata]
 
@@ -33,6 +33,7 @@ target_metadata = [Base.metadata]
 # can be acquired:
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
+
 
 def run_migrations_offline():
     """Run migrations in 'offline' mode.
@@ -52,6 +53,10 @@ def run_migrations_offline():
         target_metadata=target_metadata,
         literal_binds=True,
         compare_type=True,
+        compare_server_default=True,
+        include_schemas=True,
+        version_table_schema='parking_schema',
+        include_object=include_object,
         dialect_opts={"paramstyle": "named"},
     )
 
@@ -77,7 +82,6 @@ def run_migrations_online():
                 directives[:] = []
                 logging.info('No changes in schema detected.')
 
-
     connectable = engine_from_config(
         config.get_section(config.config_ini_section),
         prefix="sqlalchemy.",
@@ -85,18 +89,24 @@ def run_migrations_online():
     )
 
     with connectable.connect() as connection:
-        schema = 'manager_schema'
-        connection.execute(f'set search_path to {schema};')
-        connection.dialect.default_schema_name = schema
-
         context.configure(
             connection=connection, target_metadata=target_metadata,
             process_revision_directives=process_revision_directives,
-            compare_type=True
+            compare_type=True,
+            compare_server_default=True,
+            include_schemas=True,
+            version_table_schema='parking_schema',
+            include_object=include_object
         )
 
         with context.begin_transaction():
             context.run_migrations()
+
+
+def include_object(object, name, type_, reflected, compare_to):
+    if (type_ == 'table'):
+        return object.schema == 'parking_schema'
+    return True
 
 
 if context.is_offline_mode():

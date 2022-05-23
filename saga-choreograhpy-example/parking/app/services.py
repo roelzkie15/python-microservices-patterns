@@ -1,63 +1,46 @@
 import ast
 from typing import List
+from uuid import uuid4
 
 from aio_pika import IncomingMessage
-from sqlalchemy.sql import exists
-
+from sqlalchemy.orm import Session
 from app import logging
-from app.db import Session
-from app.models import BookingRequest
+
+from app.models import ParkingSlot
 
 
-async def create_booking_request_from_event(message: IncomingMessage):
+async def update_parking_slot_to_reserved_by_uuid(message: IncomingMessage) -> ParkingSlot:
     decoded_message = ast.literal_eval(str(message.body.decode()))
-
     logging.info(f'Received message {str(decoded_message)}')
 
-    # A message should be idempotent.
-    is_exists = await booking_request_exists(decoded_message['id'])
-    if is_exists:
-        logging.warning(f'Booking ID: {decoded_message["id"]} already exist.')
-        return
-
-    booking_request = await create_booking_request(decoded_message['id'])
-
-    logging.info(
-        f'New booking request was created from event store - {booking_request.booking_id}')
-
-    return booking_request
-
-
-async def create_booking_request(booking_id: str) -> BookingRequest:
     with Session() as session:
-        booking = BookingRequest(booking_id=booking_id)
+        ps = await parking_slot_details(session, decoded_message['id'])
+        ps.status = 'reserved'
 
-        session.add(booking)
-        session.commit()
-        session.refresh(booking)
+        ps = await update_parking_slot(session, ps)
 
-        return booking
+    logging.info(f'Parking slot with UUID {ps.id} has been reserved!')
 
-
-async def booking_request_exists(uuid: str) -> BookingRequest:
-    with Session() as session:
-        return session.query(exists().where(BookingRequest.booking_id == uuid)).scalar()
+    return ps
 
 
-async def booking_request_details(uuid: str) -> BookingRequest:
-    with Session() as session:
-        return session.query(BookingRequest).filter(BookingRequest.booking_id==uuid).one()
+async def update_parking_slot(session: Session, ps: ParkingSlot) -> ParkingSlot:
+    session.commit()
+    session.refresh(ps)
+    return ps
 
 
-async def booking_request_list() -> List[BookingRequest]:
-    with Session() as session:
-        return session.query(BookingRequest).all()
+async def create_parking_slot(session: Session, name: str) -> ParkingSlot:
+    ps = ParkingSlot(uuid=str(uuid4()), name=name)
+    session.add(ps)
+    session.commit()
+    session.refresh(ps)
+    return ps
 
-async def approve_booking_request(booking_request: BookingRequest) -> BookingRequest:
-    with Session() as session:
-        booking_request.approved = True
-        session.add(booking_request)
-        session.commit()
-        session.refresh(booking_request)
 
-        return booking_request
+async def parking_slot_list(session: Session) -> List[ParkingSlot]:
+    return session.query(ParkingSlot).all()
+
+
+async def parking_slot_details(session: Session, uuid: str) -> ParkingSlot:
+    return session.query(ParkingSlot).filter(ParkingSlot.uuid == uuid).one()

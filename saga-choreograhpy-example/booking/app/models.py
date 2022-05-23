@@ -1,7 +1,7 @@
 from typing import Any
 
 from pydantic import BaseModel
-from sqlalchemy import Column, String
+from sqlalchemy import Column, String, Integer
 
 from app.db import Base
 
@@ -9,11 +9,10 @@ from app.db import Base
 class Booking(Base):
     __tablename__ = 'bookings'
 
-    uuid = Column(String, primary_key=True, unique=True, index=True)
-    description = Column(String, nullable=False)
-    status = Column(String, nullable=False, default='created')
+    id = Column(Integer, primary_key=True, unique=True, index=True)
+    status = Column(String, nullable=False, server_default='created')
 
-    parking_space_uuid = Column(String, nullable=True)
+    parking_slot_uuid = Column(String, nullable=True)
 
 
 class AMQPMessage(BaseModel):

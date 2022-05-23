@@ -4,19 +4,26 @@ from typing import List
 import strawberry
 from strawberry.types import Info
 
-from app.object_types import BookingRequestType
-from app.pydantic_models import PydanticBookingRequest
-from app.services import booking_request_details, booking_request_list
+from app.object_types import ParkingSlotType
+from app.pydantic_models import PydanticParkingSlot
+from app.services import parking_slot_details, parking_slot_list
 
 
 @strawberry.type
 class Query:
-    @strawberry.field
-    async def booking_request_details(self, uuid: str, info: Info) -> BookingRequestType:
-        booking_request = await booking_request_details(uuid)
-        return PydanticBookingRequest.from_orm(booking_request)
 
     @strawberry.field
-    async def booking_request_list(self, info: Info) -> List[BookingRequestType]:
-        br_list = await booking_request_list()
-        return [PydanticBookingRequest.from_orm(br) for br in br_list]
+    async def parking_slot_list(self, info: Info) -> List[ParkingSlotType]:
+        session = info.context['request'].app.state.session
+
+        ps_list = await parking_slot_list(session)
+        return [PydanticParkingSlot.from_orm(ps) for ps in ps_list]
+
+    @strawberry.field
+    async def parking_slot_details(self, uuid: str, info: Info) -> ParkingSlotType:
+        session = info.context['request'].app.state.session
+
+        ps = await parking_slot_details(session, uuid)
+        print(ps)
+
+        return PydanticParkingSlot.from_orm(ps)

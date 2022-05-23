@@ -44,11 +44,12 @@ class Mutation:
             billing_request = await update_billing_request(session, billing_request)
 
             pydantic_billing_request = PydanticBillingRequest.from_orm(
-                billing_request)
+                billing_request
+            )
 
             amqp_client: AMQPClient = info.context['request'].app.state.amqp_client
             await amqp_client.event_producer(
-                'BOOKING_TX_EVENT_STORE', 'bill.paid', message=AMQPMessage(id=str(billing_request.id), content=pydantic_billing_request.dict())
+                'BOOKING_TX_EVENT_STORE', 'bill.paid', message=AMQPMessage(id=str(billing_request.reference_no), content=pydantic_billing_request.dict())
             )
 
         return pydantic_reconciliation

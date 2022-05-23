@@ -12,7 +12,7 @@ engine = create_engine(settings.DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()
-Base.metadata.schema = 'manager_schema'
+Base.metadata.schema = 'parking_schema'
 
 
 @contextlib.contextmanager

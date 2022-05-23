@@ -53,6 +53,7 @@ def run_migrations_offline():
         target_metadata=target_metadata,
         literal_binds=True,
         compare_type=True,
+        compare_server_default=True,
         include_schemas=True,
         version_table_schema='billing_schema',
         include_object=include_object,
@@ -92,6 +93,7 @@ def run_migrations_online():
             connection=connection, target_metadata=target_metadata,
             process_revision_directives=process_revision_directives,
             compare_type=True,
+            compare_server_default=True,
             include_schemas=True,
             version_table_schema='billing_schema',
             include_object=include_object
@@ -104,7 +106,7 @@ def run_migrations_online():
 def include_object(object, name, type_, reflected, compare_to):
     if (type_ == 'table'):
         return object.schema == 'billing_schema'
-    return False
+    return True
 
 
 if context.is_offline_mode():

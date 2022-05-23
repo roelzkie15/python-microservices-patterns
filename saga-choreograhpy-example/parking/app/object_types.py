@@ -1,18 +1,8 @@
 import strawberry
 
-from app.pydantic_models import PydanticBookingRequest
+from app.pydantic_models import PydanticParkingSlot
 
 
-@strawberry.experimental.pydantic.type(model=PydanticBookingRequest, all_fields=True)
-class BookingRequestType:
+@strawberry.experimental.pydantic.type(model=PydanticParkingSlot, all_fields=True)
+class ParkingSlotType:
     pass
-
-@strawberry.type
-class AlreadyApprovedError:
-    message: str = 'Unprocessable Entity'
-    status_code: int = 422
-
-# Create a Union type to represent the 2 results from the mutation
-ApproveActionResponse = strawberry.union(
-    'ApproveActionResponse', [BookingRequestType, AlreadyApprovedError]
-)

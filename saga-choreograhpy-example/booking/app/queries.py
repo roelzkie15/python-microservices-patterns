@@ -13,10 +13,10 @@ from sqlalchemy.orm import Session
 @strawberry.type
 class Query:
     @strawberry.field
-    async def booking(self, uuid: str, info: Info) -> BookingType:
+    async def booking(self, id: str, info: Info) -> BookingType:
         session: Session = info.context['request'].app.state.session
 
-        booking = await booking_details(session, uuid)
+        booking = await booking_details(session, id)
         return PydanticBooking.from_orm(booking)
 
     @strawberry.field
