@@ -27,6 +27,6 @@ There are 3 microservices that will work together to demonstrate this pattern. W
 
 1. _**Parking Service**_ publishes **PARKING_UNAVAILABLE_EVENT**, and _**Booking Service**_ listens to it and updates booking request status to _failed_.
 
-1. _**Billing Service**_ listens to **PARKING_UNAVAILABLE_EVENT** updates billing status to _refunded_ and refund payment to customer.
+1. _**Billing Service**_ listens to **PARKING_UNAVAILABLE_EVENT** refund payment to customer and updates billing status to _refunded_.
 
 > **Important:** Participating microservices should recognize transactions by using unique identifiers from a certain event to know what transaction is being processed.
