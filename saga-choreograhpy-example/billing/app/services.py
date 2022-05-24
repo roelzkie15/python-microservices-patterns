@@ -17,7 +17,7 @@ async def create_billing_request_from_event(message: IncomingMessage):
     with Session() as session:
         br = await create_billing_request(session, decoded_message['id'])
 
-    logging.info(f'Booking request with ID {br.id} was created!')
+    logging.info(f'Billing request with ID {br.id} was created!')
 
     return br
 

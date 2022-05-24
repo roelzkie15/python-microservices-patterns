@@ -3,6 +3,7 @@ from functools import partial
 from typing import Callable
 
 import aio_pika
+import simplejson as json
 from aio_pika import IncomingMessage, Message
 
 from app.dependencies import get_settings
@@ -70,9 +71,10 @@ class AMQPClient:
             durable=True
         )
 
+        payload = json.dumps(message.dict())
         await exchange.publish(
             Message(
-                body=str(message.dict()).encode(),
+                body=str(payload).encode(),
                 content_type='application/json',
             ),
             routing_key=binding_key,

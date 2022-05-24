@@ -3,9 +3,9 @@ from typing import List
 from uuid import uuid4
 
 from aio_pika import IncomingMessage
-from sqlalchemy.orm import Session
-from app import logging
 
+from app import logging
+from app.db import Session
 from app.models import ParkingSlot
 
 
@@ -19,7 +19,7 @@ async def update_parking_slot_to_reserved_by_uuid(message: IncomingMessage) -> P
 
         ps = await update_parking_slot(session, ps)
 
-    logging.info(f'Parking slot with UUID {ps.id} has been reserved!')
+    logging.info(f'Parking slot with UUID {ps.uuid} has been reserved!')
 
     return ps
 
@@ -43,4 +43,5 @@ async def parking_slot_list(session: Session) -> List[ParkingSlot]:
 
 
 async def parking_slot_details(session: Session, uuid: str) -> ParkingSlot:
+    print('uuid ', uuid)
     return session.query(ParkingSlot).filter(ParkingSlot.uuid == uuid).one()
