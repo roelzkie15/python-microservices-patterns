@@ -19,7 +19,7 @@ There are 3 microservices that will work together to demonstrate this pattern. W
 
 1. _**Parking Service**_ listens to **BILL_PAID_EVENT**  then modify parking space status to _reserved_ and fires **RESERVED_BOOKING_EVENT**.
 
-1. _**Booking Service**_ listens to **RESERVED_BOOKING_EVENT** and set the current booking request to _reserved_.
+1. _**Booking Service**_ listens to **RESERVED_BOOKING_EVENT** and set the current booking request to _done_.
 
 ## Compensating (Rollback) Transaction in Choreograhpy pattern
 
@@ -27,6 +27,6 @@ There are 3 microservices that will work together to demonstrate this pattern. W
 
 1. _**Parking Service**_ publishes **PARKING_UNAVAILABLE_EVENT**, and _**Booking Service**_ listens to it and updates booking request status to _failed_.
 
-1. _**Billing Service**_ listens to **PARKING_UNAVAILABLE_EVENT** updates billing status to _failed_ and refund payment to customer.
+1. _**Billing Service**_ listens to **PARKING_UNAVAILABLE_EVENT** updates billing status to _refunded_ and refund payment to customer.
 
 > **Important:** Participating microservices should recognize transactions by using unique identifiers from a certain event to know what transaction is being processed.
