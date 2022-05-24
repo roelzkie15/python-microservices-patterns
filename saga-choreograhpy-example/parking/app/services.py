@@ -43,5 +43,4 @@ async def parking_slot_list(session: Session) -> List[ParkingSlot]:
 
 
 async def parking_slot_details(session: Session, uuid: str) -> ParkingSlot:
-    print('uuid ', uuid)
     return session.query(ParkingSlot).filter(ParkingSlot.uuid == uuid).one()

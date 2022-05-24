@@ -70,9 +70,10 @@ class AMQPClient:
             durable=True
         )
 
+        payload = message.dict()
         await exchange.publish(
             Message(
-                body=str(message.dict()).encode(),
+                body=str(payload).encode(),
                 content_type='application/json',
             ),
             routing_key=binding_key,

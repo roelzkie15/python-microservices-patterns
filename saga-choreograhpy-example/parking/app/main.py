@@ -6,6 +6,9 @@ from app.db import Session
 from app.schema import schema
 from app.services import update_parking_slot_to_reserved_by_uuid
 
+# Signals
+from app.signals import parking_slot_receive_after_update
+
 app = FastAPI()
 
 
