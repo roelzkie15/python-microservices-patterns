@@ -6,7 +6,7 @@ from strawberry.fastapi import GraphQLRouter
 from app.amqp_client import AMQPClient
 from app.db import Session
 from app.schema import schema
-from app.services import create_billing_request_from_event
+from app.services import create_billing_request_from_event, set_billing_request_status_from_event
 
 app = FastAPI()
 
@@ -16,6 +16,7 @@ async def startup():
     amqp_client: AMQPClient = await AMQPClient().init()
 
     await amqp_client.event_consumer(create_billing_request_from_event, 'BOOKING_TX_EVENT_STORE', 'booking.created', 'booking_events')
+    await amqp_client.event_consumer(set_billing_request_status_from_event, 'BOOKING_TX_EVENT_STORE', 'parking.unavailable')
 
     app.state.amqp_client = amqp_client
 

@@ -5,18 +5,35 @@ from uuid import uuid4
 from aio_pika import IncomingMessage
 
 from app import logging
+from app.amqp_client import AMQPClient
 from app.db import Session
-from app.models import ParkingSlot
+from app.models import AMQPMessage, ParkingSlot
 
 
 async def update_parking_slot_to_reserved_by_uuid(message: IncomingMessage) -> ParkingSlot:
     decoded_message = ast.literal_eval(str(message.body.decode()))
-    logging.info(f'Received message {str(decoded_message)}')
 
     with Session() as session:
         ps = await parking_slot_details(session, decoded_message['id'])
-        ps.status = 'reserved'
 
+        # If status is already reserved.
+        if ps.status == 'reserved':
+            amqp_client: AMQPClient = await AMQPClient().init()
+
+            await amqp_client.event_producer(
+                'BOOKING_TX_EVENT_STORE', 'parking.unavailable',
+                message=AMQPMessage(
+                    id=str(ps.uuid),
+                    content={'status': 'unavailable'}
+                )
+            )
+
+            await amqp_client.connection.close()
+
+            logging.info(f'Parking slot with UUID {ps.uuid} is unavailable!')
+            return None
+
+        ps.status = 'reserved'
         ps = await update_parking_slot(session, ps)
 
     logging.info(f'Parking slot with UUID {ps.uuid} has been reserved!')
@@ -30,8 +47,11 @@ async def update_parking_slot(session: Session, ps: ParkingSlot) -> ParkingSlot:
     return ps
 
 
-async def create_parking_slot(session: Session, name: str) -> ParkingSlot:
-    ps = ParkingSlot(uuid=str(uuid4()), name=name)
+async def create_parking_slot(session: Session, **kwargs) -> ParkingSlot:
+    ps = ParkingSlot(uuid=str(uuid4()))
+
+    {setattr(ps, k, v) for k,v in kwargs.items()}
+
     session.add(ps)
     session.commit()
     session.refresh(ps)

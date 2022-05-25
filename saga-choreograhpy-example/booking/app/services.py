@@ -9,17 +9,21 @@ from app.db import Session
 from app.models import Booking
 
 
-async def set_booking_to_done_on_reserved(message: IncomingMessage):
+async def set_booking_to_status_from_event(message: IncomingMessage):
     decoded_message = ast.literal_eval(str(message.body.decode()))
-    logging.info(f'Received message {str(decoded_message)}')
 
     with Session() as session:
         booking = await booking_details_by_parking_slot_uuid(session, decoded_message['id'])
-        booking.status = 'done'
+
+        if decoded_message['content']['status'] == 'unavailable':
+            booking.status = 'failed'
+        else:
+            # reserved.
+            booking.status = 'done'
 
         await update_booking(session, booking)
 
-    logging.info(f'Booking with ID {booking.id} was marked as done!')
+    logging.info(f'Booking with ID {booking.id} was marked as {booking.status}!')
 
     return booking
 

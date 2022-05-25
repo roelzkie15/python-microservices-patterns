@@ -12,12 +12,26 @@ from app.db import Session
 
 async def create_billing_request_from_event(message: IncomingMessage):
     decoded_message = ast.literal_eval(str(message.body.decode()))
-    logging.info(f'Received message {str(decoded_message)}')
 
     with Session() as session:
         br = await create_billing_request(session, decoded_message['id'])
 
     logging.info(f'Billing request with ID {br.id} was created!')
+
+    return br
+
+
+async def set_billing_request_status_from_event(message: IncomingMessage):
+    decoded_message = ast.literal_eval(str(message.body.decode()))
+
+    with Session() as session:
+        br = await billing_request_details_by_reference_no(session, decoded_message['id'])
+
+        if decoded_message['content']['status'] == 'unavailable':
+            br.status = 'refunded'
+            await update_billing_request(session, br)
+
+    logging.info(f'Billing request with ID {br.id} was {br.status}!')
 
     return br
 
