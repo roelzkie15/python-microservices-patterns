@@ -41,7 +41,7 @@ async def booking_list(session: Session) -> List[Booking]:
 
 
 async def create_booking(session: Session, parking_slot_uuid: str) -> Booking:
-    booking = Booking(parking_slot_uuid=parking_slot_uuid)
+    booking = Booking(parking_slot_uuid=parking_slot_uuid, status='pending')
     session.add(booking)
     session.commit()
     session.refresh(booking)
