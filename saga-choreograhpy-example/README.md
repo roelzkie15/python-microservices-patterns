@@ -30,6 +30,8 @@ In order to demonstrate the publish and subscribe pattern, we will have to prepa
 
 Before we book, we will need to create atleast 1 available parking slot.
 
+> Important: Make sure you ssh to the Parking service container via `docker exec -it <parking_service_container_id> bash`
+
 1. Create an available parking slot.
 
     ```
@@ -64,6 +66,10 @@ Before we book, we will need to create atleast 1 available parking slot.
 #### Booking service
 
 Right after we created an available parking slot, customer will need to request a booking for that specific slot.
+
+
+> Important: Make sure you ssh to the Booking service container via `docker exec -it <booking_service_container_id> bash`
+
 
 1. To request a booking, you may need to:
 
@@ -102,6 +108,8 @@ Right after we created an available parking slot, customer will need to request 
 #### Billing Service
 
 A billing request for the customer is created right after booking a parking slot. Customer may pay the bill later on by using this service.
+
+> Important: Make sure you ssh to the Billing service container via `docker exec -it <billing_service_container_id> bash`
 
 1. Billing service listens to _**CREATE_BOOKING_EVENT**_ which in turn create a new billing request. To get the billing request details you need to:
 
@@ -171,6 +179,8 @@ A billing request for the customer is created right after booking a parking slot
     Now the payment reconciliation made by the customer is shown and the billing request status is set to `paid`.
 
 #### Parking and Booking Services
+
+> Important: Make sure you ssh to the Billing service container via `docker exec -it <parking or booking service_container_id> bash`
 
 1. After payment has been made. Parking Service listen to _**BILL_PAID_EVENT**_ and if payment is successful it will set the parking slot status to `reserved`. To confirm that we can get the parking slot details again using:
 
