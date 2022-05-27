@@ -196,6 +196,8 @@ A billing request for the customer is created right after booking a parking slot
     parking_slot_uuid: 76cd294f-7b4c-4e72-b204-44fb542104b4
     ```
 
+If you follow the above workflow and instructure correctly, you should notice the interservice communication between participating microservices.
+
 ## Compensating (Rollback) Transaction in Choreograhpy pattern
 
 ![saga-choreography-rollback-pattern](https://github.com/roelzkie15/python-microservices-patterns/blob/master/saga-choreograhpy-example/resources/saga-choreography-pattern-rb-transaction.png)
