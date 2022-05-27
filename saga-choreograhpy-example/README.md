@@ -28,6 +28,8 @@ In order to demonstrate the architecture we will have to prepare and operate dat
 
 #### I. Parking Service
 
+Before we book a parking slot, we need to create atleast 1 available parking slot.
+
 1. Create an available parking slot.
 
     ```
@@ -60,6 +62,8 @@ In order to demonstrate the architecture we will have to prepare and operate dat
     ```
 
 #### II. Booking service
+
+Right after we create an available parking slot customer will need to request a booking for the specific slot.
 
 1. To request a booking, you may need to:
 
@@ -96,6 +100,8 @@ In order to demonstrate the architecture we will have to prepare and operate dat
     ```
 
 #### III. Billing Service
+
+A billing request for the customer is created right after they book a parking slot. Customer may pay the bill by using this service.
 
 1. Billing service listens to `CREATE_BOOKING_EVENT` which in turns create a new billing request. To get the billing request details you need to:
 
