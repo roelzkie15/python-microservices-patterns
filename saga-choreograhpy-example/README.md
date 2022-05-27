@@ -196,7 +196,7 @@ A billing request for the customer is created right after booking a parking slot
     parking_slot_uuid: 76cd294f-7b4c-4e72-b204-44fb542104b4
     ```
 
-If you follow the above workflow and instruction correctly, you should notice the interservice communication between participating microservices.
+If you follow the above workflow and instructions correctly, you should notice the interservice communication between participating microservices.
 
 ## Compensating (Rollback) Transaction in Choreograhpy pattern
 
