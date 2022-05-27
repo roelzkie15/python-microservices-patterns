@@ -26,7 +26,7 @@ In order to demonstrate the architecture we will have to prepare and operate dat
 
 > Important: You may need to ssh to the given service container via `docker exec -it <service_container_id> bash` to set and operate data via CLI.
 
-#### 1. Parking Service
+#### I. Parking Service
 
 1. Create an available parking slot.
 
@@ -59,7 +59,7 @@ In order to demonstrate the architecture we will have to prepare and operate dat
     status: available
     ```
 
-#### 2. Booking service
+#### II. Booking service
 
 1. To request a booking, you may need to:
 
@@ -95,7 +95,7 @@ In order to demonstrate the architecture we will have to prepare and operate dat
     parking_slot_uuid: 76cd294f-7b4c-4e72-b204-44fb542104b4
     ```
 
-#### 3. Billing Service
+#### III. Billing Service
 
 1. Billing service listens to `CREATE_BOOKING_EVENT` which in turns create a new billing request. To get the billing request details you need to:
 
@@ -163,7 +163,7 @@ In order to demonstrate the architecture we will have to prepare and operate dat
 
     Now the payment reconciliation made by the customer is shown and the billing request status is set to `paid`.
 
-#### 4. Parking and Boooking Services
+#### IV. Parking and Boooking Services
 
 1. After payment has been made. Parking Service listen to `BILL_PAID_EVENT` and if payment is successful it will set the parking slot status to `reserved`. To confirm that we can get the parking slot details again using:
 
