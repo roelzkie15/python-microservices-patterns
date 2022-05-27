@@ -12,6 +12,8 @@ There are 3 microservices that will work together to demonstrate this pattern. W
 
 ![saga-choreography-pattern](https://github.com/roelzkie15/python-microservices-patterns/blob/master/saga-choreograhpy-example/resources/saga-choreography-pattern.png)
 
+### Workflow
+
 1. _**Booking Service**_ creates a new booking request, set the state to _pending_, publish an event called **CREATE_BOOKING_EVENT**.
 
 1. _**Billing Service**_ listens to **CREATE_BOOKING_EVENT** creates a billing request and charge the customer. When Payment has been made, trigger **BILL_PAID_EVENT**.
@@ -20,9 +22,7 @@ There are 3 microservices that will work together to demonstrate this pattern. W
 
 1. _**Booking Service**_ listens to **RESERVED_BOOKING_EVENT** and set the current booking request to _done_.
 
-### Workflow
-
-In order to demonstrate the architecture we will have to prepare and operate data by creating parking slots, booking the slot and reserving the slot after the customer paid the billing total.
+In order to demonstrate the publish and subscribe pattern, we will have to prepare and operate data by creating parking slot, booking the slot and reserving the slot after the customer paid the billing total.
 
 > Important: You may need to ssh to the given service container via `docker exec -it <service_container_id> bash` to set and operate data via CLI.
 
@@ -63,7 +63,7 @@ Before we book, we will need to create atleast 1 available parking slot.
 
 #### Booking service
 
-Right after we create an available parking slot, customer will need to request a booking for the specific slot.
+Right after we created an available parking slot, customer will need to request a booking for that specific slot.
 
 1. To request a booking, you may need to:
 
@@ -101,9 +101,9 @@ Right after we create an available parking slot, customer will need to request a
 
 #### Billing Service
 
-A billing request for the customer is created right after they book a parking slot. Customer may pay the bill by using this service.
+A billing request for the customer is created right after booking a parking slot. Customer may pay the bill later on by using this service.
 
-1. Billing service listens to `CREATE_BOOKING_EVENT` which in turns create a new billing request. To get the billing request details you need to:
+1. Billing service listens to _**CREATE_BOOKING_EVENT**_ which in turn create a new billing request. To get the billing request details you need to:
 
     ```
     poetry run python -m app.cli billing_request_details_by_reference_no --ref_no='76cd294f-7b4c-4e72-b204-44fb542104b4'
@@ -118,7 +118,7 @@ A billing request for the customer is created right after they book a parking sl
     reconciliations: []
     ```
 
-    This will show billing request object and a payment reconciliations that should be made to the bill by the customer.
+    This will show `billing_request` object and the payment `reconciliations` object that should be made by the customer.
 
     > Note: `ref_no` should be equal to the `parking_slot_uuid`.
 
@@ -128,10 +128,11 @@ A billing request for the customer is created right after they book a parking sl
     poetry run python -m app.cli billing_request_list
 
     # Output
+    ...
     {'id': 41, 'total': Decimal('100.00'), 'status': 'pending', 'reference_no': '76cd294f-7b4c-4e72-b204-44fb542104b4'}
     ```
 
-1. Customers will then need to pay the bills issued to them. To do that we should:
+1. Customers will then need to pay the bills issued to them. To do that we should use this:
 
     ```
     poetry run python -m app.cli pay_bill --ref_no='76cd294f-7b4c-4e72-b204-44fb542104b4' --amount=100
@@ -169,9 +170,9 @@ A billing request for the customer is created right after they book a parking sl
 
     Now the payment reconciliation made by the customer is shown and the billing request status is set to `paid`.
 
-#### Parking and Boooking Services
+#### Parking and Booking Services
 
-1. After payment has been made. Parking Service listen to `BILL_PAID_EVENT` and if payment is successful it will set the parking slot status to `reserved`. To confirm that we can get the parking slot details again using:
+1. After payment has been made. Parking Service listen to _**BILL_PAID_EVENT**_ and if payment is successful it will set the parking slot status to `reserved`. To confirm that we can get the parking slot details again using:
 
     ```
     poetry run python -m app.cli parking_slot_details --uuid='76cd294f-7b4c-4e72-b204-44fb542104b4'
@@ -186,7 +187,7 @@ A billing request for the customer is created right after they book a parking sl
 
     > FYI: After the parking slot is set to `reserved`, it will fire the _**RESERVED_BOOKING_EVENT**_.
 
-1. Also Booking Service listens to _**RESERVED_BOOKING_EVENT**_, once it received an event it will set the booking request status to `done`.
+1. Also Booking Service listens to _**RESERVED_BOOKING_EVENT**_, once it receive an event it will set the booking request status to `done`.
 
     ```
     poetry run python -m app.cli booking_details_by_parking_slot_uuid --uuid='76cd294f-7b4c-4e72-b204-44fb542104b4'
