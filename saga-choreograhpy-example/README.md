@@ -7,7 +7,6 @@ There are 3 microservices that will work together to demonstrate this pattern. W
 - FastAPI
 - RabbitMQ
 - Postgres
-- GraphQL
 
 ## Saga's Choreography Publish/Subscribe Event
 
