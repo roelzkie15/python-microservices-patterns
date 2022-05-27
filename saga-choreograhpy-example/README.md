@@ -24,13 +24,11 @@ There are 3 microservices that will work together to demonstrate this pattern. W
 
 In order to demonstrate the publish and subscribe pattern, we will have to prepare and operate data by creating parking slot, booking the slot and reserving the slot after the customer paid the billing total.
 
-> Important: You may need to ssh to the given service container via `docker exec -it <service_container_id> bash` to set and operate data via CLI.
+> **Important**: You may need to ssh to the given service container via `docker exec -it <service_container_id> bash` for the CLI work.
 
 #### Parking Service
 
 Before we book, we will need to create atleast 1 available parking slot.
-
-> Important: Make sure you ssh to the Parking service container via `docker exec -it <parking_service_container_id> bash`
 
 1. Create an available parking slot.
 
@@ -67,10 +65,6 @@ Before we book, we will need to create atleast 1 available parking slot.
 
 Right after we created an available parking slot, customer will need to request a booking for that specific slot.
 
-
-> Important: Make sure you ssh to the Booking service container via `docker exec -it <booking_service_container_id> bash`
-
-
 1. To request a booking, you may need to:
 
     ```
@@ -82,7 +76,7 @@ Right after we created an available parking slot, customer will need to request 
     parking_slot_uuid: 76cd294f-7b4c-4e72-b204-44fb542104b4
     ```
 
-    > FYI: This operation will publish the _**CREATE_BOOKING_EVENT**_.
+    > **FYI**: This operation will publish the _**CREATE_BOOKING_EVENT**_.
 
 1. To list all bookings:
 
@@ -109,8 +103,6 @@ Right after we created an available parking slot, customer will need to request 
 
 A billing request for the customer is created right after booking a parking slot. Customer may pay the bill later on by using this service.
 
-> Important: Make sure you ssh to the Billing service container via `docker exec -it <billing_service_container_id> bash`
-
 1. Billing service listens to _**CREATE_BOOKING_EVENT**_ which in turn create a new billing request. To get the billing request details you need to:
 
     ```
@@ -128,7 +120,7 @@ A billing request for the customer is created right after booking a parking slot
 
     This will show `billing_request` object and the payment `reconciliations` object that should be made by the customer.
 
-    > Note: `ref_no` should be equal to the `parking_slot_uuid`.
+    > **Note**: `ref_no` should be equal to the `parking_slot_uuid`.
 
 1. You can also list all the billing requests using:
 
@@ -153,7 +145,7 @@ A billing request for the customer is created right after booking a parking slot
 
     > Note: All biling-request total is default to 100.00.
 
-    > FYI: Following this action will trigger the _**BILL_PAID_EVENT**_.
+    > **FYI**: Following this action will trigger the _**BILL_PAID_EVENT**_.
 
 1. Now let us check the billing-request details once again:
 
@@ -180,8 +172,6 @@ A billing request for the customer is created right after booking a parking slot
 
 #### Parking and Booking Services
 
-> Important: Make sure you ssh to the Billing service container via `docker exec -it <parking or booking service_container_id> bash`
-
 1. After payment has been made. Parking Service listen to _**BILL_PAID_EVENT**_ and if payment is successful it will set the parking slot status to `reserved`. To confirm that we can get the parking slot details again using:
 
     ```
@@ -195,7 +185,7 @@ A billing request for the customer is created right after booking a parking slot
 
     Parking **Slot 1** has been reserved.
 
-    > FYI: After the parking slot is set to `reserved`, it will fire the _**RESERVED_BOOKING_EVENT**_.
+    > **FYI**: After the parking slot is set to `reserved`, it will fire the _**RESERVED_BOOKING_EVENT**_.
 
 1. Also Booking Service listens to _**RESERVED_BOOKING_EVENT**_, once it receive an event it will set the booking request status to `done`.
 
