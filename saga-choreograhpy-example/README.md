@@ -26,9 +26,9 @@ In order to demonstrate the architecture we will have to prepare and operate dat
 
 > Important: You may need to ssh to the given service container via `docker exec -it <service_container_id> bash` to set and operate data via CLI.
 
-#### I. Parking Service
+#### Parking Service
 
-Before we book a parking slot, we need to create atleast 1 available parking slot.
+Before we book, we will need to create atleast 1 available parking slot.
 
 1. Create an available parking slot.
 
@@ -41,7 +41,7 @@ Before we book a parking slot, we need to create atleast 1 available parking slo
     status: available
     ```
 
-1. You can also list all parking slots:
+1. You can also list all parking slots by:
 
     ```
     poetry run python -m app.cli parking_slot_list
@@ -61,9 +61,9 @@ Before we book a parking slot, we need to create atleast 1 available parking slo
     status: available
     ```
 
-#### II. Booking service
+#### Booking service
 
-Right after we create an available parking slot customer will need to request a booking for the specific slot.
+Right after we create an available parking slot, customer will need to request a booking for the specific slot.
 
 1. To request a booking, you may need to:
 
@@ -99,7 +99,7 @@ Right after we create an available parking slot customer will need to request a 
     parking_slot_uuid: 76cd294f-7b4c-4e72-b204-44fb542104b4
     ```
 
-#### III. Billing Service
+#### Billing Service
 
 A billing request for the customer is created right after they book a parking slot. Customer may pay the bill by using this service.
 
@@ -169,7 +169,7 @@ A billing request for the customer is created right after they book a parking sl
 
     Now the payment reconciliation made by the customer is shown and the billing request status is set to `paid`.
 
-#### IV. Parking and Boooking Services
+#### Parking and Boooking Services
 
 1. After payment has been made. Parking Service listen to `BILL_PAID_EVENT` and if payment is successful it will set the parking slot status to `reserved`. To confirm that we can get the parking slot details again using:
 
