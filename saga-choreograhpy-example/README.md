@@ -143,7 +143,7 @@ A billing request for the customer is created right after booking a parking slot
     billing_request_id: 41
     ```
 
-    > Note: All biling-request total is default to 100.00.
+    > **Note**: All biling-request total is default to 100.00.
 
     > **FYI**: Following this action will trigger the _**BILL_PAID_EVENT**_.
 
