@@ -143,7 +143,7 @@ A billing request for the customer is created right after booking a parking slot
     poetry run python -m app.cli pay_bill --ref_no='9f2570bd-021b-4b51-881e-bb04fdce4fda:3698f6d0-bfad-41d5-b675-e58684cbde17' --amount=100
 
     # Output
-    id:                 46
+    id:                 1
     amount:             100.00
     billing_request_id: 1
     ```
@@ -164,7 +164,7 @@ A billing request for the customer is created right after booking a parking slot
     }
     reconciliations: [
         {
-            'id': 46,
+            'id': 1,
             'amount': Decimal('100.00'),
             'billing_request_id': 1
         }
