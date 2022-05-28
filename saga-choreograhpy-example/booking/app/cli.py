@@ -1,11 +1,11 @@
 
 import fire
 
-from app.db import Session
-from app.services import (booking_details_by_parking_slot_uuid, booking_list,
-                          create_booking)
 from app.amqp_client import AMQPClient
+from app.db import Session
 from app.models import AMQPMessage
+from app.services import (booking_details_by_parking_ref_no, booking_list,
+                          create_booking)
 
 
 class AppCLI(object):
@@ -19,7 +19,7 @@ class AppCLI(object):
 
             amqp_client: AMQPClient = await AMQPClient().init()
             await amqp_client.event_producer(
-                'BOOKING_TX_EVENT_STORE', 'booking.created', message=AMQPMessage(id=str(booking.parking_slot_uuid), content=obj)
+                'BOOKING_TX_EVENT_STORE', 'booking.created', message=AMQPMessage(id=booking.parking_slot_ref_no, content=obj)
             )
             await amqp_client.connection.close()
 
@@ -34,9 +34,9 @@ class AppCLI(object):
                 for booking in b_list
             ]
 
-    async def booking_details_by_parking_slot_uuid(self, uuid: str):
+    async def booking_details_by_parking_ref_no(self, uuid: str):
         with Session() as session:
-            booking = await booking_details_by_parking_slot_uuid(session, uuid)
+            booking = await booking_details_by_parking_ref_no(session, uuid)
             return dict((col, getattr(booking, col)) for col in booking.__table__.columns.keys())
 
 

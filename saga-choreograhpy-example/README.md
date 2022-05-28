@@ -36,7 +36,7 @@ Before we book, we will need to create atleast 1 available parking slot.
     poetry run python -m app.cli create_parking --name='Slot 1'
 
     # Output:
-    uuid:   76cd294f-7b4c-4e72-b204-44fb542104b4
+    uuid:   9f2570bd-021b-4b51-881e-bb04fdce4fda
     name:   Slot 1
     status: available
     ```
@@ -48,15 +48,15 @@ Before we book, we will need to create atleast 1 available parking slot.
 
     # Output
     ...
-    {"uuid": "76cd294f-7b4c-4e72-b204-44fb542104b4", "name": "Slot 1", "status": "available"}
+    {"uuid": "9f2570bd-021b-4b51-881e-bb04fdce4fda", "name": "Slot 1", "status": "available"}
     ```
 
 1. Or get a parking slot details by
     ```
-    poetry run python -m app.cli parking_slot_details --uuid='76cd294f-7b4c-4e72-b204-44fb542104b4'
+    poetry run python -m app.cli parking_slot_details --uuid='9f2570bd-021b-4b51-881e-bb04fdce4fda'
 
     # Output
-    uuid:   76cd294f-7b4c-4e72-b204-44fb542104b4
+    uuid:   9f2570bd-021b-4b51-881e-bb04fdce4fda
     name:   Slot 1
     status: available
     ```
@@ -68,15 +68,20 @@ Right after we created an available parking slot, customer will need to request 
 1. To request a booking, you may need to:
 
     ```
-    poetry run python -m app.cli create_booking --parking_slot_uuid='76cd294f-7b4c-4e72-b204-44fb542104b4'
+    poetry run python -m app.cli create_booking --parking_slot_uuid='9f2570bd-021b-4b51-881e-bb04fdce4fda'
 
     # Output
     id:                43
     status:            pending
-    parking_slot_uuid: 76cd294f-7b4c-4e72-b204-44fb542104b4
+    parking_slot_ref_no: 9f2570bd-021b-4b51-881e-bb04fdce4fda:3698f6d0-bfad-41d5-b675-e58684cbde17
     ```
 
-    > **Note**: This operation will publish the _**CREATE_BOOKING_EVENT**_.
+    > **Note**: Notice the additional uuid from the parking_slot_ref_no output `<parking_slot_uuid>:<booking_identifier_uuid>`.
+    > This will serves as a unique identifier for the booking record to identify transaction.
+    > Since customers may happen to book the same parking slot.
+    > This case will also be used to trigger rollback transaction later on.
+    >
+    > This operation will publish the _**CREATE_BOOKING_EVENT**_.
 
 1. To list all bookings:
 
@@ -85,18 +90,18 @@ Right after we created an available parking slot, customer will need to request 
 
     # Output
     ...
-    {"id": 43, "status": "pending", "parking_slot_uuid": "76cd294f-7b4c-4e72-b204-44fb542104b4"}
+    {"id": 43, "status": "pending", "parking_slot_ref_no": "9f2570bd-021b-4b51-881e-bb04fdce4fda:3698f6d0-bfad-41d5-b675-e58684cbde17"}
     ```
 
 1. Or get booking details by:
 
     ```
-    poetry run python -m app.cli booking_details_by_parking_slot_uuid --uuid='76cd294f-7b4c-4e72-b204-44fb542104b4'
+    poetry run python -m app.cli booking_details_by_parking_ref_no --uuid='9f2570bd-021b-4b51-881e-bb04fdce4fda:3698f6d0-bfad-41d5-b675-e58684cbde17'
 
     # Output
     id:                43
     status:            pending
-    parking_slot_uuid: 76cd294f-7b4c-4e72-b204-44fb542104b4
+    booking_details_by_parking_ref_no: 9f2570bd-021b-4b51-881e-bb04fdce4fda:3698f6d0-bfad-41d5-b675-e58684cbde17
     ```
 
 #### Billing Service
@@ -106,14 +111,14 @@ A billing request for the customer is created right after booking a parking slot
 1. Billing service listens to _**CREATE_BOOKING_EVENT**_ which in turn create a new billing request. To get the billing request details you need to:
 
     ```
-    poetry run python -m app.cli billing_request_details_by_reference_no --ref_no='76cd294f-7b4c-4e72-b204-44fb542104b4'
+    poetry run python -m app.cli billing_request_details_by_reference_no --ref_no='9f2570bd-021b-4b51-881e-bb04fdce4fda:3698f6d0-bfad-41d5-b675-e58684cbde17'
 
     # Output
     billing_request: {
         'id': 41,
         'total': Decimal('100.00'),
         'status': 'pending',
-        'reference_no': '76cd294f-7b4c-4e72-b204-44fb542104b4'
+        'reference_no': '9f2570bd-021b-4b51-881e-bb04fdce4fda:3698f6d0-bfad-41d5-b675-e58684cbde17'
     }
     reconciliations: []
     ```
@@ -129,13 +134,13 @@ A billing request for the customer is created right after booking a parking slot
 
     # Output
     ...
-    {'id': 41, 'total': Decimal('100.00'), 'status': 'pending', 'reference_no': '76cd294f-7b4c-4e72-b204-44fb542104b4'}
+    {'id': 41, 'total': Decimal('100.00'), 'status': 'pending', 'reference_no': '9f2570bd-021b-4b51-881e-bb04fdce4fda:3698f6d0-bfad-41d5-b675-e58684cbde17'}
     ```
 
 1. Customers will then need to pay the bills issued to them. To do that we should use this:
 
     ```
-    poetry run python -m app.cli pay_bill --ref_no='76cd294f-7b4c-4e72-b204-44fb542104b4' --amount=100
+    poetry run python -m app.cli pay_bill --ref_no='9f2570bd-021b-4b51-881e-bb04fdce4fda:3698f6d0-bfad-41d5-b675-e58684cbde17' --amount=100
 
     # Output
     id:                 46
@@ -148,14 +153,14 @@ A billing request for the customer is created right after booking a parking slot
 1. Now let us check the billing-request details once again:
 
     ```
-    poetry run python -m app.cli billing_request_details_by_reference_no --ref_no='76cd294f-7b4c-4e72-b204-44fb542104b4'
+    poetry run python -m app.cli billing_request_details_by_reference_no --ref_no='9f2570bd-021b-4b51-881e-bb04fdce4fda:3698f6d0-bfad-41d5-b675-e58684cbde17'
 
     # Output
     billing_request: {
         'id': 41,
         'total': Decimal('100.00'),
         'status': 'paid',
-        'reference_no': '76cd294f-7b4c-4e72-b204-44fb542104b4'
+        'reference_no': '9f2570bd-021b-4b51-881e-bb04fdce4fda:3698f6d0-bfad-41d5-b675-e58684cbde17'
     }
     reconciliations: [
         {
@@ -173,10 +178,10 @@ A billing request for the customer is created right after booking a parking slot
 1. After payment has been made. Parking Service listen to _**BILL_PAID_EVENT**_ and if payment is successful it will set the parking slot status to `reserved`. To confirm that we can get the parking slot details again using:
 
     ```
-    poetry run python -m app.cli parking_slot_details --uuid='76cd294f-7b4c-4e72-b204-44fb542104b4'
+    poetry run python -m app.cli parking_slot_details --uuid='9f2570bd-021b-4b51-881e-bb04fdce4fda'
 
     # Output
-    uuid:   76cd294f-7b4c-4e72-b204-44fb542104b4
+    uuid:   9f2570bd-021b-4b51-881e-bb04fdce4fda
     name:   Slot 1
     status: reserved
     ```
@@ -188,12 +193,12 @@ A billing request for the customer is created right after booking a parking slot
 1. Also Booking Service listens to _**RESERVED_BOOKING_EVENT**_, once it receive an event it will set the booking request status to `done`.
 
     ```
-    poetry run python -m app.cli booking_details_by_parking_slot_uuid --uuid='76cd294f-7b4c-4e72-b204-44fb542104b4'
+    poetry run python -m app.cli booking_details_by_parking_ref_no --uuid='9f2570bd-021b-4b51-881e-bb04fdce4fda:3698f6d0-bfad-41d5-b675-e58684cbde17'
 
     # Output
     id:                43
     status:            done
-    parking_slot_uuid: 76cd294f-7b4c-4e72-b204-44fb542104b4
+    parking_slot_uuid: 9f2570bd-021b-4b51-881e-bb04fdce4fda:3698f6d0-bfad-41d5-b675-e58684cbde17
     ```
 
 If you follow the above workflow and instructions correctly, you should notice the interservice communication between participating microservices.
@@ -202,8 +207,44 @@ If you follow the above workflow and instructions correctly, you should notice t
 
 ![saga-choreography-rollback-pattern](https://github.com/roelzkie15/python-microservices-patterns/blob/master/saga-choreograhpy-example/resources/saga-choreography-pattern-rb-transaction.png)
 
+### Workflow
+
 1. _**Parking Service**_ publishes **PARKING_UNAVAILABLE_EVENT**, and _**Booking Service**_ listens to it and updates booking request status to _failed_.
 
 1. _**Billing Service**_ listens to **PARKING_UNAVAILABLE_EVENT** refund payment to customer and updates billing status to _refunded_.
 
 > **Note:** Participating microservices should recognize transactions by using unique identifiers from a certain event to know what transaction is being processed.
+
+To produce this workflow we will have to request a new booking request for an already _reserved_ parking slot. In this case it's the parking slot record with `76cd294f-7b4c-4e72-b204-44fb542104b4` uuid.
+
+> **Note**: You may need to ssh to the given service container via `docker exec -it <service_container_id> bash` for the CLI to work.
+
+#### Booking Service
+
+1. Create a booking for an already reserved parking slot.
+
+    ```
+    poetry run python -m app.cli create_booking --parking_slot_uuid='76cd294f-7b4c-4e72-b204-44fb542104b4'
+
+    # Output
+    id:                45
+    status:            pending
+    parking_slot_uuid: 76cd294f-7b4c-4e72-b204-44fb542104b4    
+    ```
+
+    This will trigger the _**CREATED_BOOKING_EVENT**_ and will create a new billing request for this booking.
+
+1. Check the newly created billing request by getting the billing details
+
+    ```
+    poetry run python -m app.cli billing_request_details_by_reference_no --ref_no='76cd294f-7b4c-4e72-b204-44fb542104b4'
+
+    # Output
+    billing_request: {
+        'id': 41,
+        'total': Decimal('100.00'),
+        'status': 'pending',
+        'reference_no': '76cd294f-7b4c-4e72-b204-44fb542104b4'
+    }
+    reconciliations: []
+    ```

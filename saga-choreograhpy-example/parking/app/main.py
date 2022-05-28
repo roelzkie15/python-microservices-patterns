@@ -1,10 +1,7 @@
 from fastapi import FastAPI
 
 from app.amqp_client import AMQPClient
-from app.services import update_parking_slot_to_reserved_by_uuid
-
-# Signals
-from app.signals import parking_slot_receive_after_update
+from app.services import update_parking_slot_to_reserved_by_ref_no
 
 app = FastAPI()
 
@@ -13,7 +10,7 @@ app = FastAPI()
 async def startup():
     amqp_client: AMQPClient = await AMQPClient().init()
 
-    await amqp_client.event_consumer(update_parking_slot_to_reserved_by_uuid, 'BOOKING_TX_EVENT_STORE', 'bill.paid', 'billing_events')
+    await amqp_client.event_consumer(update_parking_slot_to_reserved_by_ref_no, 'BOOKING_TX_EVENT_STORE', 'bill.paid', 'billing_events')
 
     app.state.amqp_client = amqp_client
 

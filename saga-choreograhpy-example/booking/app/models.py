@@ -12,7 +12,7 @@ class Booking(Base):
     id = Column(Integer, primary_key=True, unique=True, index=True)
     status = Column(String, nullable=False, server_default='created')
 
-    parking_slot_uuid = Column(String, nullable=True)
+    parking_slot_ref_no = Column(String, nullable=True)
 
 
 class AMQPMessage(BaseModel):

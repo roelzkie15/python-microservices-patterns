@@ -10,31 +10,42 @@ from app.db import Session
 from app.models import AMQPMessage, ParkingSlot
 
 
-async def update_parking_slot_to_reserved_by_uuid(message: IncomingMessage) -> ParkingSlot:
+async def update_parking_slot_to_reserved_by_ref_no(message: IncomingMessage) -> ParkingSlot:
     decoded_message = ast.literal_eval(str(message.body.decode()))
 
     with Session() as session:
-        ps = await parking_slot_details(session, decoded_message['id'])
+        reference_no = decoded_message['id']
+
+        # Get the parking-slot identifier only.
+        parking_slot_uuid = reference_no.split(':')[0]
+        ps = await parking_slot_details(session, parking_slot_uuid)
+
+        amqp_client: AMQPClient = await AMQPClient().init()
 
         # If status is already reserved.
         if ps.status == 'reserved':
-            amqp_client: AMQPClient = await AMQPClient().init()
-
             await amqp_client.event_producer(
                 'BOOKING_TX_EVENT_STORE', 'parking.unavailable',
                 message=AMQPMessage(
-                    id=str(ps.uuid),
+                    id=reference_no,
                     content={'status': 'unavailable'}
                 )
             )
-
             await amqp_client.connection.close()
-
             logging.info(f'Parking slot with UUID {ps.uuid} is unavailable!')
             return None
 
         ps.status = 'reserved'
         ps = await update_parking_slot(session, ps)
+
+        amqp_client: AMQPClient = await AMQPClient().init()
+        await amqp_client.event_producer(
+            'BOOKING_TX_EVENT_STORE', 'parking.reserved',
+            message=AMQPMessage(
+                id=reference_no, content={'status': 'reserved'}
+            )
+        )
+        await amqp_client.connection.close()
 
     logging.info(f'Parking slot with UUID {ps.uuid} has been reserved!')
 

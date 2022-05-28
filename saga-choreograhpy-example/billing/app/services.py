@@ -38,7 +38,7 @@ async def set_billing_request_status_from_event(message: IncomingMessage):
 
 async def create_billing_request(session: Session, uuid: str, total: Decimal = Decimal('100.00')) -> BillingRequest:
     '''
-    Assuming all billing request total is cost $100.00
+    Assuming all billing request total is cost $100.00.
     '''
     br = BillingRequest(reference_no=uuid, total=total)
     session.add(br)
