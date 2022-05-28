@@ -71,15 +71,15 @@ Right after we created an available parking slot, customer will need to request 
     poetry run python -m app.cli create_booking --parking_slot_uuid='9f2570bd-021b-4b51-881e-bb04fdce4fda'
 
     # Output
-    id:                43
+    id:                1
     status:            pending
     parking_slot_ref_no: 9f2570bd-021b-4b51-881e-bb04fdce4fda:3698f6d0-bfad-41d5-b675-e58684cbde17
     ```
 
-    > **Note**: Notice the additional uuid from the parking_slot_ref_no output `<parking_slot_uuid>:<booking_identifier_uuid>`.
-    > This will serves as a unique identifier for the booking record to identify transaction.
-    > Since customers may happen to book the same parking slot.
-    > This case will also be used to trigger rollback transaction later on.
+    > **Note**: Notice the additional uuid on the `parking_slot_ref_no` output `<parking_slot_uuid>:<booking_identifier_uuid>`.
+    > This will serve as a unique identifier for the booking record to identify transaction.
+    > Since customers may happen to book the same parking slot we will use this case
+    > to trigger rollback transaction later on.
     >
     > This operation will publish the _**CREATE_BOOKING_EVENT**_.
 
@@ -90,7 +90,7 @@ Right after we created an available parking slot, customer will need to request 
 
     # Output
     ...
-    {"id": 43, "status": "pending", "parking_slot_ref_no": "9f2570bd-021b-4b51-881e-bb04fdce4fda:3698f6d0-bfad-41d5-b675-e58684cbde17"}
+    {"id": 1, "status": "pending", "parking_slot_ref_no": "9f2570bd-021b-4b51-881e-bb04fdce4fda:3698f6d0-bfad-41d5-b675-e58684cbde17"}
     ```
 
 1. Or get booking details by:
@@ -99,7 +99,7 @@ Right after we created an available parking slot, customer will need to request 
     poetry run python -m app.cli booking_details_by_parking_ref_no --uuid='9f2570bd-021b-4b51-881e-bb04fdce4fda:3698f6d0-bfad-41d5-b675-e58684cbde17'
 
     # Output
-    id:                43
+    id:                1
     status:            pending
     booking_details_by_parking_ref_no: 9f2570bd-021b-4b51-881e-bb04fdce4fda:3698f6d0-bfad-41d5-b675-e58684cbde17
     ```
@@ -115,7 +115,7 @@ A billing request for the customer is created right after booking a parking slot
 
     # Output
     billing_request: {
-        'id': 41,
+        'id': 1,
         'total': Decimal('100.00'),
         'status': 'pending',
         'reference_no': '9f2570bd-021b-4b51-881e-bb04fdce4fda:3698f6d0-bfad-41d5-b675-e58684cbde17'
@@ -123,9 +123,9 @@ A billing request for the customer is created right after booking a parking slot
     reconciliations: []
     ```
 
-    This will show `billing_request` object and the payment `reconciliations` object that should be made by the customer.
+    This will show `billing_request` object and the payment `reconciliations` object that should be made by the customer later on.
 
-    > **Note**: `ref_no` should be equal to the `parking_slot_uuid`.
+    > **Note**: `ref_no` should be equal to the `Booking.parking_slot_ref_no`.
 
 1. You can also list all the billing requests using:
 
@@ -134,10 +134,10 @@ A billing request for the customer is created right after booking a parking slot
 
     # Output
     ...
-    {'id': 41, 'total': Decimal('100.00'), 'status': 'pending', 'reference_no': '9f2570bd-021b-4b51-881e-bb04fdce4fda:3698f6d0-bfad-41d5-b675-e58684cbde17'}
+    {'id': 1, 'total': Decimal('100.00'), 'status': 'pending', 'reference_no': '9f2570bd-021b-4b51-881e-bb04fdce4fda:3698f6d0-bfad-41d5-b675-e58684cbde17'}
     ```
 
-1. Customers will then need to pay the bills issued to them. To do that we should use this:
+1. Customers will then need to pay the bills issued to them. To do that we should do this:
 
     ```
     poetry run python -m app.cli pay_bill --ref_no='9f2570bd-021b-4b51-881e-bb04fdce4fda:3698f6d0-bfad-41d5-b675-e58684cbde17' --amount=100
@@ -145,10 +145,10 @@ A billing request for the customer is created right after booking a parking slot
     # Output
     id:                 46
     amount:             100.00
-    billing_request_id: 41
+    billing_request_id: 1
     ```
 
-    > **Note**: All biling-request total is default to 100.00. Following this action will trigger the _**BILL_PAID_EVENT**_.
+    > **Note**: All biling-requests total are default to 100.00. Following this action will trigger the _**BILL_PAID_EVENT**_.
 
 1. Now let us check the billing-request details once again:
 
@@ -157,7 +157,7 @@ A billing request for the customer is created right after booking a parking slot
 
     # Output
     billing_request: {
-        'id': 41,
+        'id': 1,
         'total': Decimal('100.00'),
         'status': 'paid',
         'reference_no': '9f2570bd-021b-4b51-881e-bb04fdce4fda:3698f6d0-bfad-41d5-b675-e58684cbde17'
@@ -166,7 +166,7 @@ A billing request for the customer is created right after booking a parking slot
         {
             'id': 46,
             'amount': Decimal('100.00'),
-            'billing_request_id': 41
+            'billing_request_id': 1
         }
     ]
     ```
@@ -196,12 +196,12 @@ A billing request for the customer is created right after booking a parking slot
     poetry run python -m app.cli booking_details_by_parking_ref_no --uuid='9f2570bd-021b-4b51-881e-bb04fdce4fda:3698f6d0-bfad-41d5-b675-e58684cbde17'
 
     # Output
-    id:                43
+    id:                1
     status:            done
     parking_slot_uuid: 9f2570bd-021b-4b51-881e-bb04fdce4fda:3698f6d0-bfad-41d5-b675-e58684cbde17
     ```
 
-If you follow the above workflow and instructions correctly, you should notice the interservice communication between participating microservices.
+If you follow the above workflow and instructions correctly, you should notice the interservice communications between participating microservices.
 
 ## Compensating (Rollback) Transaction in Choreograhpy pattern
 
@@ -241,7 +241,7 @@ To produce this workflow we will have to request a new booking request for an al
 
     # Output
     billing_request: {
-        'id': 41,
+        'id': 1,
         'total': Decimal('100.00'),
         'status': 'pending',
         'reference_no': '76cd294f-7b4c-4e72-b204-44fb542104b4'
