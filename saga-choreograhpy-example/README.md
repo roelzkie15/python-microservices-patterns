@@ -211,7 +211,7 @@ A billing request for the customer is created right after booking a parking slot
 
 1. _**Billing Service**_ listens to **PARKING_UNAVAILABLE_EVENT** refund payment to customer and updates billing status to _refunded_.
 
-> **Note:** Participating microservices should recognize transactions by using unique identifiers from a certain event to know what transaction is being processed.
+> **Note**: Participating microservices should recognize transactions by using unique identifiers from a certain event to know what transaction is being processed.
 
 To produce this workflow we will have to request a new booking request for an already _reserved_ parking slot. In this case it's the parking slot record with `9f2570bd-021b-4b51-881e-bb04fdce4fda` uuid.
 
