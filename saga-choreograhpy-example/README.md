@@ -61,7 +61,7 @@ Before we book, we will need to create atleast 1 available parking slot.
     status: available
     ```
 
-#### Booking service
+#### Booking Service
 
 Right after we created an available parking slot, customer will need to request a booking for that specific slot.
 
@@ -81,7 +81,7 @@ Right after we created an available parking slot, customer will need to request 
     > Since customers may happen to book the same parking slot we will use this case
     > to trigger rollback transaction later on.
     >
-    > This operation will publish the _**CREATE_BOOKING_EVENT**_.
+    > This operation will publish the **CREATE_BOOKING_EVENT**.
 
 1. To list all bookings:
 
@@ -108,7 +108,7 @@ Right after we created an available parking slot, customer will need to request 
 
 A billing request for the customer is created right after booking a parking slot. Customer may pay the bill later on by using this service.
 
-1. Billing service listens to _**CREATE_BOOKING_EVENT**_ which in turn create a new billing request. To get the billing request details you need to:
+1. Billing service listens to **CREATE_BOOKING_EVENT** which in turn create a new billing request. To get the billing request details you need to:
 
     ```
     poetry run python -m app.cli billing_request_details_by_reference_no --ref_no='9f2570bd-021b-4b51-881e-bb04fdce4fda:3698f6d0-bfad-41d5-b675-e58684cbde17'
@@ -148,7 +148,7 @@ A billing request for the customer is created right after booking a parking slot
     billing_request_id: 1
     ```
 
-    > **Note**: All biling-requests total are default to 100.00. Following this action will trigger the _**BILL_PAID_EVENT**_.
+    > **Note**: All biling-requests total are default to 100.00. Following this action will trigger the **BILL_PAID_EVENT**.
 
 1. Now let us check the billing-request details once again:
 
@@ -175,7 +175,7 @@ A billing request for the customer is created right after booking a parking slot
 
 #### Parking and Booking Services
 
-1. After payment has been made. Parking Service listen to _**BILL_PAID_EVENT**_ and if payment is successful it will set the parking slot status to `reserved`. To confirm that we can get the parking slot details again using:
+1. After payment has been made. Parking Service listen to **BILL_PAID_EVENT** and if payment is successful it will set the parking slot status to `reserved`. To confirm that we can get the parking slot details again using:
 
     ```
     poetry run python -m app.cli parking_slot_details --uuid='9f2570bd-021b-4b51-881e-bb04fdce4fda'
@@ -188,9 +188,9 @@ A billing request for the customer is created right after booking a parking slot
 
     Parking **Slot 1** has been reserved.
 
-    > **Note**: After the parking slot is set to `reserved`, it will fire the _**RESERVED_BOOKING_EVENT**_.
+    > **Note**: After the parking slot is set to `reserved`, it will fire the **RESERVED_BOOKING_EVENT**.
 
-1. Also Booking Service listens to _**RESERVED_BOOKING_EVENT**_, once it receive an event it will set the booking request status to `done`.
+1. Also Booking Service listens to **RESERVED_BOOKING_EVENT**, once it receive an event it will set the booking request status to `done`.
 
     ```
     poetry run python -m app.cli booking_details_by_parking_ref_no --uuid='9f2570bd-021b-4b51-881e-bb04fdce4fda:3698f6d0-bfad-41d5-b675-e58684cbde17'
@@ -200,8 +200,6 @@ A billing request for the customer is created right after booking a parking slot
     status:            done
     parking_slot_uuid: 9f2570bd-021b-4b51-881e-bb04fdce4fda:3698f6d0-bfad-41d5-b675-e58684cbde17
     ```
-
-If you follow the above workflow and instructions correctly, you should notice the interservice communications between participating microservices.
 
 ## Compensating (Rollback) Transaction in Choreograhpy pattern
 
@@ -215,7 +213,7 @@ If you follow the above workflow and instructions correctly, you should notice t
 
 > **Note:** Participating microservices should recognize transactions by using unique identifiers from a certain event to know what transaction is being processed.
 
-To produce this workflow we will have to request a new booking request for an already _reserved_ parking slot. In this case it's the parking slot record with `76cd294f-7b4c-4e72-b204-44fb542104b4` uuid.
+To produce this workflow we will have to request a new booking request for an already _reserved_ parking slot. In this case it's the parking slot record with `9f2570bd-021b-4b51-881e-bb04fdce4fda` uuid.
 
 > **Note**: You may need to ssh to the given service container via `docker exec -it <service_container_id> bash` for the CLI to work.
 
@@ -224,27 +222,82 @@ To produce this workflow we will have to request a new booking request for an al
 1. Create a booking for an already reserved parking slot.
 
     ```
-    poetry run python -m app.cli create_booking --parking_slot_uuid='76cd294f-7b4c-4e72-b204-44fb542104b4'
+    poetry run python -m app.cli create_booking --parking_slot_uuid='9f2570bd-021b-4b51-881e-bb04fdce4fda'
 
     # Output
-    id:                45
+    id:                2
     status:            pending
-    parking_slot_uuid: 76cd294f-7b4c-4e72-b204-44fb542104b4    
+    parking_slot_uuid: 9f2570bd-021b-4b51-881e-bb04fdce4fda:946eed09-eb61-4d88-a49a-ebc520d54552
     ```
 
-    This will trigger the _**CREATED_BOOKING_EVENT**_ and will create a new billing request for this booking.
+    This will trigger the **CREATED_BOOKING_EVENT** and will create a new billing request for this booking.
+
+#### Billing Service
 
 1. Check the newly created billing request by getting the billing details
 
     ```
-    poetry run python -m app.cli billing_request_details_by_reference_no --ref_no='76cd294f-7b4c-4e72-b204-44fb542104b4'
+    poetry run python -m app.cli billing_request_details_by_reference_no --ref_no='9f2570bd-021b-4b51-881e-bb04fdce4fda:946eed09-eb61-4d88-a49a-ebc520d54552'
 
     # Output
     billing_request: {
-        'id': 1,
+        'id': 2,
         'total': Decimal('100.00'),
         'status': 'pending',
-        'reference_no': '76cd294f-7b4c-4e72-b204-44fb542104b4'
+        'reference_no': '9f2570bd-021b-4b51-881e-bb04fdce4fda:946eed09-eb61-4d88-a49a-ebc520d54552'
     }
     reconciliations: []
     ```
+
+1. Attempt to pay the billing-request that is associated to the already _reserved_ parking slot booking request.
+
+    ```
+    poetry run python -m app.cli pay_bill --ref_no='9f2570bd-021b-4b51-881e-bb04fdce4fda:946eed09-eb61-4d88-a49a-ebc520d54552' --amount=100
+
+    # Output
+    id:                 2
+    amount:             100.00
+    billing_request_id: 2
+    ```
+
+    This action will fire **BILL_PAID_EVENT** where _**Parking Service**_ listens to. The parking service will try to evaluate the status of the parking slot. In our case this is already _reserved_ and will fire a new event called **PARKING_UNAVAILABLE_EVENT**.
+
+#### Booking Service
+
+This service listens to the **PARKING_UNAVAILABLE_EVENT**. If a message was received, it will set the booking record status to _failed_.
+
+1. Check the status of the given booking transaction:
+
+    ```
+    poetry run python -m app.cli booking_details_by_parking_ref_no --uuid='9f2570bd-021b-4b51-881e-bb04fdce4fda:946eed09-eb61-4d88-a49a-ebc520d54552'
+
+    # Output
+    id:                  2
+    status:              failed
+    parking_slot_ref_no: 9f2570bd-021b-4b51-881e-bb04fdce4fda:946eed09-eb61-4d88-a49a-ebc520d54552
+    ```
+
+#### Billing Service
+
+This service listens to the **PARKING_UNAVAILABLE_EVENT**. If a message was received, it will set the billing status to _refunded_. Customer may need to be refunded for all failed parking reservations.
+
+1. Check the status of the billing record:
+
+    ```
+    poetry run python -m app.cli billing_request_details_by_reference_no --ref_no='9f2570bd-021b-4b51-881e-bb04fdce4fda:946eed09-eb61-4d88-a49a-ebc520d54552'
+
+    # Output
+    billing_request: {
+        'id': 2,
+        'total': Decimal('100.00'),
+        'status': 'refunded',
+        'reference_no': '9f2570bd-021b-4b51-881e-bb04fdce4fda:946eed09-eb61-4d88-a49a-ebc520d54552'
+    }
+    reconciliations: [
+        {'id': 2, 'amount': Decimal('100.00'), 'billing_request_id': 2}
+    ]
+    ```
+
+### Conclusion
+
+If you follow the above workflow and instructions correctly, you should notice the interservice communications between participating microservices via publish/subscribe event by using Saga Choreography pattern.
