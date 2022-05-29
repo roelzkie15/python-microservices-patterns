@@ -323,6 +323,7 @@ If you follow the above workflow and instructions correctly, you should notice t
 
 ### Benefits and drawbacks of Saga's Choreograhpy Pattern
 
-- No additional centralized logic.
+- No additional complexity.
 - Very simple and easy to implement with smaller workflows.
 - Hard to maintain when it grows.
+- Cyclic dependency between partipating services.
