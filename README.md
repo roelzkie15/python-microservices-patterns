@@ -4,7 +4,7 @@
 [Saga](#saga)
 
 ## Saga
-When you use architecture with Database per Service then Saga is a way to go for distributed transactions.
+When you use architecture with Database per Service then Saga is a way to go for distributed transactions to maintain data consitency across multiple services.
 
 A Saga is a sequence of local transactions and each transaction will publish messages or events that triggers the next local transaction.
 
