@@ -7,6 +7,27 @@ There are 3 microservices that will work together to demonstrate this pattern. W
 - FastAPI
 - RabbitMQ
 - Postgres
+- Docker
+
+## Running the applications
+
+You must be in the root directory of this repository (python-microservices-patterns) where the `docker-compose-saga-choreography.yml` file is located at and not in the saga-choreogprahy-example directory.
+
+- Build saga choreograhpy docker images:
+
+    ```
+    docker-compose -f docker-compose-saga-choreography.yml build --no-cache
+    ```
+- Run the services via docker-compose:
+
+    ```
+    docker-compose -f docker-compose-saga-choreography.yml up
+    ```
+
+- Booking service is running at localhost:8000
+- Billing service is running at localhost:8001
+- Parking service is running at localhost:8002
+- To check the server health just append `/health` url at the end of the `localhost:port` (e.g. `localhost:8000/health`)
 
 ## Saga's Choreography Publish/Subscribe Event
 
@@ -298,6 +319,10 @@ This service listens to the **PARKING_UNAVAILABLE_EVENT**. If a message was rece
     ]
     ```
 
-### Conclusion
-
 If you follow the above workflow and instructions correctly, you should notice the interservice communications between participating microservices via publish/subscribe event by using Saga Choreography pattern.
+
+### Benefits and drawbacks of Saga's Choreograhpy Pattern
+
+- No additional centralized logic.
+- Very simple and easy to implement with smaller workflows.
+- Hard to maintain when it grows.
