@@ -11,7 +11,7 @@ There are 3 microservices that will work together to demonstrate this pattern. W
 
 ## Running the applications
 
-You must be in the root directory of this repository (python-microservices-patterns) where the `docker-compose-saga-choreography.yml` file is located at and not in the saga-choreogprahy-example directory.
+You must be in the root directory of this repository (python-microservices-patterns) where the `docker-compose-saga-choreography.yml` file is located at and not in the saga-choreograhpy-example directory.
 
 - Build saga choreograhpy docker images:
 
@@ -326,5 +326,5 @@ If you follow the above workflows and instructions correctly, you should notice 
 - No additional complexity for coordination logic.
 - Very simple and easy to implement with smaller workflows.
 - Hard to maintain when it grows.
-- Cyclic dependency between partipating services.
+- Cyclic dependency between participating services.
 - Hard to tests since you will need to run all applications that are involved to a specifc workflow.
