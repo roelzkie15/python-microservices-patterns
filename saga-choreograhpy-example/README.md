@@ -327,3 +327,4 @@ If you follow the above workflow and instructions correctly, you should notice t
 - Very simple and easy to implement with smaller workflows.
 - Hard to maintain when it grows.
 - Cyclic dependency between partipating services.
+- Hard to tests since you will need to run all applications that are involved to a specifc workflow.
