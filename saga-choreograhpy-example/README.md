@@ -33,7 +33,7 @@ You must be in the root directory of this repository (python-microservices-patte
 
 ![saga-choreography-pattern](https://github.com/roelzkie15/python-microservices-patterns/blob/master/saga-choreograhpy-example/resources/saga-choreography-pattern.png)
 
-### Workflow
+### Workflows
 
 1. _**Booking Service**_ creates a new booking request, set the state to _pending_, publish an event called **CREATE_BOOKING_EVENT**.
 
@@ -226,7 +226,7 @@ A billing request for the customer is created right after booking a parking slot
 
 ![saga-choreography-rollback-pattern](https://github.com/roelzkie15/python-microservices-patterns/blob/master/saga-choreograhpy-example/resources/saga-choreography-pattern-rb-transaction.png)
 
-### Workflow
+### Workflows
 
 1. _**Parking Service**_ publishes **PARKING_UNAVAILABLE_EVENT**, and _**Booking Service**_ listens to it and updates booking request status to _failed_.
 
