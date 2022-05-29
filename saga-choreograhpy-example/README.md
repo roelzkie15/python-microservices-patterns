@@ -319,7 +319,7 @@ This service listens to the **PARKING_UNAVAILABLE_EVENT**. If a message was rece
     ]
     ```
 
-If you follow the above workflow and instructions correctly, you should notice the interservice communications between participating microservices via publish/subscribe event by using Saga Choreography pattern.
+If you follow the above workflows and instructions correctly, you should notice the interservice communications between participating microservices via publish/subscribe event by using Saga Choreography pattern.
 
 ## Benefits and drawbacks of Saga's Choreograhpy Pattern
 
