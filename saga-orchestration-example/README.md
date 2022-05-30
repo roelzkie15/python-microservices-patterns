@@ -19,4 +19,4 @@ To demonstrate this pattern we will still have to use the same distributed syste
 
 1. The **Parking Service** will check the availability of the parking slot base on the customer's booking request and will send a reply to the **BSO** via **Booking Saga Orchestrator Reply Channel**. 
 
-1. The **BSO** will either reject or approve the booking based on the outcome of the **Parking Service** reply.
+1. The **BSO** will either reject or approve the booking based on the outcome of the _**parking.check_availability**_ reply from the **Parking Service**.
