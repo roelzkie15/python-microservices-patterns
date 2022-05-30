@@ -4,11 +4,11 @@
 [Saga](#saga)
 
 ## Saga
-When you use architecture **Database per Service** then **Saga** is a way to go for distributed transactions to maintain data consitency across multiple services.
+When you use Architecture Database per Service then Saga is a way to go for distributed transactions to maintain data consistency across multiple services.
 
-A Saga is a sequence of local transactions and each transaction will publish messages or events that triggers the next local transaction.
+A Saga is a sequence of local transactions and each transaction will publish messages or events that trigger the next local transaction.
 
-If something went wrong to a participating microservice there should be a compensating transaction to undo the changes that were made by the preceding local transactions.
+If something goes wrong to a participating microservice, there should be a compensating transaction to undo the changes that were made by the preceding local transactions.
 
 There are two popular Saga patterns:
 - [__Choreography__](https://github.com/roelzkie15/python-microservice-patterns/tree/master/saga-choreograhpy-example) - Where microservices publish a message/event from a local transaction and trigger subscribers or participating microservices for the next local transaction.
