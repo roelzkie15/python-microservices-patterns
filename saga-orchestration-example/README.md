@@ -11,7 +11,7 @@ To demonstrate this pattern we will still have to use the same distributed syste
 
 ## Saga's Orchestration/Command Logic
 
-### Worklows
+### Workflows
 
 1. Customers request a booking for a parking slot and will start the **Booking Saga Orchestrator** or **BSO**.
 
