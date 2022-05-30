@@ -13,8 +13,10 @@ To demonstrate this pattern we will still have to use the same distributed syste
 
 ### Workflows
 
-1. Customers request a booking for a parking slot and will start the **Booking Saga Orchestrator** or **BSO**.
+1. Customer request a booking for a parking slot and will start the **Booking Saga Orchestrator** or **BSO**.
 
 1. The **BSO** will create a new booking record with _pending_ status. It will then send a _**parking.check_availability**_ command to the **Parking Service** through the **Parking Channel**.
 
-1. The **Parking Service** will check the availability of the parking slot base on the customer's booking and will send a reply to the **BSO** via **Booking Saga Orchestrator Reply Channel**. The **BSO** will either reject or approve the booking based on the outcome of the **Parking Service** reply.
+1. The **Parking Service** will check the availability of the parking slot base on the customer's booking request and will send a reply to the **BSO** via **Booking Saga Orchestrator Reply Channel**. 
+
+1. The **BSO** will either reject or approve the booking based on the outcome of the **Parking Service** reply.
