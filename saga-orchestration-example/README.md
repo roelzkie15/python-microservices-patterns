@@ -21,6 +21,6 @@ To demonstrate this pattern we will still have to use the same distributed syste
 
 1. The **Parking Service** will check the availability of the parking slot base on the customer's booking request and will send a reply to the **BSO** via **Booking Saga Orchestrator Reply Channel**.
 
-    1. If the **Parking Service** sent a _**parking.available**_ to the reply channel, the **BSO** will fire **booking.approve** command to **Booking Service** and **billing.create** command to **Billing Service**.
+    - If the **Parking Service** sent a _**parking.available**_ to the reply channel, the **BSO** will fire **booking.approve** command to **Booking Service** and **billing.create** command to **Billing Service**.
 
-    1. If the **Parking Service** sent a _**parking.unavailable**_ to the reply channel, the **BSO** will fire **booking.rejected** command to **Booking Service**.
+    - If the **Parking Service** sent a _**parking.unavailable**_ to the reply channel, the **BSO** will fire **booking.rejected** command to **Booking Service**.
