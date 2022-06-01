@@ -25,8 +25,8 @@ To demonstrate this pattern we will still have to use the same distributed syste
 
     1. If the <b>Parking Service</b> sent a <b><i>parking.available</i></b> to the reply channel, the <b>BSO</b> will fire <b>booking.approved</b> command to <b>Booking Service</b> to update the booking status and <b>billing.create</b> command to <b>Billing Service</b> to create bills to customers.
 
-    ![parking-available](https://github.com/roelzkie15/python-microservices-patterns/blob/master/saga-orchestration-example/resources/saga-orchestration-4a.png)
+        ![parking-available](https://github.com/roelzkie15/python-microservices-patterns/blob/master/saga-orchestration-example/resources/saga-orchestration-4a.png)
 
     1. If the <b>Parking Service</b> sent a <i><b>parking.unavailable</b></i> to the reply channel, the <b>BSO</b> will fire <b>booking.rejected<b> command to <b>Booking Service</b> to update the booking status.
 
-    ![parking-unavailable](https://github.com/roelzkie15/python-microservices-patterns/blob/master/saga-orchestration-example/resources/saga-orchestration-4b.png)
+        ![parking-unavailable](https://github.com/roelzkie15/python-microservices-patterns/blob/master/saga-orchestration-example/resources/saga-orchestration-4b.png)
