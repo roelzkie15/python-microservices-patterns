@@ -29,7 +29,7 @@ To demonstrate this pattern we will still have to use the same distributed syste
 
 ### Workflows
 
+![saga-orchestration-pattern-rb-transaction](https://github.com/roelzkie15/python-microservices-patterns/blob/master/saga-orchestration-example/resources/saga-orchestration-pattern-rb-transaction.png)
+
 1. The <b>Parking Service</b> sent a <i><b>parking.unavailable</b></i> to the reply channel.
 1. The <b>BSO</b> will fire <b>booking.rejected</b> command to <b>Booking Service</b> to update the booking status to _rejected_.
-
-    ![saga-orchestration-pattern-rb-transaction](https://github.com/roelzkie15/python-microservices-patterns/blob/master/saga-orchestration-example/resources/saga-orchestration-pattern-rb-transaction.png)
