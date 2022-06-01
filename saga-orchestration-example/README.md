@@ -23,10 +23,13 @@ To demonstrate this pattern we will still have to use the same distributed syste
 
 1. The **Parking Service** will check the availability of the parking slot base on the customer's booking request and will send a reply to the **BSO** via **Booking Saga Orchestrator Reply Channel**.
 
-    1. If the <b>Parking Service</b> sent a <b><i>parking.available</i></b> to the reply channel, the <b>BSO</b> will fire <b>booking.approved</b> command to <b>Booking Service</b> to update the booking status and <b>billing.create</b> command to <b>Billing Service</b> to create bills to customers.
+1. If the <b>Parking Service</b> sent a <b><i>parking.available</i></b> to the reply channel, the <b>BSO</b> will fire <b>booking.approved</b> command to <b>Booking Service</b> to update the booking status and <b>billing.create</b> command to <b>Billing Service</b> to create bills to customers.
 
-        ![parking-available](https://github.com/roelzkie15/python-microservices-patterns/blob/master/saga-orchestration-example/resources/saga-orchestration-4a.png)
+## Compensating (Rollback) Transaction in Orchestration pattern
 
-    1. If the <b>Parking Service</b> sent a <i><b>parking.unavailable</b></i> to the reply channel, the <b>BSO</b> will fire <b>booking.rejected<b> command to <b>Booking Service</b> to update the booking status.
+### Workflows
 
-        ![parking-unavailable](https://github.com/roelzkie15/python-microservices-patterns/blob/master/saga-orchestration-example/resources/saga-orchestration-4b.png)
+1. The <b>Parking Service</b> sent a <i><b>parking.unavailable</b></i> to the reply channel.
+1. The <b>BSO</b> will fire <b>booking.rejected<b> command to <b>Booking Service</b> to update the booking status to _rejected_.
+
+    ![saga-orchestration-pattern-rb-transaction](https://github.com/roelzkie15/python-microservices-patterns/blob/master/saga-orchestration-example/resources/saga-orchestration-pattern-rb-transaction.png)
