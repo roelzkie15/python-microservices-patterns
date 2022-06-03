@@ -169,3 +169,6 @@ postgres/
 redis/
 
 .DS_Store
+
+# SQLite
+*.sqlite3

@@ -29,7 +29,7 @@ services:
     environment:
       - ENVIRONMENT=dev
       - TESTING=0
-      - DATABASE_URL=sqlite:////code/parking_db.db
+      - DATABASE_URL=sqlite:////code/parking_db.sqlite3
       - RABBITMQ_BROKER_URL=amqp://guest:guest@rabbit:5671
     depends_on:
       - so-rabbit
