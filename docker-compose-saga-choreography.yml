@@ -2,7 +2,7 @@ version: '3'
 
 services:
 
-  db:
+  sc-db:
     image: postgres:13
     restart: unless-stopped
     environment:
@@ -12,7 +12,7 @@ services:
     ports:
       - '5434:5432'
 
-  rabbit:
+  sc-rabbit:
     image: rabbitmq:3.9.15-management-alpine
     restart: unless-stopped
     environment:
@@ -24,14 +24,14 @@ services:
     expose:
       - '5671'
 
-  booking:
+  sc-booking:
     build: $PWD/saga-choreograhpy-example/booking
     restart: unless-stopped
     entrypoint: ['/bin/sh','-c']
     command:
       - |
-        /code/wait-for-it.sh -t 0 db:5432
-        /code/wait-for-it.sh -t 0 rabbit:5671
+        /code/wait-for-it.sh -t 0 sc-db:5432
+        /code/wait-for-it.sh -t 0 sc-rabbit:5671
         /code/start_dev.sh
     volumes:
       - $PWD/saga-choreograhpy-example/booking:/code
@@ -43,18 +43,19 @@ services:
       - DATABASE_URL=postgresql://postgres:postgres@db:5432/postgres
       - RABBITMQ_BROKER_URL=amqp://guest:guest@rabbit:5671
     depends_on:
-      - db
-      - rabbit
+      - sc-db
+      - sc-rabbit
+      - sc-parking
 
-  billing:
+  sc-billing:
     build: $PWD/saga-choreograhpy-example/billing
     restart: unless-stopped
     entrypoint: ['/bin/sh','-c']
     command:
       - |
-        /code/wait-for-it.sh -t 0 db:5432
-        /code/wait-for-it.sh -t 0 rabbit:5671
-        /code/wait-for-it.sh -t 0 booking:8000
+        /code/wait-for-it.sh -t 0 sc-db:5432
+        /code/wait-for-it.sh -t 0 sc-rabbit:5671
+        /code/wait-for-it.sh -t 0 sc-booking:8000
         /code/start_dev.sh
     volumes:
       - $PWD/saga-choreograhpy-example/billing:/code
@@ -66,19 +67,19 @@ services:
       - DATABASE_URL=postgresql://postgres:postgres@db:5432/postgres
       - RABBITMQ_BROKER_URL=amqp://guest:guest@rabbit:5671
     depends_on:
-      - db
-      - rabbit
-      - booking
+      - sc-db
+      - sc-rabbit
+      - sc-booking
 
-  parking:
+  sc-parking:
     build: $PWD/saga-choreograhpy-example/parking
     restart: unless-stopped
     entrypoint: ['/bin/sh','-c']
     command:
       - |
-        /code/wait-for-it.sh -t 0 db:5432
-        /code/wait-for-it.sh -t 0 rabbit:5671
-        /code/wait-for-it.sh -t 0 billing:8000
+        /code/wait-for-it.sh -t 0 sc-db:5432
+        /code/wait-for-it.sh -t 0 sc-rabbit:5671
+        /code/wait-for-it.sh -t 0 sc-billing:8000
         /code/start_dev.sh
     volumes:
       - $PWD/saga-choreograhpy-example/parking:/code
@@ -90,6 +91,5 @@ services:
       - DATABASE_URL=postgresql://postgres:postgres@db:5432/postgres
       - RABBITMQ_BROKER_URL=amqp://guest:guest@rabbit:5671
     depends_on:
-      - db
-      - rabbit
-      - booking
+      - sc-db
+      - sc-rabbit
