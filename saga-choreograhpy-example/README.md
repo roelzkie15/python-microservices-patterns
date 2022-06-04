@@ -54,7 +54,7 @@ Before we book, we will need to create atleast 1 available parking slot.
 1. Create an available parking slot.
 
     ```
-    poetry run python -m app.cli create_parking --name='Slot 1'
+    poetry run python -m app.cli create_parking_slot --name='Slot 1'
 
     # Output:
     uuid:   9f2570bd-021b-4b51-881e-bb04fdce4fda

@@ -7,7 +7,7 @@ from app.services import (create_parking_slot, parking_slot_details,
 
 class AppCLI(object):
 
-    async def create_parking(self, name: str, status: str | None = 'available'):
+    async def create_parking_slot(self, name: str, status: str | None = 'available'):
         with Session() as session:
             ps = await create_parking_slot(session, name=name, status=status)
             return dict((col, getattr(ps, col)) for col in ps.__table__.columns.keys())
