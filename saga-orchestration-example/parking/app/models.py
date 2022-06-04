@@ -1,11 +1,16 @@
-from typing import Any
+from typing import Dict
 
 from sqlalchemy import Column, String
 
 from app.db import Base
 
 
-class ParkingSlot(Base):
+class DictMixin:
+    def to_dict(self) -> Dict:
+        return dict((col, getattr(self, col)) for col in self.__table__.columns.keys())
+
+
+class ParkingSlot(Base, DictMixin):
     __tablename__ = 'parking_slots'
 
     uuid = Column(String, primary_key=True, unique=True, index=True)
