@@ -9,7 +9,13 @@ from sqlalchemy.orm import relationship
 from app.db import Base
 
 
-class BillingRequest(Base):
+class DictMixin:
+
+    def to_dict(self):
+        return dict((col, getattr(self, col)) for col in self.__table__.columns.keys())
+
+
+class BillingRequest(Base, DictMixin):
     __tablename__ = 'billing_requests'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -38,7 +44,7 @@ class BillingRequest(Base):
         return Decimal(amount + self.total_paid)
 
 
-class PaymentReconciliation(Base):
+class PaymentReconciliation(Base, DictMixin):
     __tablename__ = 'payment_reconciliations'
 
     id = Column(Integer, primary_key=True, autoincrement=True)

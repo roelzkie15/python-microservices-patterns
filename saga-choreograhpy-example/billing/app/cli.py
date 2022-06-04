@@ -16,28 +16,15 @@ class AppCLI(object):
     async def billing_request_list(self):
         with Session() as session:
             br_list = await billing_request_list(session)
-            return [
-                dict(
-                    (col, getattr(br, col))
-                    for col in br.__table__.columns.keys()
-                )
-                for br in br_list
-            ]
+            return [br.to_dict() for br in br_list]
 
     async def billing_request_details_by_reference_no(self, ref_no: str):
         with Session() as session:
             billing_request = await billing_request_details_by_reference_no(session, ref_no=ref_no)
             billing_request_obj = {
-                'billing_request': dict(
-                    (col, getattr(billing_request, col))
-                    for col in billing_request.__table__.columns.keys()
-                ),
+                'billing_request': billing_request.to_dict(),
                 'reconciliations': [
-                    dict(
-                        (col, getattr(payment, col))
-                        for col in payment.__table__.columns.keys()
-                    )
-                    for payment in billing_request.payment_reconciliations
+                    payment.to_dict() for payment in billing_request.payment_reconciliations
                 ]
             }
             return billing_request_obj
@@ -45,10 +32,7 @@ class AppCLI(object):
     async def pay_bill(self, ref_no: str, amount: Decimal):
         with Session() as session:
             billing_request = await billing_request_details_by_reference_no(session, ref_no=ref_no)
-            billing_request_obj = dict(
-                (col, getattr(billing_request, col))
-                for col in billing_request.__table__.columns.keys()
-            )
+            billing_request_obj = billing_request.to_dict()
 
             if billing_request.status == 'paid':
                 return 'Billing request already paid.'
