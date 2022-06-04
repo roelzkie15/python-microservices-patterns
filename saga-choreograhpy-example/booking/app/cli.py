@@ -14,8 +14,7 @@ class AppCLI(object):
         with Session() as session:
             booking = await create_booking(session, parking_slot_uuid)
 
-            obj = dict((col, getattr(booking, col))
-                       for col in booking.__table__.columns.keys())
+            obj = booking.to_dict()
 
             amqp_client: AMQPClient = await AMQPClient().init()
             await amqp_client.event_producer(
@@ -29,15 +28,13 @@ class AppCLI(object):
         with Session() as session:
             b_list = await booking_list(session)
             return [
-                dict((col, getattr(booking, col))
-                     for col in booking.__table__.columns.keys())
-                for booking in b_list
+                booking.to_dict() for booking in b_list
             ]
 
     async def booking_details_by_parking_ref_no(self, uuid: str):
         with Session() as session:
             booking = await booking_details_by_parking_ref_no(session, uuid)
-            return dict((col, getattr(booking, col)) for col in booking.__table__.columns.keys())
+            return booking.to_dict()
 
 
 if __name__ == '__main__':

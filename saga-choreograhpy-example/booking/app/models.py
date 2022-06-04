@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Dict
 
 from pydantic import BaseModel
 from sqlalchemy import Column, String, Integer
@@ -6,7 +6,12 @@ from sqlalchemy import Column, String, Integer
 from app.db import Base
 
 
-class Booking(Base):
+class DictMixin:
+    def to_dict(self) -> Dict:
+        return dict((col, getattr(self, col)) for col in self.__table__.columns.keys())
+
+
+class Booking(Base, DictMixin):
     __tablename__ = 'bookings'
 
     id = Column(Integer, primary_key=True, unique=True, index=True)
