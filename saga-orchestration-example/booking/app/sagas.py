@@ -8,7 +8,9 @@ from aio_pika import Message, connect_robust
 from aio_pika.abc import AbstractIncomingMessage
 
 from app import settings
+from app.db import Session
 from app.models import Booking
+from app.services import create_booking
 
 P = ParamSpec('P')
 T = TypeVar('T')
@@ -22,20 +24,28 @@ class SagaRPC:
         self.futures: MutableMapping[str, asyncio.Future] = {}
         self.loop = asyncio.get_running_loop()
 
-    @contextlib.contextmanager
+    @contextlib.asynccontextmanager
     async def connect(self) -> "SagaRPC":
         try:
             self.connection = await connect_robust(
                 settings.RABBITMQ_BROKER_URL, loop=self.loop,
             )
             self.channel = await self.connection.channel()
+
+            self.exchange = await self.channel.declare_exchange(
+                'BOOKING_TX_EVENT_STORE',
+                type='topic',
+                durable=True
+            )
+
             self.callback_queue = await self.channel.declare_queue(exclusive=True)
+            await self.callback_queue.bind(self.exchange)
             await self.callback_queue.consume(self.on_response)
 
             yield self
 
         finally:
-            self.connection.close()
+            await self.connection.close()
 
     def on_response(self, message: AbstractIncomingMessage) -> None:
         if message.correlation_id is None:
@@ -46,16 +56,16 @@ class SagaRPC:
         future.set_result(message.body)
 
     async def start_workflow(self) -> Any:
-        for step_definition in self.definitions:
-            step_result = await step_definition
-            if not step_result:
+        for step_definition in await self.definitions:
+            is_step_success = await step_definition
+            if not is_step_success:
                 break
 
-    async def invoke_local(self, func: Callable[P, T], on_reply: List[tuple[str, Callable[P, T]]] | None):
-        return func(self.data)
+    async def invoke_local(self, func: Callable[P, T]):
+        return await func()
 
     async def invoke_participant(
-        self, command_name: str, on_reply: List[tuple[str, Callable[P, T]]] | None
+        self, command: str, on_reply: List[tuple[str, Callable[P, T]]] | None
     ) -> bool:
 
         correlation_id = str(uuid4())
@@ -63,20 +73,14 @@ class SagaRPC:
 
         self.futures[correlation_id] = future
 
-        exchange = await self.channel.declare_exchange(
-            exchange,
-            type='topic',
-            durable=True
-        )
-
-        await exchange.publish(
+        await self.exchange.publish(
             Message(
                 str(self.data).encode(),
                 content_type='application/json',
                 correlation_id=correlation_id,
                 reply_to=self.callback_queue.name,
             ),
-            routing_key=command_name,
+            routing_key=command,
         )
 
         reponse_data = await future
@@ -96,33 +100,49 @@ class SagaRPC:
 
 class CreateBookingRequestSaga(SagaRPC):
 
-    def __init__(self, bookingData: Booking) -> None:
-        self.data: Booking = bookingData
+    subject: Booking = None
+
+    def __init__(self, parking_slot_uuid: str) -> None:
+        super().__init__()
+        self.data: str = parking_slot_uuid
 
     @property
     async def definitions(self):
         return [
             self.invoke_local(self.create_booking),
             self.invoke_participant(
-                command_name='parking.check_availability',
+                command='parking.check_availability',
                 on_reply=[
+                    ('PARKING_AVAILABLE', self.parking_available),
                     ('PARKING_UNAVAILABLE', self.parking_unavailable),
                 ]
             ),
             self.invoke_local(self.approve_booking),
             self.invoke_participant(
-                command_name='bill.create'
+                command='bill.create',
+                on_reply=(
+                    ('BILL_CREATED', self.bill_created)
+                )
             ),
             self.invoke_local(self.billed_booking),
         ]
 
-    def create_booking(self, data):
+    async def create_booking(self):
+        # with Session() as session:
+        #     booking = await create_booking(session, self.data)
+        #     return booking.id is not None
+        return True
+
+    def parking_unavailable(self):
         pass
 
-    def parking_unavailable(self, data):
+    def parking_available(self):
         pass
 
     def approve_booking(self):
+        pass
+
+    def bill_created(self):
         pass
 
     def billed_booking(self):
