@@ -1,6 +1,5 @@
-from typing import Any, Dict
+from typing import Dict
 
-from pydantic import BaseModel
 from sqlalchemy import Column, Integer, String
 
 from app.db import Base
@@ -20,16 +19,11 @@ class Booking(Base, DictMixin):
     parking_slot_ref_no = Column(String, nullable=True)
 
 
-class SagaState(Base):
-    __tablename__ = 'saga_states'
+# class SagaState(Base):
+#     __tablename__ = 'saga_states'
 
-    id = Column(Integer, primary_key=True, unique=True, index=True)
-    correlation_id = Column(String, unique=True)
+#     id = Column(Integer, primary_key=True, unique=True, index=True)
+#     correlation_id = Column(String, unique=True)
 
-    type = Column(String)
-    status = Column(String, default='not_started')
-
-
-class AMQPMessage(BaseModel):
-    id: str
-    content: Any
+#     type = Column(String)
+#     status = Column(String, default='not_started')
