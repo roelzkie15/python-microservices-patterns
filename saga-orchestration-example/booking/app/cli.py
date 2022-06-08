@@ -2,16 +2,21 @@
 import fire
 
 from app.db import Session
+from app.models import Booking
 from app.services import (booking_details_by_parking_ref_no, booking_list,
                           create_booking)
+from app.sagas import CreateBookingRequestSaga
 
 
 class AppCLI(object):
 
     async def create_booking(self, parking_slot_uuid):
-        with Session() as session:
-            booking = await create_booking(session, parking_slot_uuid)
-            return booking.to_dict()
+            saga: CreateBookingRequestSaga = CreateBookingRequestSaga(
+                parking_slot_uuid=parking_slot_uuid
+            )
+
+            async with saga.connect() as saga:
+                await saga.start_workflow()
 
     async def booking_list(self):
         with Session() as session:
