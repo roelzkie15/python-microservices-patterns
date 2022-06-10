@@ -11,7 +11,7 @@ from app import settings
 
 
 async def reply_producer(
-    channel: str, correlation_id: str, data: str
+    reply_to: str, correlation_id: str, data: str
 ):
 
     connection = await aio_pika.connect_robust(
@@ -34,23 +34,22 @@ async def reply_producer(
             content_type='application/json',
             correlation_id=correlation_id
         ),
-        routing_key=channel,
+        routing_key=reply_to,
     )
 
     await connection.close()
 
 
-async def process_consumer(message: IncomingMessage):
+async def process_parking_commands(message: IncomingMessage):
     async with message.process(ignore_processed=True):
         await message.ack()
         print('so: messsage acknowledge in parking service')
-        print(message)
-        print(message.body)
 
-        # Bugy, unable to produce message.
-        await reply_producer(
-            message.reply_to, message.correlation_id, message.body.decode('utf-8')
-        )
+        response_obj = {
+            'content': message.body.decode('utf-8'),
+            'reply_state': 'PARKING_AVAILABLE'
+        }
+        await reply_producer(message.reply_to, message.correlation_id, str(response_obj))
 
 
 @contextlib.asynccontextmanager
@@ -70,9 +69,10 @@ async def lifespan(app):
             durable=True
         )
 
+        # Parking command channel.
         queue = await channel.declare_queue(auto_delete=True)
         await queue.bind(exchange, 'parking.*')
-        await queue.consume(process_consumer)
+        await queue.consume(process_parking_commands)
 
         yield
     finally:
