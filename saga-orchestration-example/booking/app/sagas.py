@@ -1,3 +1,4 @@
+import ast
 import asyncio
 import contextlib
 from typing import (Any, Callable, Coroutine, List, MutableMapping, ParamSpec,
@@ -14,6 +15,21 @@ from app.services import create_booking
 
 P = ParamSpec('P')
 T = TypeVar('T')
+
+
+class SagaReplyHandler:
+
+    reply_status: str | None
+    action: Callable[P, T] | None
+    compensation: Callable[P, T] | None
+
+    def __init__(
+        self, reply_status: str, action: Callable[P, T] | None,
+        compensation: Callable[P, T] | None
+    ) -> None:
+        self.reply_status = reply_status
+        self.action = action
+        self.compensation = compensation
 
 
 class SagaRPC:
@@ -40,20 +56,23 @@ class SagaRPC:
 
             self.callback_queue = await self.channel.declare_queue(exclusive=True)
             await self.callback_queue.bind(self.exchange)
-            await self.callback_queue.consume(self.on_response)
+            await self.callback_queue.consume(self.reply_event_processor)
 
             yield self
 
         finally:
             await self.connection.close()
 
-    def on_response(self, message: AbstractIncomingMessage) -> None:
+    def reply_event_processor(self, message: AbstractIncomingMessage) -> None:
         if message.correlation_id is None:
             print(f'Bad message {message!r}')
             return
 
-        future: asyncio.Future = self.futures.pop(message.correlation_id)
-        future.set_result(message.body)
+        try:
+            future: asyncio.Future = self.futures.pop(message.correlation_id)
+            future.set_result(message.body)
+        except KeyError:
+            print(f'Unknown correlation_id! - {message.correlation_id}')
 
     async def start_workflow(self) -> Any:
         for step_definition in await self.definitions:
@@ -61,11 +80,11 @@ class SagaRPC:
             if not is_step_success:
                 break
 
-    async def invoke_local(self, func: Callable[P, T]):
-        return await func()
+    async def invoke_local(self, action: Callable[P, T]):
+        return await action()
 
     async def invoke_participant(
-        self, command: str, on_reply: List[tuple[str, Callable[P, T]]] | None
+        self, command: str, on_reply: List[SagaReplyHandler] | None
     ) -> bool:
 
         correlation_id = str(uuid4())
@@ -83,15 +102,25 @@ class SagaRPC:
             routing_key=command,
         )
 
+        # Wait for the reply event processor to received a reponse from
+        # the participating service.
         reponse_data = await future
 
+        # If response reply status execute a compensation command
+        # we need to stop the succeeding step by returning `False`.
+        is_success = True
         for reply_handler in on_reply:
-            expected_state, reply_processor = reply_handler
-            if reponse_data.reply_state == expected_state:
-                reply_processor(reponse_data)
-                return False
+            saga_reply_handler: SagaReplyHandler = reply_handler
+            if reponse_data.reply_state == saga_reply_handler.reply_status:
 
-        return True
+                if saga_reply_handler.action is not None:
+                    await saga_reply_handler.action
+
+                if saga_reply_handler.compensation is not None:
+                    await saga_reply_handler.compensation
+                    is_success = False
+
+        return is_success
 
     @property
     async def definitions(self) -> List[Coroutine]:
@@ -109,22 +138,28 @@ class CreateBookingRequestSaga(SagaRPC):
     @property
     async def definitions(self):
         return [
-            self.invoke_local(self.create_booking),
+            self.invoke_local(
+                action=self.create_booking
+            ),
             self.invoke_participant(
                 command='parking.check_availability',
                 on_reply=[
-                    ('PARKING_AVAILABLE', self.parking_available),
-                    ('PARKING_UNAVAILABLE', self.parking_unavailable),
+                    SagaReplyHandler(
+                        'PARKING_AVAILABLE',
+                        action=self.approve_booking
+                    ),
+                    SagaReplyHandler(
+                        'PARKING_UNAVAILABLE',
+                        compensation=self.disapprove_booking
+                    )
                 ]
             ),
-            self.invoke_local(self.approve_booking),
             self.invoke_participant(
                 command='bill.create',
-                on_reply=(
-                    ('BILL_CREATED', self.bill_created)
-                )
+                on_reply=[
+                    SagaReplyHandler('BILL_CREATED', action=self.bill_booking)
+                ]
             ),
-            self.invoke_local(self.billed_booking),
         ]
 
     async def create_booking(self):
@@ -133,17 +168,14 @@ class CreateBookingRequestSaga(SagaRPC):
         #     return booking.id is not None
         return True
 
-    def parking_unavailable(self):
+    async def disapprove_booking(self):
+        return False
+
+    async def parking_available(self):
         pass
 
-    def parking_available(self):
+    async def approve_booking(self):
         pass
 
-    def approve_booking(self):
-        pass
-
-    def bill_created(self):
-        pass
-
-    def billed_booking(self):
+    async def bill_booking(self):
         pass
