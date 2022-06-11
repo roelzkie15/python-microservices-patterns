@@ -1,8 +1,9 @@
-from typing import Dict
+from typing import Any, Dict
 
 from sqlalchemy import Column, String
 
 from app.db import Base
+from pydantic import BaseModel
 
 
 class DictMixin:
@@ -16,4 +17,10 @@ class ParkingSlot(Base, DictMixin):
     uuid = Column(String, primary_key=True, unique=True, index=True)
     name = Column(String, nullable=False)
 
-    status = Column(String, nullable=False, server_default='pending')
+    # available/blocked/reserved
+    status = Column(String, nullable=False, server_default='available')
+
+
+class CommandResponse(BaseModel):
+    content: Any | None = None
+    reply_state: str | None = None

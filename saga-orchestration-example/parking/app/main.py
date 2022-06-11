@@ -8,6 +8,9 @@ from starlette.responses import JSONResponse
 from starlette.routing import Route
 
 from app import settings
+from app.db import Session
+from app.models import CommandResponse
+from app.services import block_parking_slot
 
 
 async def reply_producer(
@@ -40,16 +43,23 @@ async def reply_producer(
     await connection.close()
 
 
-async def process_parking_commands(message: IncomingMessage):
+async def process_parking_command(message: IncomingMessage):
     async with message.process(ignore_processed=True):
-        await message.ack()
-        print('so: messsage acknowledge in parking service')
+        command = message.headers('COMMAND', None)
 
-        response_obj = {
-            'content': message.body.decode('utf-8'),
-            'reply_state': 'PARKING_AVAILABLE'
-        }
-        await reply_producer(message.reply_to, message.correlation_id, str(response_obj))
+        response_obj = None
+
+        if command == 'PARKING_RESERVE':
+            with Session() as session:
+                booking = message.body.decode('utf-8')
+                is_blocked = await block_parking_slot(session, booking.get('parking_slot_ref_no'))
+
+                message.ack()
+
+                if is_blocked:
+                    response_obj:CommandResponse = CommandResponse(content=None, reply_state='PARKING_AVAILABLE')
+
+        await reply_producer(message.reply_to, message.correlation_id, str(response_obj.dict()))
 
 
 @contextlib.asynccontextmanager
@@ -72,7 +82,7 @@ async def lifespan(app):
         # Parking command channel.
         queue = await channel.declare_queue(auto_delete=True)
         await queue.bind(exchange, 'parking.*')
-        await queue.consume(process_parking_commands)
+        await queue.consume(process_parking_command)
 
         yield
     finally:
