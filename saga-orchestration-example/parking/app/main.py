@@ -43,7 +43,7 @@ async def reply_producer(
     await connection.close()
 
 
-async def process_parking_command(message: IncomingMessage):
+async def parking_command_event_processor(message: IncomingMessage):
     async with message.process(ignore_processed=True):
         command = message.headers('COMMAND', None)
 
@@ -82,7 +82,7 @@ async def lifespan(app):
         # Parking command channel.
         queue = await channel.declare_queue(auto_delete=True)
         await queue.bind(exchange, 'parking.*')
-        await queue.consume(process_parking_command)
+        await queue.consume(parking_command_event_processor)
 
         yield
     finally:
