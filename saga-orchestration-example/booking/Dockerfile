@@ -13,11 +13,10 @@ RUN pip --no-cache-dir install poetry
 
 WORKDIR /code
 
-COPY pyproject.toml .
-COPY poetry.lock .
-
 RUN poetry config virtualenvs.in-project false
-RUN poetry install
+
+COPY pyproject.toml .
+RUN poetry lock && poetry install
 
 COPY . .
 
