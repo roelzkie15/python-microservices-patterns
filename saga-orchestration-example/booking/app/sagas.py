@@ -115,9 +115,6 @@ class SagaRPC:
         decoded_data = ast.literal_eval(response_data.decode('utf-8'))
         reply_state = decoded_data.get('reply_state')
 
-        import pdb
-        pdb.set_trace()
-
         # If response reply status execute a compensation command
         # we need to stop the succeeding step by returning `False`.
         to_next_definition = True
@@ -156,19 +153,15 @@ class CreateBookingRequestSaga(SagaRPC):
                 command='parking.reserve',
                 on_reply=[
                     SagaReplyHandler(
-                        'PARKING_AVAILABLE',
-                        action=self.invoke_local(self.approve_booking)
+                        'PARKING_UNAVAILABLE',
+                        action=self.invoke_participant(command='parking.unblock'),
+                        is_compensation=True
                     ),
                     SagaReplyHandler(
                         'PARKING_UNAVAILABLE',
                         action=self.invoke_local(self.disapprove_booking),
                         is_compensation=True
                     ),
-                    SagaReplyHandler(
-                        'PARKING_UNAVAILABLE',
-                        action=self.invoke_participant(command='parking.unblock'),
-                        is_compensation=True
-                    )
                 ]
             ),
             # self.invoke_participant(
@@ -186,13 +179,6 @@ class CreateBookingRequestSaga(SagaRPC):
 
     async def disapprove_booking(self) -> bool:
         return False
-
-    async def approve_booking(self) -> bool:
-        with Session() as session:
-            self.data.status = 'approved'
-
-            booking = await update_booking(session, booking)
-            return booking.status == 'approved'
 
     async def bill_booking(self) -> bool:
         return True
