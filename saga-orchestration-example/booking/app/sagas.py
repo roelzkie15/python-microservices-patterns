@@ -1,6 +1,7 @@
 import ast
 import asyncio
 import contextlib
+from email import header
 from typing import (Any, Callable, Coroutine, List, MutableMapping, ParamSpec,
                     TypeVar)
 from uuid import uuid4
@@ -11,7 +12,7 @@ from aio_pika.abc import AbstractIncomingMessage
 from app import settings
 from app.db import Session
 from app.models import Booking
-from app.services import create_booking
+from app.services import booking_details_by_parking_ref_no, create_booking, update_booking
 
 P = ParamSpec('P')
 T = TypeVar('T')
@@ -20,16 +21,16 @@ T = TypeVar('T')
 class SagaReplyHandler:
 
     reply_status: str | None
-    action: Callable[P, T] | None
-    compensation: Callable[P, T] | None
+    action: Coroutine
+    is_compensation: bool = False
 
     def __init__(
-        self, reply_status: str, action: Callable[P, T] | None,
-        compensation: Callable[P, T] | None
+        self, reply_status: str, action: Coroutine,
+        is_compensation: bool = False
     ) -> None:
         self.reply_status = reply_status
         self.action = action
-        self.compensation = compensation
+        self.is_compensation = is_compensation
 
 
 class SagaRPC:
@@ -84,8 +85,11 @@ class SagaRPC:
         return await action()
 
     async def invoke_participant(
-        self, command: str, on_reply: List[SagaReplyHandler] | None
+        self, command: str, on_reply: List[SagaReplyHandler] | None = None
     ) -> bool:
+
+        if on_reply is None:
+            on_reply = []
 
         correlation_id = str(uuid4())
         future = self.loop.create_future()
@@ -94,33 +98,39 @@ class SagaRPC:
 
         await self.exchange.publish(
             Message(
-                str(self.data).encode(),
+                str(self.data.to_dict()).encode(),
                 content_type='application/json',
                 correlation_id=correlation_id,
                 reply_to=self.callback_queue.name,
+                headers={
+                    'COMMAND': command.replace('.', '_').upper()
+                }
             ),
             routing_key=command,
         )
 
         # Wait for the reply event processor to received a reponse from
         # the participating service.
-        reponse_data = await future
+        response_data: bytes = await future
+        decoded_data = ast.literal_eval(response_data.decode('utf-8'))
+        reply_state = decoded_data.get('reply_state')
+
+        import pdb
+        pdb.set_trace()
 
         # If response reply status execute a compensation command
         # we need to stop the succeeding step by returning `False`.
-        is_success = True
+        to_next_definition = True
         for reply_handler in on_reply:
             saga_reply_handler: SagaReplyHandler = reply_handler
-            if reponse_data.reply_state == saga_reply_handler.reply_status:
+            if reply_state == saga_reply_handler.reply_status:
 
-                if saga_reply_handler.action is not None:
-                    await saga_reply_handler.action
+                if saga_reply_handler.is_compensation:
+                    to_next_definition = False
 
-                if saga_reply_handler.compensation is not None:
-                    await saga_reply_handler.compensation
-                    is_success = False
+                await saga_reply_handler.action
 
-        return is_success
+        return to_next_definition
 
     @property
     async def definitions(self) -> List[Coroutine]:
@@ -129,11 +139,12 @@ class SagaRPC:
 
 class CreateBookingRequestSaga(SagaRPC):
 
-    subject: Booking = None
+    data: Booking = None
+    parking_slot_uuid: str = None
 
     def __init__(self, parking_slot_uuid: str) -> None:
         super().__init__()
-        self.data: str = parking_slot_uuid
+        self.parking_slot_uuid = parking_slot_uuid
 
     @property
     async def definitions(self):
@@ -142,40 +153,46 @@ class CreateBookingRequestSaga(SagaRPC):
                 action=self.create_booking
             ),
             self.invoke_participant(
-                command='parking.check_availability',
+                command='parking.reserve',
                 on_reply=[
                     SagaReplyHandler(
                         'PARKING_AVAILABLE',
-                        action=self.approve_booking
+                        action=self.invoke_local(self.approve_booking)
                     ),
                     SagaReplyHandler(
                         'PARKING_UNAVAILABLE',
-                        compensation=self.disapprove_booking
+                        action=self.invoke_local(self.disapprove_booking),
+                        is_compensation=True
+                    ),
+                    SagaReplyHandler(
+                        'PARKING_UNAVAILABLE',
+                        action=self.invoke_participant(command='parking.unblock'),
+                        is_compensation=True
                     )
                 ]
             ),
-            self.invoke_participant(
-                command='bill.create',
-                on_reply=[
-                    SagaReplyHandler('BILL_CREATED', action=self.bill_booking)
-                ]
-            ),
+            # self.invoke_participant(
+            #     command='bill.create',
+            #     on_reply=[
+            #         SagaReplyHandler('BILL_CREATED', action=self.invoke_local(self.bill_booking))
+            #     ]
+            # ),
         ]
 
-    async def create_booking(self):
-        # with Session() as session:
-        #     booking = await create_booking(session, self.data)
-        #     return booking.id is not None
-        return True
+    async def create_booking(self) -> bool:
+        with Session() as session:
+            self.data = await create_booking(session, self.data)
+            return self.data.id is not None
 
-    async def disapprove_booking(self):
+    async def disapprove_booking(self) -> bool:
         return False
 
-    async def parking_available(self):
-        pass
+    async def approve_booking(self) -> bool:
+        with Session() as session:
+            self.data.status = 'approved'
 
-    async def approve_booking(self):
-        pass
+            booking = await update_booking(session, booking)
+            return booking.status == 'approved'
 
-    async def bill_booking(self):
-        pass
+    async def bill_booking(self) -> bool:
+        return True
