@@ -25,7 +25,7 @@ services:
     volumes:
       - $PWD/saga-orchestration-example/parking:/code
     ports:
-      - '8002:8000'
+      - '8000:8000'
     environment:
       - ENVIRONMENT=dev
       - TESTING=0
@@ -46,7 +46,7 @@ services:
     volumes:
       - $PWD/saga-orchestration-example/booking:/code
     ports:
-      - '8000:8000'
+      - '8001:8000'
     environment:
       - ENVIRONMENT=dev
       - TESTING=0
@@ -55,3 +55,25 @@ services:
     depends_on:
       - so-rabbit
       - so-parking
+
+  so-billing:
+    build: $PWD/saga-orchestration-example/billing
+    restart: unless-stopped
+    entrypoint: ['/bin/sh','-c']
+    command:
+      - |
+        /code/wait-for-it.sh -t 0 so-rabbit:5671
+        /code/wait-for-it.sh -t 0 so-booking:8000
+        /code/start_dev.sh
+    volumes:
+      - $PWD/saga-orchestration-example/billing:/code
+    ports:
+      - '8002:8000'
+    environment:
+      - ENVIRONMENT=dev
+      - TESTING=0
+      - DATABASE_URL=sqlite:////code/billing_db.sqlite3
+      - RABBITMQ_BROKER_URL=amqp://guest:guest@so-rabbit:5671
+    depends_on:
+      - so-rabbit
+      - so-booking
