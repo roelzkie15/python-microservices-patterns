@@ -5,7 +5,7 @@ To demonstrate this pattern we will still have to use the same distributed syste
 ## Techstack to implement servers
 
 - Starlette (used by FastAPI)
-- RabbitMQ
+- RabbitMQ (RPC Pattern for Saga Orchestration)
 - SQLite
 - Docker
 
