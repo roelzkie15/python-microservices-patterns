@@ -1,3 +1,4 @@
+import ast
 import asyncio
 import contextlib
 
@@ -10,6 +11,7 @@ from starlette.routing import Route
 from app import settings
 from app.db import Session
 from app.models import CommandResponse
+from app.services import create_billing_request
 
 
 async def reply_producer(
@@ -44,8 +46,25 @@ async def reply_producer(
 
 async def billing_command_event_processor(message: IncomingMessage):
     async with message.process(ignore_processed=True):
-        command = message.headers('COMMAND', None)
-        response_obj = {}
+        command = message.headers.get('COMMAND')
+        client = message.headers.get('CLIENT')
+
+        response_obj: CommandResponse = None
+        if client == 'BOOKING_REQUEST_ORCHESTRATOR' and command == 'BILLING_CREATE':
+            with Session() as session:
+                booking = ast.literal_eval(message.body.decode('utf-8'))
+                await create_billing_request(session, booking.get("parking_slot_ref_no"))
+
+                await message.ack()
+
+                response_obj = CommandResponse(
+                    content=None,
+                    reply_state='BILL_CREATED'
+                )
+
+        # There must be a response object to signal orchestrator of
+        # the outcome of the request.
+        assert response_obj is not None
 
         await reply_producer(message.reply_to, message.correlation_id, str(response_obj.dict()))
 
@@ -67,7 +86,7 @@ async def lifespan(app):
             durable=True
         )
 
-        # Parking command channel.
+        # Billing command channel.
         queue = await channel.declare_queue(auto_delete=True)
         await queue.bind(exchange, 'billing.*')
         await queue.consume(billing_command_event_processor)
