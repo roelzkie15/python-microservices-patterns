@@ -1,3 +1,4 @@
+import ast
 import asyncio
 import contextlib
 
@@ -45,19 +46,27 @@ async def reply_producer(
 
 async def parking_command_event_processor(message: IncomingMessage):
     async with message.process(ignore_processed=True):
-        command = message.headers('COMMAND', None)
+        command = message.headers.get('COMMAND')
+        client = message.headers.get('CLIENT')
 
-        response_obj = None
-
-        if command == 'PARKING_RESERVE':
+        response_obj: CommandResponse = None
+        if client == 'BOOKING_REQUEST_ORCHESTRATOR' and command == 'PARKING_RESERVE':
             with Session() as session:
-                booking = message.body.decode('utf-8')
-                is_blocked = await block_parking_slot(session, booking.get('parking_slot_ref_no'))
+                booking = ast.literal_eval(message.body.decode('utf-8'))
+                parking_slot_uuid = booking.get('parking_slot_ref_no').split(':')[0]
+                is_blocked = await block_parking_slot(session, parking_slot_uuid)
 
-                message.ack()
+                await message.ack()
 
                 if is_blocked:
-                    response_obj:CommandResponse = CommandResponse(content=None, reply_state='PARKING_AVAILABLE')
+                    response_obj = CommandResponse(
+                        content=None,
+                        reply_state='PARKING_AVAILABLE'
+                    )
+
+        # There must be a response object to signal orchestrator of
+        # the outcome of the request.
+        assert response_obj is not None
 
         await reply_producer(message.reply_to, message.correlation_id, str(response_obj.dict()))
 
