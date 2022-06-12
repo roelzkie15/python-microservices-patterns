@@ -23,7 +23,6 @@ async def reply_producer(
     )
 
     channel = await connection.channel()
-    await channel.set_qos(prefetch_count=1)
 
     # Declare exchange
     exchange = await channel.declare_exchange(
