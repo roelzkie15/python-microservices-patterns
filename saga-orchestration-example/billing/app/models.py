@@ -18,7 +18,7 @@ class BillingRequest(Base, DictMixin):
     total = Column(Numeric(precision=12, scale=2), nullable=True)
     status = Column(String, default='pending')
 
-    # Must be <booking.id>:<parking.uuid>
+    # Must be <parking.uuid>:<uuid>
     reference_no = Column(String, unique=True, nullable=False)
 
 

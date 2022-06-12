@@ -81,6 +81,9 @@ class SagaRPC:
             if not is_step_success:
                 break
 
+        # If request booking workflow succeeded we can return the data
+        return self.data
+
     async def invoke_local(self, action: Callable[P, T]):
         return await action()
 
@@ -103,7 +106,8 @@ class SagaRPC:
                 correlation_id=correlation_id,
                 reply_to=self.callback_queue.name,
                 headers={
-                    'COMMAND': command.replace('.', '_').upper()
+                    'COMMAND': command.replace('.', '_').upper(),
+                    'CLIENT': 'BOOKING_REQUEST_ORCHESTRATOR',
                 }
             ),
             routing_key=command,
@@ -120,8 +124,8 @@ class SagaRPC:
         to_next_definition = True
         for reply_handler in on_reply:
             saga_reply_handler: SagaReplyHandler = reply_handler
-            if reply_state == saga_reply_handler.reply_status:
 
+            if reply_state == saga_reply_handler.reply_status:
                 if saga_reply_handler.is_compensation:
                     to_next_definition = False
 
@@ -154,7 +158,9 @@ class CreateBookingRequestSaga(SagaRPC):
                 on_reply=[
                     SagaReplyHandler(
                         'PARKING_UNAVAILABLE',
-                        action=self.invoke_participant(command='parking.unblock'),
+                        action=self.invoke_participant(
+                            command='parking.unblock'
+                        ),
                         is_compensation=True
                     ),
                     SagaReplyHandler(
@@ -164,21 +170,30 @@ class CreateBookingRequestSaga(SagaRPC):
                     ),
                 ]
             ),
-            # self.invoke_participant(
-            #     command='bill.create',
-            #     on_reply=[
-            #         SagaReplyHandler('BILL_CREATED', action=self.invoke_local(self.bill_booking))
-            #     ]
-            # ),
+            self.invoke_participant(
+                command='billing.create',
+                on_reply=[
+                    SagaReplyHandler(
+                        'BILL_CREATED',
+                        action=self.invoke_local(self.bill_booking)
+                    )
+                ]
+            ),
         ]
 
     async def create_booking(self) -> bool:
         with Session() as session:
-            self.data = await create_booking(session, self.data)
+            self.data = await create_booking(session, self.parking_slot_uuid)
             return self.data.id is not None
 
     async def disapprove_booking(self) -> bool:
         return False
 
     async def bill_booking(self) -> bool:
-        return True
+        with Session() as session:
+            booking = await booking_details_by_parking_ref_no(session, self.data.parking_slot_ref_no)
+            booking.status = 'billed'
+
+            # Updated data
+            self.data = await update_booking(session, booking)
+            return self.data.status == 'billed'
