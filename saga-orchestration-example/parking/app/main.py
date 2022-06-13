@@ -10,8 +10,9 @@ from starlette.routing import Route
 
 from app import settings
 from app.db import Session
-from app.models import CommandResponse
-from app.services import block_parking_slot
+from app.models import EventResponse
+from app.services import (parking_reserve_from_saga_event,
+                          parking_unblock_from_saga_event)
 
 
 async def reply_producer(
@@ -48,20 +49,14 @@ async def parking_command_event_processor(message: IncomingMessage):
         command = message.headers.get('COMMAND')
         client = message.headers.get('CLIENT')
 
-        response_obj: CommandResponse = None
+        response_obj: EventResponse = None
         if client == 'BOOKING_REQUEST_ORCHESTRATOR' and command == 'PARKING_RESERVE':
             with Session() as session:
-                booking = ast.literal_eval(message.body.decode('utf-8'))
-                parking_slot_uuid = booking.get('parking_slot_ref_no').split(':')[0]
-                is_blocked = await block_parking_slot(session, parking_slot_uuid)
+                response_obj = await parking_reserve_from_saga_event(session, message)
 
-                await message.ack()
-
-                if is_blocked:
-                    response_obj = CommandResponse(
-                        content=None,
-                        reply_state='PARKING_AVAILABLE'
-                    )
+        if client == 'BOOKING_REQUEST_ORCHESTRATOR' and command == 'PARKING_UNBLOCK':
+            with Session() as session:
+                response_obj = await parking_unblock_from_saga_event(session, message)
 
         # There must be a response object to signal orchestrator of
         # the outcome of the request.
