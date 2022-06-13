@@ -165,7 +165,7 @@ class CreateBookingRequestSaga(SagaRPC):
                     ),
                     SagaReplyHandler(
                         'PARKING_UNAVAILABLE',
-                        action=self.invoke_local(self.disapprove_booking),
+                        action=self.invoke_local(self.reject_booking),
                         is_compensation=True
                     ),
                 ]
@@ -186,8 +186,14 @@ class CreateBookingRequestSaga(SagaRPC):
             self.data = await create_booking(session, self.parking_slot_uuid)
             return self.data.id is not None
 
-    async def disapprove_booking(self) -> bool:
-        return False
+    async def reject_booking(self) -> bool:
+        with Session() as session:
+            booking = await booking_details_by_parking_ref_no(session, self.data.parking_slot_ref_no)
+            booking.status = 'rejected'
+
+            # Updated data
+            self.data = await update_booking(session, booking)
+            return self.data.status == 'rejected'
 
     async def bill_booking(self) -> bool:
         with Session() as session:
