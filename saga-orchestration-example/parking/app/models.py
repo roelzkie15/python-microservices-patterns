@@ -21,6 +21,6 @@ class ParkingSlot(Base, DictMixin):
     status = Column(String, nullable=False, server_default='available')
 
 
-class CommandResponse(BaseModel):
+class EventResponse(BaseModel):
     content: Any | None = None
     reply_state: str | None = None
