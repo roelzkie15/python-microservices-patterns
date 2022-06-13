@@ -11,17 +11,17 @@ There are 3 microservices that will work together to demonstrate this pattern. W
 
 ## Running the applications
 
-You must be in the root directory of this repository (python-microservices-patterns) where the `docker-compose-saga-choreography.yml` file is located at and not in the saga-choreograhpy-example directory.
+You must be in the root directory of this repository (python-microservices-patterns) where the `saga-choreography.yml` file is located at and not in the saga-choreograhpy-example directory.
 
 - Build saga choreograhpy docker images:
 
     ```
-    docker-compose -f docker-compose-saga-choreography.yml build --no-cache
+    docker-compose -f saga-choreography.yml build --no-cache
     ```
 - Run the services via docker-compose:
 
     ```
-    docker-compose -f docker-compose-saga-choreography.yml up
+    docker-compose -f saga-choreography.yml up
     ```
 
 - Booking service is running at localhost:8000
