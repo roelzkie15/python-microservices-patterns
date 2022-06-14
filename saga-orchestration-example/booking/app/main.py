@@ -4,6 +4,7 @@ from starlette.routing import Route
 
 
 async def startup_event():
+    # TODO: Watch billing.paid event.
     pass
 
 
