@@ -22,6 +22,7 @@ class BillingRequest(Base, DictMixin):
     reference_no = Column(String, unique=True, nullable=False)
 
 
-class CommandResponse(BaseModel):
+class AMQPMessage(BaseModel):
+    id: str
     content: Any | None = None
     reply_state: str | None = None
