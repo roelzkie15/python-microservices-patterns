@@ -17,13 +17,3 @@ class Booking(Base, DictMixin):
     status = Column(String, nullable=False, server_default='created')
 
     parking_slot_ref_no = Column(String, nullable=True)
-
-
-# class SagaState(Base):
-#     __tablename__ = 'saga_states'
-
-#     id = Column(Integer, primary_key=True, unique=True, index=True)
-#     correlation_id = Column(String, unique=True)
-
-#     type = Column(String)
-#     status = Column(String, default='not_started')
