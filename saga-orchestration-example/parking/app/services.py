@@ -96,7 +96,6 @@ async def parking_command_event_processor(message: IncomingMessage):
                 await message.ack()
                 response_obj = AMQPMessage(
                     id=message.correlation_id,
-                    reply_state='PARKING_RESERVED'
                 )
 
         # There must be a response object to signal orchestrator of
