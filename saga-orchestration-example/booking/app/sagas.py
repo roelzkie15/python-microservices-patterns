@@ -116,7 +116,7 @@ class SagaRPC:
         # Wait for the reply event processor to received a reponse from
         # the participating service.
         response_data: bytes = await future
-        decoded_data = json.loads(response_data.decode())
+        decoded_data = json.loads(response_data.decode('utf-8'))
         reply_state = decoded_data.get('reply_state')
 
         # If response reply status execute a compensation command

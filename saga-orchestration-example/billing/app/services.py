@@ -1,5 +1,6 @@
 
 import ast
+import json
 from typing import List
 
 from aio_pika import IncomingMessage
@@ -41,8 +42,8 @@ async def billing_command_event_processor(message: IncomingMessage):
     async with message.process(ignore_processed=True):
         command = message.headers.get('COMMAND')
         client = message.headers.get('CLIENT')
-        booking = ast.literal_eval(message.body.decode('utf-8'))
 
+        booking = json.loads(message.body.decode('utf-8'))
         response_obj: AMQPMessage = None
         if client == 'BOOKING_REQUEST_ORCHESTRATOR' and command == 'BILLING_PAY':
             with Session() as session:
