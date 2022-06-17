@@ -5,8 +5,9 @@ from uuid import uuid4
 
 from aio_pika import IncomingMessage
 
+from app.amqp_client import AMQPClient
 from app.db import Session
-from app.models import EventResponse, ParkingSlot
+from app.models import AMQPMessage, ParkingSlot
 
 
 async def update_parking_slot(session: Session, ps: ParkingSlot) -> ParkingSlot:
@@ -53,27 +54,60 @@ async def unblock_parking_slot(session: Session, uuid: str) -> bool:
     return ps.status == 'available'
 
 
-async def parking_reserve_from_saga_event(session: Session, message: IncomingMessage) -> EventResponse:
-    booking = ast.literal_eval(message.body.decode('utf-8'))
-    parking_slot_uuid = booking.get('parking_slot_ref_no').split(':')[0]
-    is_available = await block_parking_slot(session, parking_slot_uuid)
-
-    await message.ack()
-
-    return EventResponse(
-        content=None,
-        reply_state=('PARKING_UNAVAILABLE', 'PARKING_AVAILABLE')[is_available]
-    )
+async def reserve_parking_slot(session: Session, uuid: str) -> bool:
+    ps = await parking_slot_details(session, uuid)
+    ps.status = 'reserved'
+    ps = await update_parking_slot(session, ps)
+    return ps.status == 'reserved'
 
 
-async def parking_unblock_from_saga_event(session: Session, message: IncomingMessage) -> EventResponse:
-    booking = ast.literal_eval(message.body.decode('utf-8'))
-    parking_slot_uuid = booking.get('parking_slot_ref_no').split(':')[0]
-    is_unblock = await unblock_parking_slot(session, parking_slot_uuid)
+async def parking_command_event_processor(message: IncomingMessage):
+    async with message.process(ignore_processed=True):
+        command = message.headers.get('COMMAND')
+        client = message.headers.get('CLIENT')
 
-    await message.ack()
+        booking = ast.literal_eval(message.body.decode('utf-8'))
+        parking_slot_uuid = booking.get('parking_slot_ref_no').split(':')[0]
+        response_obj: AMQPMessage = None
 
-    return EventResponse(
-        content=None,
-        reply_state=('PARKING_BLOCKED', 'PARKING_UNBLOCKED')[is_unblock]
-    )
+        if client == 'BOOKING_REQUEST_ORCHESTRATOR' and command == 'PARKING_BLOCK':
+            with Session() as session:
+                is_available = await block_parking_slot(session, parking_slot_uuid)
+                await message.ack()
+                response_obj = AMQPMessage(
+                    id=message.correlation_id,
+                    reply_state=('PARKING_UNAVAILABLE', 'PARKING_AVAILABLE')[
+                        is_available]
+                )
+
+        if client == 'BOOKING_REQUEST_ORCHESTRATOR' and command == 'PARKING_UNBLOCK':
+            with Session() as session:
+                is_unblock = await unblock_parking_slot(session, parking_slot_uuid)
+                await message.ack()
+                response_obj = AMQPMessage(
+                    id=message.correlation_id,
+                    reply_state=('PARKING_BLOCKED', 'PARKING_UNBLOCKED')[
+                        is_unblock]
+                )
+
+        if client == 'BOOKING_REQUEST_ORCHESTRATOR' and command == 'PARKING_RESERVE':
+            with Session() as session:
+                is_available = await reserve_parking_slot(session, parking_slot_uuid)
+                await message.ack()
+                response_obj = AMQPMessage(
+                    id=message.correlation_id,
+                    reply_state='PARKING_RESERVED'
+                )
+
+        # There must be a response object to signal orchestrator of
+        # the outcome of the request.
+        assert response_obj is not None
+
+        amqp_client: AMQPClient = await AMQPClient().init()
+        await amqp_client.event_producer(
+            'BOOKING_TX_EVENT_STORE',
+            message.reply_to,
+            message.correlation_id,
+            response_obj
+        )
+        await amqp_client.connection.close()

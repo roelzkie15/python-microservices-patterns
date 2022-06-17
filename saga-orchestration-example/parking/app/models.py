@@ -21,6 +21,7 @@ class ParkingSlot(Base, DictMixin):
     status = Column(String, nullable=False, server_default='available')
 
 
-class EventResponse(BaseModel):
+class AMQPMessage(BaseModel):
+    id: str
     content: Any | None = None
     reply_state: str | None = None

@@ -8,88 +8,19 @@ from starlette.applications import Starlette
 from starlette.responses import JSONResponse
 from starlette.routing import Route
 
-from app import settings
-from app.db import Session
-from app.models import EventResponse
-from app.services import (parking_reserve_from_saga_event,
-                          parking_unblock_from_saga_event)
-
-
-async def reply_producer(
-    reply_to: str, correlation_id: str, data: str
-):
-
-    connection = await aio_pika.connect_robust(
-        settings.RABBITMQ_BROKER_URL, loop=asyncio.get_event_loop()
-    )
-
-    channel = await connection.channel()
-
-    # Declare exchange
-    exchange = await channel.declare_exchange(
-        'BOOKING_TX_EVENT_STORE',
-        type='topic',
-        durable=True
-    )
-
-    await exchange.publish(
-        Message(
-            body=data.encode(),
-            content_type='application/json',
-            correlation_id=correlation_id
-        ),
-        routing_key=reply_to,
-    )
-
-    await connection.close()
-
-
-async def parking_command_event_processor(message: IncomingMessage):
-    async with message.process(ignore_processed=True):
-        command = message.headers.get('COMMAND')
-        client = message.headers.get('CLIENT')
-
-        response_obj: EventResponse = None
-        if client == 'BOOKING_REQUEST_ORCHESTRATOR' and command == 'PARKING_RESERVE':
-            with Session() as session:
-                response_obj = await parking_reserve_from_saga_event(session, message)
-
-        if client == 'BOOKING_REQUEST_ORCHESTRATOR' and command == 'PARKING_UNBLOCK':
-            with Session() as session:
-                response_obj = await parking_unblock_from_saga_event(session, message)
-
-        # There must be a response object to signal orchestrator of
-        # the outcome of the request.
-        assert response_obj is not None
-
-        await reply_producer(message.reply_to, message.correlation_id, str(response_obj.dict()))
+from app.services import parking_command_event_processor
+from app.amqp_client import AMQPClient
 
 
 @contextlib.asynccontextmanager
 async def lifespan(app):
-    connection = await aio_pika.connect_robust(
-        settings.RABBITMQ_BROKER_URL, loop=asyncio.get_event_loop()
-    )
+    amqp_client: AMQPClient = await AMQPClient().init()
 
     try:
-        # Creating channel
-        channel = await connection.channel()
-        await channel.set_qos(prefetch_count=1)
-
-        exchange = await channel.declare_exchange(
-            'BOOKING_TX_EVENT_STORE',
-            type='topic',
-            durable=True
-        )
-
-        # Parking command channel.
-        queue = await channel.declare_queue(auto_delete=True)
-        await queue.bind(exchange, 'parking.*')
-        await queue.consume(parking_command_event_processor)
-
+        await amqp_client.event_consumer(parking_command_event_processor, 'BOOKING_TX_EVENT_STORE', 'parking.*')
         yield
     finally:
-        await connection.close()
+        await amqp_client.connection.close()
 
 
 async def root(request):
