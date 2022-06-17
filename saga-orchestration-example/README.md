@@ -23,14 +23,4 @@ To demonstrate this pattern we will still have to use the same distributed syste
 
 1. Finally **BSO** will proceed to another next step sending a _**parking.reserve**_ command to  **Parking Service** to set the parking record to _reserved_.
 
-## Compensating (Rollback) Transaction in Orchestration pattern
-
-### Workflows
-
-![saga-orchestration-pattern-rb-transaction](https://github.com/roelzkie15/python-microservices-patterns/blob/master/saga-orchestration-example/resources/saga-orchestration-pattern-rb-transaction.png)
-
-> NOTE: Image is outdated.
-
-1. The <b>Parking Service</b> sent a <i><b>PARKING_UNAVAILABLE</b></i> event to the reply channel.
-1. Then <b>BSO</b> will send <b>parking.unblock</b> to the **Parking Service** to unblock the parking slot.
-1. Finally, the <b>BSO</b> will update the booking request status to _rejected_.
+## Compensating (Rollback) Transaction in Orchestration pattern (WIP)
