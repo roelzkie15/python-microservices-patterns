@@ -1,7 +1,6 @@
-import ast
 import asyncio
 import contextlib
-from email import header
+import json
 from typing import (Any, Callable, Coroutine, List, MutableMapping, ParamSpec,
                     TypeVar)
 from uuid import uuid4
@@ -12,7 +11,8 @@ from aio_pika.abc import AbstractIncomingMessage
 from app import settings
 from app.db import Session
 from app.models import Booking
-from app.services import booking_details_by_parking_ref_no, create_booking, update_booking
+from app.services import (booking_details_by_parking_ref_no, create_booking,
+                          update_booking)
 
 P = ParamSpec('P')
 T = TypeVar('T')
@@ -116,7 +116,7 @@ class SagaRPC:
         # Wait for the reply event processor to received a reponse from
         # the participating service.
         response_data: bytes = await future
-        decoded_data = ast.literal_eval(response_data.decode('utf-8'))
+        decoded_data = json.loads(response_data.decode())
         reply_state = decoded_data.get('reply_state')
 
         # If response reply status execute a compensation command
@@ -154,7 +154,7 @@ class CreateBookingRequestSaga(SagaRPC):
                 action=self.create_booking
             ),
             self.invoke_participant(
-                command='parking.reserve',
+                command='parking.block',
                 on_reply=[
                     SagaReplyHandler(
                         'PARKING_UNAVAILABLE',
@@ -171,14 +171,33 @@ class CreateBookingRequestSaga(SagaRPC):
                 ]
             ),
             self.invoke_participant(
-                command='billing.create',
+                command='billing.pay',
                 on_reply=[
                     SagaReplyHandler(
-                        'BILL_CREATED',
-                        action=self.invoke_local(self.bill_booking)
-                    )
+                        'BILL_FAIL',
+                        action=self.invoke_participant(
+                            command='billing.refund'
+                        ),
+                        is_compensation=True
+                    ),
+                    SagaReplyHandler(
+                        'BILL_FAIL',
+                        action=self.invoke_participant(
+                            command='parking.unblock'
+                        ),
+                        is_compensation=True
+                    ),
+                    SagaReplyHandler(
+                        'BILL_FAIL',
+                        action=self.invoke_local(self.failed_booking),
+                        is_compensation=True
+                    ),
                 ]
             ),
+            self.invoke_local(
+                action=self.paid_booking
+            ),
+            self.invoke_participant(command='parking.reserve')
         ]
 
     async def create_booking(self) -> bool:
@@ -195,11 +214,20 @@ class CreateBookingRequestSaga(SagaRPC):
             self.data = await update_booking(session, booking)
             return self.data.status == 'rejected'
 
-    async def bill_booking(self) -> bool:
+    async def paid_booking(self) -> bool:
         with Session() as session:
             booking = await booking_details_by_parking_ref_no(session, self.data.parking_slot_ref_no)
-            booking.status = 'billed'
+            booking.status = 'paid'
 
             # Updated data
             self.data = await update_booking(session, booking)
-            return self.data.status == 'billed'
+            return self.data.status == 'paid'
+
+    async def failed_booking(self) -> bool:
+        with Session() as session:
+            booking = await booking_details_by_parking_ref_no(session, self.data.parking_slot_ref_no)
+            booking.status = 'failed'
+
+            # Updated data
+            self.data = await update_booking(session, booking)
+            return self.data.status == 'paid'
