@@ -15,7 +15,7 @@ To demonstrate this pattern we will still have to use the same distributed syste
 
 ![saga-orchestration-pattern](https://github.com/roelzkie15/python-microservices-patterns/blob/master/saga-orchestration-example/resources/saga-orchestration-pattern.png)
 
-1. Customer create a booking request for a parking slot and will start the **Booking Saga Orchestrator** or **BSO** and will create a new booking record with _pending_ status.
+1. Customer initiate a booking request for a parking slot and will start the **Booking Saga Orchestrator** or **BSO** which will creates a new booking record with _pending_ status.
 
 1. It will then send a _**parking.block**_ command to **Parking Service** to lock the parking slot. If the parking slot is _available_. Trigger a _PARKING_AVAILABLE_ event to the **BSO** reply channel.
 
