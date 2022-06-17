@@ -101,7 +101,7 @@ class SagaRPC:
 
         await self.exchange.publish(
             Message(
-                str(self.data.to_dict()).encode(),
+                str(json.dumps(self.data.to_dict())).encode(),
                 content_type='application/json',
                 correlation_id=correlation_id,
                 reply_to=self.callback_queue.name,

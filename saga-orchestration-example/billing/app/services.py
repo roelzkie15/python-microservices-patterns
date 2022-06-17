@@ -43,7 +43,7 @@ async def billing_command_event_processor(message: IncomingMessage):
         command = message.headers.get('COMMAND')
         client = message.headers.get('CLIENT')
 
-        booking = json.loads(message.body.decode('utf-8'))
+        booking = json.loads(str(message.body.decode('utf-8')))
         response_obj: AMQPMessage = None
         if client == 'BOOKING_REQUEST_ORCHESTRATOR' and command == 'BILLING_PAY':
             with Session() as session:

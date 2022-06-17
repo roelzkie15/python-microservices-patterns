@@ -66,7 +66,7 @@ async def parking_command_event_processor(message: IncomingMessage):
         command = message.headers.get('COMMAND')
         client = message.headers.get('CLIENT')
 
-        booking = json.loads(message.body.decode('utf-8'))
+        booking = json.loads(str(message.body.decode('utf-8')))
         parking_slot_uuid = booking.get('parking_slot_ref_no').split(':')[0]
         response_obj: AMQPMessage = None
 
