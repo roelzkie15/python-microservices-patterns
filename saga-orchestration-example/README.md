@@ -91,6 +91,15 @@ Assuming that all docker services are running. We can now execute the above work
     {"uuid": "080435ac-fce7-4e91-8880-30b8a277d830", "name": "Slot 1", "status": "reserved"}
     ```
 
+1. On **Billing Service** bash session:
+
+    ```
+    poetry run python -m app.cli billing_request_list
+
+    # Output:
+    {'id': 1, 'total': Decimal('100.00'), 'status': 'paid', 'reference_no': '080435ac-fce7-4e91-8880-30b8a277d830:ae949fae-0a91-4e62-be0c-4f950963abaa'}
+    ```
+
 ## Compensating (Rollback) Transaction in Orchestration pattern
 
 ![saga-orchestration-pattern-rb-tx](https://github.com/roelzkie15/python-microservices-patterns/blob/master/saga-orchestration-example/resources/saga-orchestration-pattern-rb-transaction.png)
