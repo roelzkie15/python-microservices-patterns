@@ -26,3 +26,11 @@ To demonstrate this pattern we will still have to use the same distributed syste
 ## Compensating (Rollback) Transaction in Orchestration pattern (WIP)
 
 ![saga-orchestration-pattern-rb-tx](https://github.com/roelzkie15/python-microservices-patterns/blob/master/saga-orchestration-example/resources/saga-orchestration-pattern-rb-transaction.png)
+
+1. The **BSO** initiate the _**pay.bill**_ command to the **Billing Service**.
+
+1. The **Billing Service** failed to record the payment process and produces a  _BILL_FAILED_ event to the **BSO** reply channel.
+
+1. The **BSO** will listen to the _BILL_FAILED_ event from the reply channel and will send _**parking.unblock**_ command to the **Parking Service** to set the parking status to _available_ again.
+
+1. Also the **BSO** will proceed to another _BILL_FAILED_ listener and will invoke local transaction to **Booking Service** to set the current booking request to rejected.

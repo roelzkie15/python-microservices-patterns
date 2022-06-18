@@ -10,12 +10,17 @@ from app.db import Session
 from app.models import AMQPMessage, BillingRequest
 
 
-async def create_billing_request(session: Session, reference_no: str) -> BillingRequest:
+async def create_billing_request(
+    session: Session, reference_no: str,
+    # For the purpose of this example we will asume that
+    # during booking request the payment should be automatic.
+    status: str = 'paid'
+) -> BillingRequest:
     br = BillingRequest(
         # Default total to 100.00
         total=100.0,
         reference_no=reference_no,
-        status='paid'
+        status=status
     )
     session.add(br)
     session.commit()
@@ -47,27 +52,13 @@ async def billing_command_event_processor(message: IncomingMessage):
         response_obj: AMQPMessage = None
         if client == 'BOOKING_REQUEST_ORCHESTRATOR' and command == 'BILLING_PAY':
             with Session() as session:
-                await create_billing_request(session, booking.get("parking_slot_ref_no"))
-
+                br = await create_billing_request(session, booking.get("parking_slot_ref_no"), 'failed')
                 await message.ack()
                 response_obj = AMQPMessage(
                     id=message.correlation_id,
                     content=None,
-                    reply_state='BILL_PAID'
+                    reply_state=('BILL_FAILED', 'BILL_PAID')[br.status == 'paid']
                 )
-
-        if client == 'BOOKING_REQUEST_ORCHESTRATOR' and command == 'BILLING_REFUND':
-                with Session() as session:
-                    br = await billing_request_details_by_reference_no(session, booking.get("parking_slot_ref_no"))
-
-                    br.status = 'refunded'
-                    await billing_request_update(session, br)
-                    await message.ack()
-
-                    response_obj = AMQPMessage(
-                        id=message.correlation_id,
-                        content=None
-                    )
 
         # There must be a response object to signal orchestrator of
         # the outcome of the request.

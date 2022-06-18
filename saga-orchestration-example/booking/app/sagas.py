@@ -174,21 +174,14 @@ class CreateBookingRequestSaga(SagaRPC):
                 command='billing.pay',
                 on_reply=[
                     SagaReplyHandler(
-                        'BILL_FAIL',
-                        action=self.invoke_participant(
-                            command='billing.refund'
-                        ),
-                        is_compensation=True
-                    ),
-                    SagaReplyHandler(
-                        'BILL_FAIL',
+                        'BILL_FAILED',
                         action=self.invoke_participant(
                             command='parking.unblock'
                         ),
                         is_compensation=True
                     ),
                     SagaReplyHandler(
-                        'BILL_FAIL',
+                        'BILL_FAILED',
                         action=self.invoke_local(self.failed_booking),
                         is_compensation=True
                     ),
