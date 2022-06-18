@@ -1,4 +1,3 @@
-
 import fire
 
 from app import logging
@@ -17,7 +16,7 @@ class AppCLI(object):
         async with saga.connect() as saga:
             await saga.start_workflow()
 
-        logging.info('Done booking request created.')
+        logging.info('Booking request workflow done.')
 
     async def booking_list(self):
         with Session() as session:

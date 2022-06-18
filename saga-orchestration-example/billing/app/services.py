@@ -50,20 +50,15 @@ async def billing_command_event_processor(message: IncomingMessage):
 
         booking = json.loads(str(message.body.decode('utf-8')))
         response_obj: AMQPMessage = None
-        if client == 'BOOKING_REQUEST_ORCHESTRATOR' and command == 'BILLING_PAY':
+        if client == 'BOOKING_REQUEST_ORCHESTRATOR' and command == 'BILLING_AUTHORIZE_PAYMENT':
             with Session() as session:
-                br = await create_billing_request(session, booking.get("parking_slot_ref_no"))
-
-                # NOTE: comment the above line and uncomment this line
-                #   to initial failed billing payment request and
-                #   trigger rollback compensation transaction.
-                # br = await create_billing_request(session, booking.get("parking_slot_ref_no"), 'failed')
+                await create_billing_request(session, booking.get("parking_slot_ref_no"))
 
                 await message.ack()
                 response_obj = AMQPMessage(
                     id=message.correlation_id,
                     content=None,
-                    reply_state=('BILL_FAILED', 'BILL_PAID')[br.status == 'paid']
+                    reply_state='PAYMENT_SUCCESSFUL'
                 )
 
         # There must be a response object to signal orchestrator of

@@ -171,17 +171,17 @@ class CreateBookingRequestSaga(SagaRPC):
                 ]
             ),
             self.invoke_participant(
-                command='billing.pay',
+                command='billing.authorize_payment',
                 on_reply=[
                     SagaReplyHandler(
-                        'BILL_FAILED',
+                        'PAYMENT_FAILED',
                         action=self.invoke_participant(
                             command='parking.unblock'
                         ),
                         is_compensation=True
                     ),
                     SagaReplyHandler(
-                        'BILL_FAILED',
+                        'PAYMENT_FAILED',
                         action=self.invoke_local(self.failed_booking),
                         is_compensation=True
                     ),
