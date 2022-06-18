@@ -32,7 +32,7 @@ You must be in the root directory of this repository (python-microservices-patte
 
 ## Saga's Choreography Publish/Subscribe Event
 
-![saga-choreography-pattern](https://github.com/roelzkie15/python-microservices-patterns/blob/master/saga-choreograhpy-example/resources/saga-choreography-pattern.png)
+![saga-choreography-pattern](https://github.com/roelzkie15/python-microservices-patterns/blob/master/saga-choreography-example/resources/saga-choreography-pattern.png)
 
 ### Workflows
 
@@ -225,7 +225,7 @@ A billing request for the customer is created right after booking a parking slot
 
 ## Compensating (Rollback) Transaction in Choreograhpy pattern
 
-![saga-choreography-rollback-pattern](https://github.com/roelzkie15/python-microservices-patterns/blob/master/saga-choreograhpy-example/resources/saga-choreography-pattern-rb-transaction.png)
+![saga-choreography-rollback-pattern](https://github.com/roelzkie15/python-microservices-patterns/blob/master/saga-choreography-example/resources/saga-choreography-pattern-rb-transaction.png)
 
 ### Workflows
 
