@@ -136,7 +136,7 @@ Assuming that all docker services are running. We can now execute the above work
     {"id": 1, "status": "failed", "parking_slot_ref_no": "080435ac-fce7-4e91-8880-30b8a277d830:ae949fae-0a91-4e62-be0c-4f950963abaa"}
     ```
 
-    Keep a transaction history for booking requests.
+    Keep a transaction history for booking requests. The booking request status is set to _failed_.
 
 1. On **Parking Service** bash session:
 
@@ -158,7 +158,7 @@ Assuming that all docker services are running. We can now execute the above work
     {'id': 1, 'total': Decimal('100.00'), 'status': 'refunded', 'reference_no': '080435ac-fce7-4e91-8880-30b8a277d830:ae949fae-0a91-4e62-be0c-4f950963abaa'}
     ```
 
-    Keep a transaction history for billing request.
+    Keep a transaction history for billing request. The billing request status is set to _refunded_.
 
 ## Benefits and drawbacks of Saga's Orchestration Pattern
 
