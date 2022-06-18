@@ -46,7 +46,7 @@ You must be in the root directory of this repository (python-microservices-patte
 
 1. Finally **BSO** will proceed to another next transaction sending a _**parking.reserve**_ command to  **Parking Service** to set the parking record to _reserved_.
 
-### Execution
+### Workflow in action
 
 Assuming that all docker services are running. We can now execute the above workflow by taking the following steps:
 
