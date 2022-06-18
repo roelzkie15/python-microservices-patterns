@@ -166,4 +166,4 @@ Assuming that all docker services are running. We can now execute the above work
 - No cyclic dependency.
 - Distribution of transactions are centralized.
 - Testable Orchestrator commands.
-- Handler rollback transaction better.
+- Handle rollback transaction better.
