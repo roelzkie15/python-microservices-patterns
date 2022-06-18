@@ -21,11 +21,12 @@ async def lifespan(app):
         await amqp_client.connection.close()
 
 
-async def root(request):
+async def health(request):
     return JSONResponse({'message': 'Billing server is running'})
 
+
 routes = [
-    Route('/', root),
+    Route('/health', health),
 ]
 
 app = Starlette(routes=routes, lifespan=lifespan)
