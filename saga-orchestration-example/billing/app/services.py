@@ -52,7 +52,13 @@ async def billing_command_event_processor(message: IncomingMessage):
         response_obj: AMQPMessage = None
         if client == 'BOOKING_REQUEST_ORCHESTRATOR' and command == 'BILLING_PAY':
             with Session() as session:
-                br = await create_billing_request(session, booking.get("parking_slot_ref_no"), 'failed')
+                br = await create_billing_request(session, booking.get("parking_slot_ref_no"))
+
+                # NOTE: comment the above line and uncomment this line
+                #   to initial failed billing payment request and
+                #   trigger rollback compensation transaction.
+                # br = await create_billing_request(session, booking.get("parking_slot_ref_no"), 'failed')
+
                 await message.ack()
                 response_obj = AMQPMessage(
                     id=message.correlation_id,
