@@ -12,9 +12,9 @@ To demonstrate this pattern we will still have to use the same distributed syste
 
 ## Running the applications
 
-You must be in the root directory of this repository (python-microservices-patterns) where the `saga-choreography.yml` file is located at and not at the `saga-choreography-example/` directory.
+You must be in the root directory of this repository (python-microservices-patterns) where the `saga-orchestration.yml` file is located at and not at the `saga-orchestration-example/` directory.
 
-- Build saga choreography docker images:
+- Build saga orchestration docker images:
 
     ```
     docker-compose -f saga-orchestration.yml build --no-cache
