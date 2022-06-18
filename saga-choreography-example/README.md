@@ -18,6 +18,7 @@ You must be in the root directory of this repository (python-microservices-patte
     ```
     docker-compose -f saga-choreography.yml build --no-cache
     ```
+
 - Run the services via docker-compose:
 
     ```

@@ -17,12 +17,13 @@ You must be in the root directory of this repository (python-microservices-patte
 - Build saga choreography docker images:
 
     ```
-    docker-compose -f saga-choreography.yml build --no-cache
+    docker-compose -f saga-orchestration.yml build --no-cache
     ```
+
 - Run the services via docker-compose:
 
     ```
-    docker-compose -f saga-choreography.yml up
+    docker-compose -f saga-orchestration.yml up
     ```
 
 - Booking service is running at localhost:8000
