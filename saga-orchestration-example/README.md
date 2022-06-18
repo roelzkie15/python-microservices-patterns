@@ -91,7 +91,7 @@ Assuming that all docker services are running. We can now execute the above work
     {"uuid": "080435ac-fce7-4e91-8880-30b8a277d830", "name": "Slot 1", "status": "reserved"}
     ```
 
-## Compensating (Rollback) Transaction in Orchestration pattern (WIP)
+## Compensating (Rollback) Transaction in Orchestration pattern
 
 ![saga-orchestration-pattern-rb-tx](https://github.com/roelzkie15/python-microservices-patterns/blob/master/saga-orchestration-example/resources/saga-orchestration-pattern-rb-transaction.png)
 
@@ -102,3 +102,55 @@ Assuming that all docker services are running. We can now execute the above work
 1. The **BSO** will listen to the _PARKING_RESERVATION_FAILED_ event and proceed to the next transaction by sending _**billing.refund**_ command to **Billing Service** and produces a _BILL_REFUNDED_ event to the **BSO** reply channel.
 
 1. Also the **BSO** will listen to the _BILL_REFUNDED_ event and execute a local transaction to set the current booking request to _failed_.
+
+# Compensation transaction in action
+
+> **Note**: You may need to ssh to the given service container via docker exec -it <service_container_id> bash for the CLI to work.
+
+1. To allow compensation transaction we need to fail the step 4 transaction of the original workflow by following this [instruction](https://github.com/roelzkie15/python-microservices-patterns/blob/master/saga-orchestration-example/parking/app/services.py#L98). This will fail reserving the parking slot.
+
+1. Now create a booking request for parking slot. Make sure you are within the **Booking Service** container in a bash session:
+
+    ```
+    poetry run python -m app.cli create_booking_request '080435ac-fce7-4e91-8880-30b8a277d830'
+
+    # Output:
+    INFO:root:Booking request workflow done.
+    ```
+
+1. List booking request:
+
+    ```
+    poetry run python -m app.cli booking_list
+
+    # Output:
+    {"id": 1, "status": "failed", "parking_slot_ref_no": "080435ac-fce7-4e91-8880-30b8a277d830:ae949fae-0a91-4e62-be0c-4f950963abaa"}
+    ```
+
+1. On **Parking Service** bash session:
+
+    ```
+    poetry run python -m app.cli parking_slot_list
+
+    # Output:
+    {"uuid": "080435ac-fce7-4e91-8880-30b8a277d830", "name": "Slot 1", "status": "available"}
+    ```
+
+    Since reservation failed it will set back again to _available_ status.
+
+1. On **Billing Service** bash session:
+
+    ```
+    poetry run python -m app.cli billing_request_list
+
+    # Output:
+    {'id': 1, 'total': Decimal('100.00'), 'status': 'refunded', 'reference_no': '080435ac-fce7-4e91-8880-30b8a277d830:ae949fae-0a91-4e62-be0c-4f950963abaa'}
+    ```
+
+## Benefits and drawbacks of Saga's Orchestration Pattern
+
+- Complex saga orchestration implementation.
+- No cyclic dependency.
+- Distribution of transactions are centralized.
+- Testable Orchestrator commands.
+- Better rollback experience.
