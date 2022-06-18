@@ -136,6 +136,8 @@ Assuming that all docker services are running. We can now execute the above work
     {"id": 1, "status": "failed", "parking_slot_ref_no": "080435ac-fce7-4e91-8880-30b8a277d830:ae949fae-0a91-4e62-be0c-4f950963abaa"}
     ```
 
+    Keep a transaction history for booking requests.
+
 1. On **Parking Service** bash session:
 
     ```
@@ -145,7 +147,7 @@ Assuming that all docker services are running. We can now execute the above work
     {"uuid": "080435ac-fce7-4e91-8880-30b8a277d830", "name": "Slot 1", "status": "available"}
     ```
 
-    Since reservation failed it will set back again to _available_ status.
+    Since reservation _failed_ it will rollback the parking status back to _available_. So we can start requesting another booking request for this parking slot again.
 
 1. On **Billing Service** bash session:
 
@@ -155,6 +157,8 @@ Assuming that all docker services are running. We can now execute the above work
     # Output:
     {'id': 1, 'total': Decimal('100.00'), 'status': 'refunded', 'reference_no': '080435ac-fce7-4e91-8880-30b8a277d830:ae949fae-0a91-4e62-be0c-4f950963abaa'}
     ```
+
+    Keep a transaction history for billing request.
 
 ## Benefits and drawbacks of Saga's Orchestration Pattern
 
