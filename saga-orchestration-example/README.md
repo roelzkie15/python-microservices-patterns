@@ -1,6 +1,6 @@
 # Saga Orchestration Example
 
-To demonstrate this pattern we will still have to use the same distributed system architecture from the [Saga Choreography Example](https://github.com/roelzkie15/python-microservices-patterns/tree/master/saga-choreograhpy-example) but with more simplified version and shorter workflow for booking, billing and parking services.
+To demonstrate this pattern we will still have to use the same distributed system architecture from the [Saga Choreography Example](https://github.com/roelzkie15/python-microservices-patterns/tree/master/saga-choreography-example) but with more simplified version and shorter workflow for booking, billing and parking services.
 
 ## Techstack to implement servers
 
@@ -8,6 +8,28 @@ To demonstrate this pattern we will still have to use the same distributed syste
 - RabbitMQ (RPC Pattern for Saga Orchestration)
 - SQLite
 - Docker
+
+
+## Running the applications
+
+You must be in the root directory of this repository (python-microservices-patterns) where the `saga-choreography.yml` file is located at and not at the `saga-choreography-example/` directory.
+
+- Build saga choreography docker images:
+
+    ```
+    docker-compose -f saga-choreography.yml build --no-cache
+    ```
+- Run the services via docker-compose:
+
+    ```
+    docker-compose -f saga-choreography.yml up
+    ```
+
+- Booking service is running at localhost:8000
+- Billing service is running at localhost:8001
+- Parking service is running at localhost:8002
+- To check the server health just append `/health` url at the end of the `localhost:port` (e.g. `localhost:8000/health`)
+
 
 ## Saga's Orchestration/Command Logic
 
@@ -33,4 +55,4 @@ To demonstrate this pattern we will still have to use the same distributed syste
 
 1. The **BSO** will listen to the _BILL_FAILED_ event from the reply channel and will send _**parking.unblock**_ command to the **Parking Service** to set the parking status to _available_ again.
 
-1. Also the **BSO** will proceed to another _BILL_FAILED_ listener and will invoke local transaction to **Booking Service** to set the current booking request to rejected.
+1. Also the **BSO** will proceed to another _BILL_FAILED_ listener and will invoke local transaction to **Booking Service** to set the current booking request to _rejected_.
