@@ -50,7 +50,7 @@ You must be in the root directory of this repository (python-microservices-patte
 
 Assuming that all docker services are running. We can now execute the above workflow by taking the following steps:
 
-> Note: You may need to ssh to the given service container via docker exec -it <service_container_id> bash for the CLI to work.
+> **Note**: You may need to ssh to the given service container via docker exec -it <service_container_id> bash for the CLI to work.
 
 1. Create a parking slot. Make sure you are within the **Parking Service** container in a bash session:
 
