@@ -34,7 +34,7 @@ You must be in the root directory of this repository (python-microservices-patte
 
 ## Saga's Orchestration/Command Logic
 
-### Workflows
+### Workflow
 
 ![saga-orchestration-pattern](https://github.com/roelzkie15/python-microservices-patterns/blob/master/saga-orchestration-example/resources/saga-orchestration-pattern.png)
 
@@ -42,9 +42,11 @@ You must be in the root directory of this repository (python-microservices-patte
 
 1. It will then send a _**parking.block**_ command to **Parking Service** to lock the parking slot. If the parking slot is _available_. Trigger a _PARKING_AVAILABLE_ event to the **BSO** reply channel.
 
-1. The **BSO** will proceed to the next transaction by updating the booking status to _approved_ and afterward fire a _**billing.authorize_payment**_ command to **Billing Service**. It will then produce a _PAYMENT_SUCCESSFUL_ event to the **BSO** reply channel.
+1. The **BSO** will proceed to the next transaction by firing a _**billing.authorize_payment**_ command to **Billing Service**. It will then produce a _PAYMENT_SUCCESSFUL_ event to the **BSO** reply channel.
 
-1. Finally **BSO** will proceed to another next transaction sending a _**parking.reserve**_ command to  **Parking Service** to set the parking record to _reserved_.
+1. The **BSO** will proceed to another next transaction sending a _**parking.reserve**_ command to  **Parking Service** to set the parking record to _reserved_ and will return a _PARKING_RESERVED_ event to the **BSO** reply channel.
+
+1. Finally, the **BSO** will proceed to the next local transaction by setting the current booking request status to _completed_.
 
 ### Workflow in action
 
@@ -77,7 +79,7 @@ Assuming that all docker services are running. We can now execute the above work
     poetry run python -m app.cli booking_list
 
     # Output:
-    {"id": 1, "status": "paid", "parking_slot_ref_no": "080435ac-fce7-4e91-8880-30b8a277d830:ae949fae-0a91-4e62-be0c-4f950963abaa"}
+    {"id": 1, "status": "completed", "parking_slot_ref_no": "080435ac-fce7-4e91-8880-30b8a277d830:ae949fae-0a91-4e62-be0c-4f950963abaa"}
     ```
 
 1. On **Parking Service** bash session:
@@ -93,10 +95,10 @@ Assuming that all docker services are running. We can now execute the above work
 
 ![saga-orchestration-pattern-rb-tx](https://github.com/roelzkie15/python-microservices-patterns/blob/master/saga-orchestration-example/resources/saga-orchestration-pattern-rb-transaction.png)
 
-1. The **BSO** initiate the _**pay.bill**_ command to the **Billing Service**.
+1. The **BSO** initiate a _**parking.reserve**_ command to the **Parking Service**.
 
-1. The **Billing Service** failed to record the payment process and produces a  _BILL_FAILED_ event to the **BSO** reply channel.
+1. The **Parking Service** return a _PARKING_RESERVATION_FAILED_ event to **BSO** reply channel.
 
-1. The **BSO** will listen to the _BILL_FAILED_ event from the reply channel and will send _**parking.unblock**_ command to the **Parking Service** to set the parking status to _available_ again.
+1. The **BSO** will listen to the _PARKING_RESERVATION_FAILED_ event and proceed to the next transaction by sending _**billing.refund**_ command to **Billing Service** and produces a _BILL_REFUNDED_ event to the **BSO** reply channel.
 
-1. Also the **BSO** will proceed to another _BILL_FAILED_ listener and will invoke local transaction to **Booking Service** to set the current booking request to _rejected_.
+1. Also the **BSO** will listen to the _BILL_REFUNDED_ event and execute a local transaction to set the current booking request to _failed_.

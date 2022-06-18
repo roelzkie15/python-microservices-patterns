@@ -150,9 +150,7 @@ class CreateBookingRequestSaga(SagaRPC):
     @property
     async def definitions(self):
         return [
-            self.invoke_local(
-                action=self.create_booking
-            ),
+            self.invoke_local(action=self.create_booking),
             self.invoke_participant(
                 command='parking.block',
                 on_reply=[
@@ -163,34 +161,34 @@ class CreateBookingRequestSaga(SagaRPC):
                         ),
                         is_compensation=True
                     ),
-                    SagaReplyHandler(
-                        'PARKING_UNAVAILABLE',
-                        action=self.invoke_local(self.reject_booking),
-                        is_compensation=True
-                    ),
                 ]
             ),
+            self.invoke_participant(command='billing.authorize_payment'),
             self.invoke_participant(
-                command='billing.authorize_payment',
+                command='parking.reserve',
                 on_reply=[
                     SagaReplyHandler(
-                        'PAYMENT_FAILED',
+                        'PARKING_RESERVATION_FAILED',
+                        action=self.invoke_participant(command='parking.unblock'),
+                        is_compensation=True
+                    ),
+                    SagaReplyHandler(
+                        'PARKING_RESERVATION_FAILED',
                         action=self.invoke_participant(
-                            command='parking.unblock'
+                            command='billing.refund',
+                            on_reply=[
+                                SagaReplyHandler(
+                                    'BILL_REFUNDED',
+                                    action=self.invoke_local(action=self.failed_booking),
+                                    is_compensation=True
+                                )
+                            ]
                         ),
                         is_compensation=True
                     ),
-                    SagaReplyHandler(
-                        'PAYMENT_FAILED',
-                        action=self.invoke_local(self.failed_booking),
-                        is_compensation=True
-                    ),
                 ]
             ),
-            self.invoke_local(
-                action=self.paid_booking
-            ),
-            self.invoke_participant(command='parking.reserve')
+            self.invoke_local(action=self.completed_booking)
         ]
 
     async def create_booking(self) -> bool:
@@ -198,23 +196,14 @@ class CreateBookingRequestSaga(SagaRPC):
             self.data = await create_booking(session, self.parking_slot_uuid)
             return self.data.id is not None
 
-    async def reject_booking(self) -> bool:
+    async def completed_booking(self) -> bool:
         with Session() as session:
             booking = await booking_details_by_parking_ref_no(session, self.data.parking_slot_ref_no)
-            booking.status = 'rejected'
+            booking.status = 'completed'
 
             # Updated data
             self.data = await update_booking(session, booking)
-            return self.data.status == 'rejected'
-
-    async def paid_booking(self) -> bool:
-        with Session() as session:
-            booking = await booking_details_by_parking_ref_no(session, self.data.parking_slot_ref_no)
-            booking.status = 'paid'
-
-            # Updated data
-            self.data = await update_booking(session, booking)
-            return self.data.status == 'paid'
+            return self.data.status == 'completed'
 
     async def failed_booking(self) -> bool:
         with Session() as session:
@@ -223,4 +212,4 @@ class CreateBookingRequestSaga(SagaRPC):
 
             # Updated data
             self.data = await update_booking(session, booking)
-            return self.data.status == 'paid'
+            return self.data.status == 'failed'

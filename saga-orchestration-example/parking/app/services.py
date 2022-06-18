@@ -76,8 +76,9 @@ async def parking_command_event_processor(message: IncomingMessage):
                 await message.ack()
                 response_obj = AMQPMessage(
                     id=message.correlation_id,
-                    reply_state=('PARKING_UNAVAILABLE', 'PARKING_AVAILABLE')[
-                        is_available]
+                    reply_state=(
+                        'PARKING_UNAVAILABLE', 'PARKING_AVAILABLE'
+                    )[is_available]
                 )
 
         if client == 'BOOKING_REQUEST_ORCHESTRATOR' and command == 'PARKING_UNBLOCK':
@@ -92,10 +93,18 @@ async def parking_command_event_processor(message: IncomingMessage):
 
         if client == 'BOOKING_REQUEST_ORCHESTRATOR' and command == 'PARKING_RESERVE':
             with Session() as session:
-                is_available = await reserve_parking_slot(session, parking_slot_uuid)
+                is_reserved = await reserve_parking_slot(session, parking_slot_uuid)
+
+                # NOTE: Comment the above line and uncomment this line to trigger
+                # compensation transaction.
+                # is_reserved = False
+
                 await message.ack()
                 response_obj = AMQPMessage(
                     id=message.correlation_id,
+                    reply_state=(
+                        'PARKING_RESERVATION_FAILED', 'PARKING_RESERVED'
+                    )[is_reserved]
                 )
 
         # There must be a response object to signal orchestrator of
