@@ -29,7 +29,7 @@ You must be in the root directory of this repository (python-microservices-patte
 - Parking service is running at localhost:8000
 - Booking service is running at localhost:8001
 - Billing service is running at localhost:8002
-- To check the server health just append `/health` url at the end of the `localhost:port` (e.g. `localhost:8000/health`)
+- To check the server health just append `/health` url at the end of the `localhost:port` (e.g. `localhost:8000/health` to check parking service health)
 
 
 ## Saga's Orchestration/Command Logic
