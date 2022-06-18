@@ -15,6 +15,4 @@ There are two popular Saga patterns:
 
 - [__Orchestration__](https://github.com/roelzkie15/python-microservices-patterns/tree/master/saga-orchestration-example) - Where microservices have an orchestrator to command what participating microservices should trigger the next local transaction and should receive a reply from that local transaction.
 
-> Visit the links above to see examples.
-
 ## WIP: More patterns to come...
