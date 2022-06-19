@@ -64,6 +64,7 @@ Assuming that all docker services are running. We can now execute the above work
     name:   Slot 1
     status: available
     ```
+
 1. Booking request for parking slot. Make sure you are within the **Booking Service** container in a bash session:
 
     ```
@@ -71,24 +72,6 @@ Assuming that all docker services are running. We can now execute the above work
 
     # Output:
     INFO:root:Booking request workflow done.
-    ```
-
-1. List booking request:
-
-    ```
-    poetry run python -m app.cli booking_list
-
-    # Output:
-    {"id": 1, "status": "completed", "parking_slot_ref_no": "080435ac-fce7-4e91-8880-30b8a277d830:ae949fae-0a91-4e62-be0c-4f950963abaa"}
-    ```
-
-1. On **Parking Service** bash session:
-
-    ```
-    poetry run python -m app.cli parking_slot_list
-
-    # Output:
-    {"uuid": "080435ac-fce7-4e91-8880-30b8a277d830", "name": "Slot 1", "status": "reserved"}
     ```
 
 1. On **Billing Service** bash session:
@@ -99,6 +82,30 @@ Assuming that all docker services are running. We can now execute the above work
     # Output:
     {'id': 1, 'total': Decimal('100.00'), 'status': 'paid', 'reference_no': '080435ac-fce7-4e91-8880-30b8a277d830:ae949fae-0a91-4e62-be0c-4f950963abaa'}
     ```
+
+    Billing request was paid.
+
+1. On **Parking Service** bash session:
+
+    ```
+    poetry run python -m app.cli parking_slot_list
+
+    # Output:
+    {"uuid": "080435ac-fce7-4e91-8880-30b8a277d830", "name": "Slot 1", "status": "reserved"}
+    ```
+
+    Parking slot was reserved.
+
+1. List booking request:
+
+    ```
+    poetry run python -m app.cli booking_list
+
+    # Output:
+    {"id": 1, "status": "completed", "parking_slot_ref_no": "080435ac-fce7-4e91-8880-30b8a277d830:ae949fae-0a91-4e62-be0c-4f950963abaa"}
+    ```
+
+    Booking request was completed.
 
 ## Compensating (Rollback) Transaction in Orchestration pattern
 
@@ -127,16 +134,16 @@ Assuming that all docker services are running. We can now execute the above work
     INFO:root:Booking request workflow done.
     ```
 
-1. List booking request:
+1. On **Billing Service** bash session:
 
     ```
-    poetry run python -m app.cli booking_list
+    poetry run python -m app.cli billing_request_list
 
     # Output:
-    {"id": 1, "status": "failed", "parking_slot_ref_no": "080435ac-fce7-4e91-8880-30b8a277d830:ae949fae-0a91-4e62-be0c-4f950963abaa"}
+    {'id': 1, 'total': Decimal('100.00'), 'status': 'refunded', 'reference_no': '080435ac-fce7-4e91-8880-30b8a277d830:ae949fae-0a91-4e62-be0c-4f950963abaa'}
     ```
 
-    Keep a transaction history for booking requests. The booking request status is set to _failed_.
+    The billing request status was set to _refunded_.
 
 1. On **Parking Service** bash session:
 
@@ -147,18 +154,18 @@ Assuming that all docker services are running. We can now execute the above work
     {"uuid": "080435ac-fce7-4e91-8880-30b8a277d830", "name": "Slot 1", "status": "available"}
     ```
 
-    Since reservation _failed_ it will rollback the parking status back to _available_. So we can start requesting another booking request for this parking slot again.
+    Since reservation _failed_ it will rollback the parking status to _available_. So we can start requesting another booking request for this parking slot again.
 
-1. On **Billing Service** bash session:
+1. On **Booking Service** bash session:
 
     ```
-    poetry run python -m app.cli billing_request_list
+    poetry run python -m app.cli booking_list
 
     # Output:
-    {'id': 1, 'total': Decimal('100.00'), 'status': 'refunded', 'reference_no': '080435ac-fce7-4e91-8880-30b8a277d830:ae949fae-0a91-4e62-be0c-4f950963abaa'}
+    {"id": 1, "status": "failed", "parking_slot_ref_no": "080435ac-fce7-4e91-8880-30b8a277d830:ae949fae-0a91-4e62-be0c-4f950963abaa"}
     ```
 
-    Keep a transaction history for billing request. The billing request status is set to _refunded_.
+    Finally, the booking request status was set to _failed_.
 
 ## Benefits and drawbacks of Saga's Orchestration Pattern
 
