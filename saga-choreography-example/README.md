@@ -11,7 +11,7 @@ There are 3 microservices that will work together to demonstrate this pattern. W
 
 ## Running the applications
 
-You must be in the root directory of this repository (python-microservices-patterns) where the `saga-choreography.yml` file is located at and not at the `saga-choreograhpy-example/` directory.
+You must be in the root directory of this repository (python-microservices-patterns) where the `compose/saga-choreography.yml` file is located at and not at the `saga-choreograhpy-example/` directory.
 
 - Build saga choreograhpy docker images:
 

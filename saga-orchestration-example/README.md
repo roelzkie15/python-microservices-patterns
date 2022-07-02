@@ -12,7 +12,7 @@ To demonstrate this pattern we will still have to use the same distributed syste
 
 ## Running the applications
 
-You must be in the root directory of this repository (python-microservices-patterns) where the `saga-orchestration.yml` file is located at and not at the `saga-orchestration-example/` directory.
+You must be in the root directory of this repository (python-microservices-patterns) where the `compose/saga-orchestration.yml` file is located at and not at the `saga-orchestration-example/` directory.
 
 - Build saga orchestration docker images:
 
