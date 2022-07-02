@@ -13,6 +13,7 @@ alembic = "^1.8.0"
 psycopg2-binary = "^2.9.3"
 fire = "^0.4.0"
 attrs = "^21.4.0"
+aio-pika = "^8.0.3"
 
 [tool.poetry.dev-dependencies]
 black = "^22.6.0"
