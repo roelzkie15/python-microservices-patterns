@@ -18,7 +18,7 @@ class RoutingSession(Session):
         elif self._flushing:
             return engines["primary"]
         else:
-            return engines["primary"]
+            return engines["replica"]
 
 
 SessionLocal = scoped_session(sessionmaker(autocommit=False, class_=RoutingSession))
