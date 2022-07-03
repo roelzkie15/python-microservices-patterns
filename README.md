@@ -22,11 +22,15 @@ It also amplify scalability as read databases or replicas data sources can be pl
 
 See python CQRS example [here](https://github.com/roelzkie15/python-microservices-patterns/tree/cqrs/cqrs-example).
 
-## Event Sourcing <div id="event-sourcing"/>
+<div id="event-sourcing"/>
+
+## Event Sourcing
 
 WIP
 
-## Saga <div id="saga"/>
+<div id="saga"/>
+
+## Saga
 When you use **Database per Service** design you will need to consider **Saga** for distributed transactions to maintain data consistency across multiple services.
 
 A Saga is a sequence of local transactions and each transaction will publish messages or events that trigger the next local transaction.
@@ -44,14 +48,20 @@ There are two popular Saga patterns:
 - [__Orchestration__](https://github.com/roelzkie15/python-microservices-patterns/tree/master/saga-orchestration-example) - Where microservices have an orchestrator to command what participating microservices should trigger the next local transaction and should receive a reply from that local transaction.
 
 
-## API Gateway <div id="api-gateway"/>
+<div id="api-gateway"/>
+
+## API Gateway
 
 WIP
 
-## Backend for Frontend <div id="bff"/>
+<div id="bff"/>
+
+## Backend for Frontend
 
 WIP
 
-## Circuit Breaker <div id="circuit-breaker"/>
+<div id="circuit-breaker"/>
+
+## Circuit Breaker
 
 WIP
