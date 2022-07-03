@@ -21,7 +21,7 @@ class RoutingSession(Session):
             return engines["replica"]
 
 
-SessionLocal = scoped_session(sessionmaker(autocommit=False, class_=RoutingSession))
+SessionLocal = scoped_session(sessionmaker(autocommit=False, autoflush=False, class_=RoutingSession))
 
 Base = declarative_base()
 ReplicaBase = declarative_base()
