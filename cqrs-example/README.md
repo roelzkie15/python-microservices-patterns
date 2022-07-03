@@ -1,3 +1,4 @@
+
 # Command Query Responsibility Segregation (CQRS) Example
 
 This example will have a single domain (Parking) to test CQRS read and write operations.
@@ -31,7 +32,7 @@ You must be in the root directory of this repository (python-microservices-patte
 
 ### Workflow
 
-![cqrs-pattern](https://github.com/roelzkie15/python-microservices-patterns/blob/cqrs/cqrs-example/resources/cqrs-pattern.png)
+![cqrs-pattern](https://github.com/roelzkie15/python-microservices-patterns/blob/master/cqrs-example/resources/cqrs-pattern.png)
 
 1. Create a parking slot in **CQRS Service**, this will trigger _**parking.create**_ event. Also within this event creates parking slot record to the primary database.
 2. The **Event Consumer** listens to _**parking.create**_ event and create the parking slot data to the replica database.
