@@ -20,7 +20,7 @@ When the system has an overwhelming read activity than write activity this patte
 
 It also amplify scalability as read databases or replicas data sources can be placed in a geolocation where data consumer can access information with reduced response latency.
 
-See python example CQRS example [here](https://github.com/roelzkie15/python-microservices-patterns/tree/cqrs/cqrs-example).
+See python CQRS example [here](https://github.com/roelzkie15/python-microservices-patterns/tree/cqrs/cqrs-example).
 
 ## Event Sourcing <div id="event-sourcing"/>
 
