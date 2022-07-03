@@ -12,7 +12,7 @@ This example will have a single domain (Parking) to test CQRS read and write ope
 
 ## Running the applications
 
-You must be in the root directory of this repository (python-microservices-patterns) where the `compose` directory is located and not at the `saga-orchestration-example/` directory.
+You must be in the root directory of this repository (python-microservices-patterns) where the `compose/` directory is located and not at the `cqrs-example/` directory.
 
 - Build CQRS docker images:
 
