@@ -66,7 +66,7 @@ Assuming that all docker services are running. We can now execute the above work
     2e817460-b54d-4119-b2fc-61bc86943aca | Slot 1            | available
     ```
 
-    > You can also do the same for the primary database server to check the data.
+    > **Note**: You can also do the same for the primary database server to check the data.
 
 1. Now it's not obvious if the **CQRS Service** is getting its data from the replica database. You can modify the replica record just for the sake of example and execute the parking slot list command line within the **CQRS Service** and see if it displays data from the replica database.
 
