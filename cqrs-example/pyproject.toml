@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "cqrs-example"
+version = "0.1.0"
+description = "Python example of CQRS pattern"
+authors = ["roelzkie <badcoder28@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "3.10.3"
+uvicorn = "^0.18.2"
+starlette = "^0.20.4"
+SQLAlchemy = "^1.4.39"
+alembic = "^1.8.0"
+psycopg2-binary = "^2.9.3"
+fire = "^0.4.0"
+attrs = "^21.4.0"
+aio-pika = "^8.0.3"
+
+[tool.poetry.dev-dependencies]
+black = "^22.6.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

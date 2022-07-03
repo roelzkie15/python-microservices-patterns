@@ -1,0 +1,87 @@
+version: '3'
+
+services:
+
+  cqrs-primary-db:
+    image: postgres:13
+    restart: unless-stopped
+    environment:
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - $PWD/cqrs-example/postgres/primary/data:/var/lib/postgresql/data
+    ports:
+      - '5434:5432'
+
+  cqrs-replica-db:
+    image: postgres:13
+    restart: unless-stopped
+    environment:
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - $PWD/cqrs-example/postgres/replica/data:/var/lib/postgresql/data
+    ports:
+      - '5435:5432'
+
+  cqrs-rabbit:
+    image: rabbitmq:3.9.15-management-alpine
+    restart: unless-stopped
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+      - RABBITMQ_NODE_PORT=5671
+    ports:
+      - '15671:15671'
+    expose:
+      - '5671'
+
+  cqrs:
+    build: $PWD/cqrs-example
+    restart: unless-stopped
+    entrypoint: ['/bin/sh','-c']
+    command:
+      - |
+        /code/wait-for-it.sh -t 0 cqrs-primary-db:5432
+        /code/wait-for-it.sh -t 0 cqrs-replica-db:5432
+        /code/wait-for-it.sh -t 0 cqrs-rabbit:5671
+        /code/start_dev.sh
+    volumes:
+      - $PWD/cqrs-example:/code
+    ports:
+      - '8000:8000'
+    environment:
+      - ENVIRONMENT=dev
+      - TESTING=0
+      - DATABASE_URL=postgresql://postgres:postgres@cqrs-primary-db:5432/postgres
+      - REPLICA_DATABASE_URL=postgresql://postgres:postgres@cqrs-replica-db:5432/postgres
+      - RABBITMQ_BROKER_URL=amqp://guest:guest@cqrs-rabbit:5671
+    depends_on:
+      - cqrs-primary-db
+      - cqrs-replica-db
+      - cqrs-rabbit
+
+  event_consumer:
+    image: python_microservice_patterns_cqrs
+    restart: unless-stopped
+    entrypoint: ['/bin/sh','-c']
+    command:
+      - |
+        /code/wait-for-it.sh -t 0 cqrs-primary-db:5432
+        /code/wait-for-it.sh -t 0 cqrs-replica-db:5432
+        /code/wait-for-it.sh -t 0 cqrs-rabbit:5671
+        /code/wait-for-it.sh -t 0 cqrs:8000
+        poetry run python -m app.event_consumer
+    volumes:
+      - $PWD/cqrs-example:/code
+    ports:
+      - '8001:8000'
+    environment:
+      - ENVIRONMENT=dev
+      - TESTING=0
+      - DATABASE_URL=postgresql://postgres:postgres@cqrs-primary-db:5432/postgres
+      - REPLICA_DATABASE_URL=postgresql://postgres:postgres@cqrs-replica-db:5432/postgres
+      - RABBITMQ_BROKER_URL=amqp://guest:guest@cqrs-rabbit:5671
+    depends_on:
+      - cqrs-primary-db
+      - cqrs-replica-db
+      - cqrs-rabbit
+      - cqrs
