@@ -26,7 +26,9 @@ See python CQRS example [here](https://github.com/roelzkie15/python-microservice
 
 ## Event Sourcing
 
-Event Sourcing is a powerful tool in building distributed systems in software architecture. As the name implies, it stores changes of a **Domain** as a sequence of events to a persistent data store called **Event Store** in an append-only log.
+Event Sourcing is a powerful tool in building distributed systems in software architecture. As the name implies, it stores changes of a **Domain** as a sequence of immutable events to a persistent data store called **Event Store** in an append-only style.
+
+Whereas the traditional create, read, update, and delete (CRUD) usually update the data directly and a new value represents the current state without leaving a previous state or a history of how it got to the current state.
 
 It works well with [CQRS](#cqrs) architecture, since a write model and a read model can work together to separate the **Event Store** for append-only (write) operation from the **Materialize View** which you can use to query (read) suitable data for the UI presentation. Although CQRS is not required for the Event Sourcing design pattern.
 
