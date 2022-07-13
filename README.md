@@ -26,11 +26,13 @@ See python CQRS example [here](https://github.com/roelzkie15/python-microservice
 
 ## Event Sourcing
 
-Event Sourcing is a powerful tool in building distributed systems in software architecture. As the name implies, it stores changes of a **Domain** as a sequence of immutable events to a persistent data store called **Event Store** in an append-only style.
+Event Sourcing is a powerful tool in building distributed systems in software architecture. 
 
-Whereas the traditional create, read, update, and delete (CRUD) usually update the data directly and a new value represents the current state without leaving a previous state or a history of how it got to the current state.
+In the traditional approach the create, read, update, and delete (CRUD) usually update the data directly to the data source and a new value represents the current state of that application without leaving previous states or records of how it got to the current state.
 
-It works well with [CQRS](#cqrs) architecture, since a write model and a read model can work together to separate the **Event Store** for append-only (write) operation from the **Materialize View** which you can use to query (read) suitable data for the UI presentation. Although CQRS is not required for the Event Sourcing design pattern.
+Event sourcing pattern stores changes of an application as a sequence of immutable events to a persistent data store called **Event Store** in an append-only style where we can maintain history of events so we are able to reconstruct past events and enable compensating transaction if necessary.
+
+It works well with [CQRS](#cqrs) architecture, since a write model and a read model can work together to separate the **Event Store** for append-only (write) operation from the **Materialize View** which you can use to query (read) suitable data for the UI presentation. Moreover consumers can subscribe to the events and initiate tasks that complete an operation. Although CQRS is not required for the Event Sourcing design pattern.
 
 See python Event Sourcing example here (WIP).
 
