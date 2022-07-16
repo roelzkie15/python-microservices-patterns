@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "booking"
+version = "0.1.0"
+description = "Event Sourcing pattern example - Booking Service"
+authors = ["roelzkie <badcoder28@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+starlette = "^0.20.4"
+SQLAlchemy = "^1.4.39"
+aio-pika = "^8.0.3"
+fire = "^0.4.0"
+alembic = "^1.8.1"
+uvicorn = {extras = ["standard"], version = "^0.18.2"}
+psycopg2-binary = "^2.9.3"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
