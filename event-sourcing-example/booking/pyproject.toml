@@ -13,8 +13,11 @@ fire = "^0.4.0"
 alembic = "^1.8.1"
 uvicorn = {extras = ["standard"], version = "^0.18.2"}
 psycopg2-binary = "^2.9.3"
+eventsourcing = "^9.2.16"
 
 [tool.poetry.dev-dependencies]
+isort = "^5.10.1"
+black = "^22.6.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
