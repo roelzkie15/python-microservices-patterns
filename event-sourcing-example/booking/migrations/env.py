@@ -3,8 +3,9 @@ import re
 from logging.config import fileConfig
 
 from alembic import context
-from app import settings
 from sqlalchemy import engine_from_config, pool
+
+from app import settings
 
 USE_TWOPHASE = False
 
@@ -34,14 +35,13 @@ db_names = config.get_main_option("databases")
 #       'engine1':mymodel.metadata1,
 #       'engine2':mymodel.metadata2
 # }
-from app.db import Base, ReplicaBase
-from app.models import Booking, BookingReplica
+from app.db import EventStoreBase, ReadDBBase
 
-target_metadata = {"primary": Base.metadata, "replica": ReplicaBase.metadata}
+target_metadata = {"event_store": EventStoreBase.metadata, "read_db": ReadDBBase.metadata}
 
 database_urls = {
-    "primary": settings.DATABASE_URL,
-    "replica": settings.REPLICA_DATABASE_URL,
+    "event_store": settings.EVENT_STORE_DATABASE_URL,
+    "read_db": settings.READ_DATABASE_URL,
 }
 
 # other values from the config, defined by the needs of env.py,

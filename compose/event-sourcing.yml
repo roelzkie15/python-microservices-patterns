@@ -2,23 +2,24 @@ version: '3'
 
 services:
 
-  es-primary-db:
+  es-event-store-db:
     image: postgres:13
     restart: unless-stopped
     environment:
       - POSTGRES_PASSWORD=postgres
     volumes:
-      - $PWD/event-sourcing-example/postgres/primary/data:/var/lib/postgresql/data
+      - $PWD/event-sourcing-example/postgres/event-store-db/data:/var/lib/postgresql/data
     ports:
       - '5434:5432'
 
-  es-replica-db:
+  es-read-db:
     image: postgres:13
     restart: unless-stopped
     environment:
       - POSTGRES_PASSWORD=postgres
     volumes:
-      - $PWD/event-sourcing-example/postgres/replica/data:/var/lib/postgresql/data
+      - $PWD/event-sourcing-example/postgres/read-db/data:/var/lib/postgresql/data
+      - $PWD/event-sourcing-example/db_init_scripts/docker_postgres_init.sql:/docker-entrypoint-initdb.d/docker_postgres_init.sql
     ports:
       - '5435:5432'
 
@@ -40,8 +41,8 @@ services:
     entrypoint: ['/bin/sh','-c']
     command:
       - |
-        /code/wait-for-it.sh -t 0 es-primary-db:5432
-        /code/wait-for-it.sh -t 0 es-replica-db:5432
+        /code/wait-for-it.sh -t 0 es-event-store-db:5432
+        /code/wait-for-it.sh -t 0 es-read-db:5432
         /code/wait-for-it.sh -t 0 es-rabbit:5671
         /code/start_dev.sh
     volumes:
@@ -51,10 +52,10 @@ services:
     environment:
       - ENVIRONMENT=dev
       - TESTING=0
-      - DATABASE_URL=postgresql://postgres:postgres@es-primary-db:5432/postgres
-      - REPLICA_DATABASE_URL=postgresql://postgres:postgres@es-replica-db:5432/postgres
+      - EVENT_STORE_DATABASE_URL=postgresql://postgres:postgres@es-event-store-db:5432/postgres
+      - READ_DATABASE_URL=postgresql://booking_read_user:postgres@es-read-db:5432/postgres
       - RABBITMQ_BROKER_URL=amqp://guest:guest@es-rabbit:5671
     depends_on:
-      - es-primary-db
-      - es-replica-db
+      - es-event-store-db
+      - es-read-db
       - es-rabbit
