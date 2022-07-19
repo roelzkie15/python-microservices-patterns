@@ -4,12 +4,11 @@ from starlette.routing import Route
 
 
 async def health(request):
-    return JSONResponse({'message': 'Booking server is running'})
+    return JSONResponse({"message": "Booking server is running"})
+
 
 routes = [
-    Route('/health', health),
+    Route("/health", health),
 ]
 
-app = Starlette(
-    routes=routes
-)
+app = Starlette(routes=routes)

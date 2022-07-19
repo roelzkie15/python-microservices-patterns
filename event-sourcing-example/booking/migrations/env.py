@@ -37,7 +37,10 @@ db_names = config.get_main_option("databases")
 # }
 from app.db import EventStoreBase, ReadDBBase
 
-target_metadata = {"event_store": EventStoreBase.metadata, "read_db": ReadDBBase.metadata}
+target_metadata = {
+    "event_store": EventStoreBase.metadata,
+    "read_db": ReadDBBase.metadata,
+}
 
 database_urls = {
     "event_store": settings.EVENT_STORE_DATABASE_URL,

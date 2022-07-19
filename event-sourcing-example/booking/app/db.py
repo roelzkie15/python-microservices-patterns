@@ -7,7 +7,9 @@ from sqlalchemy.orm import Session, scoped_session, sessionmaker
 from app import settings
 
 engines = {
-    "event_store": create_engine(settings.EVENT_STORE_DATABASE_URL, logging_name="event_store"),
+    "event_store": create_engine(
+        settings.EVENT_STORE_DATABASE_URL, logging_name="event_store"
+    ),
     "read_db": create_engine(settings.READ_DATABASE_URL, logging_name="read_db"),
 }
 
