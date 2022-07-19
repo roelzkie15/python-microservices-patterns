@@ -55,6 +55,12 @@ services:
       - EVENT_STORE_DATABASE_URL=postgresql://postgres:postgres@es-event-store-db:5432/postgres
       - READ_DATABASE_URL=postgresql://booking_read_user:postgres@es-read-db:5432/postgres
       - RABBITMQ_BROKER_URL=amqp://guest:guest@es-rabbit:5671
+      - PERSISTENCE_MODULE=eventsourcing.postgres
+      - POSTGRES_DBNAME=postgres
+      - POSTGRES_HOST=es-event-store-db
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
     depends_on:
       - es-event-store-db
       - es-read-db
