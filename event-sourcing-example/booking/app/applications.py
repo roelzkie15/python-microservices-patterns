@@ -42,3 +42,34 @@ class Bookings(Application):
     def _update_booking(self, booking: Booking) -> Booking:
         self.save(booking)
         return booking
+
+
+class BookingProjector(ProcessApplication):
+    @singledispatchmethod
+    def policy(self, domain_event, processing_event):
+        if type(domain_event) is Booking.BookingCreated:
+            create_booking(
+                domain_uuid=str(domain_event.originator_id),
+                parking_slot_ref_no=domain_event.parking_slot_ref_no,
+                status=domain_event.status,
+            )
+        else:
+            # Aside from booking created event, there only have
+            # a booking status change events.
+            update_booking_status_by(
+                domain_uuid=str(domain_event.originator_id),
+                status=domain_event.status,
+            )
+
+
+system = System(pipes=[[Bookings, BookingProjector]])
+
+
+@contextlib.contextmanager
+def process_runner():
+    runner = SingleThreadedRunner(system)
+    try:
+        runner.start()
+        yield runner
+    finally:
+        runner.stop()
