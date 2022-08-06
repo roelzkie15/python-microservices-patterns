@@ -12,7 +12,7 @@ services:
     ports:
       - '5434:5432'
 
-  es-read-db:
+  es-projector-db:
     image: postgres:13
     restart: unless-stopped
     environment:
@@ -42,7 +42,7 @@ services:
     command:
       - |
         /code/wait-for-it.sh -t 0 es-event-store-db:5432
-        /code/wait-for-it.sh -t 0 es-read-db:5432
+        /code/wait-for-it.sh -t 0 es-projector-db:5432
         /code/wait-for-it.sh -t 0 es-rabbit:5671
         /code/start_dev.sh
     volumes:
@@ -53,15 +53,11 @@ services:
       - ENVIRONMENT=dev
       - TESTING=0
       - EVENT_STORE_DATABASE_URL=postgresql://postgres:postgres@es-event-store-db:5432/postgres
-      - READ_DATABASE_URL=postgresql://booking_read_user:postgres@es-read-db:5432/postgres
+      - PROJECTOR_DATABASE_URL=postgresql://booking_projector_user:postgres@es-projector-db:5432/postgres
+      - SQLALCHEMY_URL=postgresql://postgres:postgres@es-event-store-db:5432/postgres
       - RABBITMQ_BROKER_URL=amqp://guest:guest@es-rabbit:5671
-      - PERSISTENCE_MODULE=eventsourcing.postgres
-      - POSTGRES_DBNAME=postgres
-      - POSTGRES_HOST=es-event-store-db
-      - POSTGRES_PORT=5432
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+      - PERSISTENCE_MODULE=eventsourcing_sqlalchemy
     depends_on:
       - es-event-store-db
-      - es-read-db
+      - es-projector-db
       - es-rabbit
