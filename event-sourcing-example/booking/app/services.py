@@ -1,41 +1,28 @@
-# import ast
-# import asyncio
-# import json
-# from typing import List
-# from uuid import uuid4
-
-# from app.db import Session
-# from app.models import ParkingSlot, ParkingSlotReplica
-# from app.producers import replicate_parking_slot
+from app.models import Booking
+from app.db import Session
 
 
-# async def create_parking_slot(session: Session, **kwargs) -> ParkingSlot:
-#     ps = ParkingSlot(uuid=str(uuid4()))
+def create_booking(domain_uuid: str, parking_slot_ref_no: str, status: str) -> Booking:
+    with Session() as session:
+        booking = Booking(
+            domain_uuid=domain_uuid,
+            parking_slot_ref_no=parking_slot_ref_no,
+            status=status
+        )
+        session.add(booking)
+        session.commit()
+        session.refresh(booking)
+        return booking
 
-#     {setattr(ps, k, v) for k, v in kwargs.items()}
+def get_booking_by_domain_uuid(domain_uuid: str) -> Booking:
+    with Session() as session:
+        return session.query(Booking).filter(Booking.domain_uuid == domain_uuid).one()
 
-#     await replicate_parking_slot(ps.to_dict())
-
-#     session.add(ps)
-#     session.commit()
-#     session.refresh(ps)
-#     return ps
-
-
-# async def parking_slot_list(session: Session) -> List[ParkingSlot]:
-#     return session.query(ParkingSlot).all()
-
-
-# async def parking_slot_details(session: Session, uuid: str) -> ParkingSlot:
-#     return session.query(ParkingSlot).filter(ParkingSlot.uuid == uuid).one()
-
-
-# async def create_parking_slot_replica(session: Session, **kwargs) -> ParkingSlot:
-#     ps = ParkingSlotReplica(uuid=str(uuid4()))
-
-#     {setattr(ps, k, v) for k, v in kwargs.items()}
-
-#     session.add(ps)
-#     session.commit()
-#     session.refresh(ps)
-#     return ps
+def update_booking_status_by(domain_uuid: str, status: str) -> Booking:
+    with Session() as session:
+        booking = get_booking_by_domain_uuid(domain_uuid)
+        booking.status = status
+        session.add(booking)
+        session.commit()
+        session.refresh(booking)
+        return booking
