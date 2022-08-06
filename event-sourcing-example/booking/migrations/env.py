@@ -1,13 +1,9 @@
-import logging
-import re
 from logging.config import fileConfig
 
 from alembic import context
 from sqlalchemy import engine_from_config, pool
 
-from app import settings
-
-USE_TWOPHASE = False
+from app import logging, settings
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -17,35 +13,17 @@ config = context.config
 # This line sets up loggers basically.
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
-logger = logging.getLogger("alembic.env")
 
-# gather section names referring to different
-# databases.  These are named "engine1", "engine2"
-# in the sample .ini file.
-db_names = config.get_main_option("databases")
-
-# add your model's MetaData objects here
-# for 'autogenerate' support.  These must be set
-# up to hold just those tables targeting a
-# particular database. table.tometadata() may be
-# helpful here in case a "copy" of
-# a MetaData is needed.
+# add your model's MetaData object here
+# for 'autogenerate' support
 # from myapp import mymodel
-# target_metadata = {
-#       'engine1':mymodel.metadata1,
-#       'engine2':mymodel.metadata2
-# }
-from app.db import EventStoreBase, ReadDBBase
+# target_metadata = mymodel.Base.metadata
+from app.db import ProjectorBase
+from app.models import Booking
 
-target_metadata = {
-    "event_store": EventStoreBase.metadata,
-    "read_db": ReadDBBase.metadata,
-}
+config.set_main_option("sqlalchemy.url", settings.PROJECTOR_DATABASE_URL)
+target_metadata = [ProjectorBase.metadata]
 
-database_urls = {
-    "event_store": settings.EVENT_STORE_DATABASE_URL,
-    "read_db": settings.READ_DATABASE_URL,
-}
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
@@ -65,30 +43,18 @@ def run_migrations_offline() -> None:
     script output.
 
     """
-    # for the --sql use case, run migrations for each URL into
-    # individual files.
+    url = config.get_main_option("sqlalchemy.url")
+    context.configure(
+        url=url,
+        target_metadata=target_metadata,
+        literal_binds=True,
+        compare_type=True,
+        compare_server_default=True,
+        dialect_opts={"paramstyle": "named"},
+    )
 
-    engines = {}
-    for name in re.split(r",\s*", db_names):
-        config.set_main_option("sqlalchemy.url", database_urls[name])
-
-        engines[name] = rec = {}
-        rec["url"] = config.get_main_option("sqlalchemy.url")
-
-    for name, rec in engines.items():
-        logger.info("Migrating database %s" % name)
-        file_ = "%s.sql" % name
-        logger.info("Writing output to %s" % file_)
-        with open(file_, "w") as buffer:
-            context.configure(
-                url=rec["url"],
-                output_buffer=buffer,
-                target_metadata=target_metadata.get(name),
-                literal_binds=True,
-                dialect_opts={"paramstyle": "named"},
-            )
-            with context.begin_transaction():
-                context.run_migrations(engine_name=name)
+    with context.begin_transaction():
+        context.run_migrations()
 
 
 def run_migrations_online() -> None:
@@ -99,54 +65,33 @@ def run_migrations_online() -> None:
 
     """
 
-    # for the direct-to-DB use case, start a transaction on all
-    # engines, then run all migrations, then commit all transactions.
+    # this callback is used to prevent an auto-migration from being generated
+    # when there are no changes to the schema
+    # reference: http://alembic.zzzcomputing.com/en/latest/cookbook.html
+    def process_revision_directives(context, revision, directives):
+        if getattr(config.cmd_opts, "autogenerate", False):
+            script = directives[0]
+            if script.upgrade_ops.is_empty():
+                directives[:] = []
+                logging.info("No changes in schema detected.")
 
-    engines = {}
-    for name in re.split(r",\s*", db_names):
-        engine_config = context.config.get_section(name)
-        engine_config["sqlalchemy.url"] = database_urls[name]
+    connectable = engine_from_config(
+        config.get_section(config.config_ini_section),
+        prefix="sqlalchemy.",
+        poolclass=pool.NullPool,
+    )
 
-        engines[name] = rec = {}
-        rec["engine"] = engine_from_config(
-            engine_config,
-            prefix="sqlalchemy.",
-            poolclass=pool.NullPool,
+    with connectable.connect() as connection:
+        context.configure(
+            connection=connection,
+            target_metadata=target_metadata,
+            process_revision_directives=process_revision_directives,
+            compare_type=True,
+            compare_server_default=True,
         )
 
-    for name, rec in engines.items():
-        engine = rec["engine"]
-        rec["connection"] = conn = engine.connect()
-
-        if USE_TWOPHASE:
-            rec["transaction"] = conn.begin_twophase()
-        else:
-            rec["transaction"] = conn.begin()
-
-    try:
-        for name, rec in engines.items():
-            logger.info("Migrating database %s" % name)
-            context.configure(
-                connection=rec["connection"],
-                upgrade_token="%s_upgrades" % name,
-                downgrade_token="%s_downgrades" % name,
-                target_metadata=target_metadata.get(name),
-            )
-            context.run_migrations(engine_name=name)
-
-        if USE_TWOPHASE:
-            for rec in engines.values():
-                rec["transaction"].prepare()
-
-        for rec in engines.values():
-            rec["transaction"].commit()
-    except:
-        for rec in engines.values():
-            rec["transaction"].rollback()
-        raise
-    finally:
-        for rec in engines.values():
-            rec["connection"].close()
+        with context.begin_transaction():
+            context.run_migrations()
 
 
 if context.is_offline_mode():
