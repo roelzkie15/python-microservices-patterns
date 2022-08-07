@@ -6,8 +6,7 @@ from app.services import (create_parking_slot, parking_slot_details,
 
 
 class AppCLI(object):
-
-    async def create_parking_slot(self, name: str, status: str | None = 'available'):
+    async def create_parking_slot(self, name: str, status: str | None = "available"):
         with Session() as session:
             ps = await create_parking_slot(session, name=name, status=status)
             return ps.to_dict()
@@ -23,5 +22,5 @@ class AppCLI(object):
             return ps.to_dict()
 
 
-if __name__ == '__main__':
-  fire.Fire(AppCLI)
+if __name__ == "__main__":
+    fire.Fire(AppCLI)

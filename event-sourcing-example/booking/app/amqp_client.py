@@ -9,11 +9,10 @@ from app.models import AMQPMessage
 
 
 class AMQPClient:
-
     def init(self):
-        '''
+        """
         Inititalize AMQP client.
-        '''
+        """
 
         parameters = pika.URLParameters(settings.RABBITMQ_BROKER_URL)
         self.connection = pika.BlockingConnection(parameters)
@@ -21,12 +20,9 @@ class AMQPClient:
         return self
 
     def event_producer(
-        self,
-        event_store: str,
-        binding_key: str,
-        message: AMQPMessage
+        self, event_store: str, binding_key: str, message: AMQPMessage
     ) -> None:
-        '''
+        """
         Send event/message to a specific exchange with binding-key.
 
         If an existing queue is bound to the given binding-key, the message will be stored
@@ -34,13 +30,11 @@ class AMQPClient:
 
         NOTE: The binding_key is mandatory so we can explicitly route the message/event
             to the right queue.
-        '''
+        """
 
         # Declare exchange
         self.channel.exchange_declare(
-            exchange=event_store,
-            exchange_type='topic',
-            durable=True
+            exchange=event_store, exchange_type="topic", durable=True
         )
 
         payload = json.dumps(attrs.asdict(message))

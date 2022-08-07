@@ -57,11 +57,11 @@ class BookingProjector(ProcessApplication):
             with AMQP() as amqp:
                 amqp_client: AMQPClient = amqp
                 amqp_client.event_producer(
-                    "BOOKING_TX_EVENT", "booking.create",
+                    "BOOKING_TX_EVENT",
+                    "booking.create",
                     AMQPMessage(
-                        id=booking.parking_slot_ref_no,
-                        content=booking.to_dict()
-                    )
+                        id=booking.parking_slot_ref_no, content=booking.to_dict()
+                    ),
                 )
 
         else:
@@ -75,11 +75,11 @@ class BookingProjector(ProcessApplication):
             with AMQP() as amqp:
                 amqp_client: AMQPClient = amqp
                 amqp_client.event_producer(
-                    "BOOKING_TX_EVENT", "booking.status_changed",
+                    "BOOKING_TX_EVENT",
+                    "booking.status_changed",
                     AMQPMessage(
-                        id=booking.parking_slot_ref_no,
-                        content=booking.to_dict()
-                    )
+                        id=booking.parking_slot_ref_no, content=booking.to_dict()
+                    ),
                 )
 
 

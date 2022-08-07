@@ -1,9 +1,7 @@
 from logging.config import fileConfig
 
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
-
 from alembic import context
+from sqlalchemy import engine_from_config, pool
 
 from app import logging, settings
 
@@ -21,9 +19,9 @@ if config.config_file_name is not None:
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 from app.db import Base
-
 from app.models import ParkingSlot
-config.set_main_option('sqlalchemy.url', settings.DATABASE_URL)
+
+config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
 target_metadata = [Base.metadata]
 
 
@@ -72,12 +70,11 @@ def run_migrations_online() -> None:
     # when there are no changes to the schema
     # reference: http://alembic.zzzcomputing.com/en/latest/cookbook.html
     def process_revision_directives(context, revision, directives):
-        if getattr(config.cmd_opts, 'autogenerate', False):
+        if getattr(config.cmd_opts, "autogenerate", False):
             script = directives[0]
             if script.upgrade_ops.is_empty():
                 directives[:] = []
-                logging.info('No changes in schema detected.')
-
+                logging.info("No changes in schema detected.")
 
     connectable = engine_from_config(
         config.get_section(config.config_ini_section),
@@ -87,11 +84,12 @@ def run_migrations_online() -> None:
 
     with connectable.connect() as connection:
         context.configure(
-            connection=connection, target_metadata=target_metadata,
+            connection=connection,
+            target_metadata=target_metadata,
             process_revision_directives=process_revision_directives,
             compare_type=True,
             compare_server_default=True,
-            render_as_batch=True
+            render_as_batch=True,
         )
 
         with context.begin_transaction():

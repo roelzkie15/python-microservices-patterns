@@ -1,5 +1,5 @@
-import json
 import ast
+import json
 from typing import List
 from uuid import uuid4
 
@@ -38,27 +38,27 @@ async def parking_slot_details(session: Session, uuid: str) -> ParkingSlot:
 async def block_parking_slot(session: Session, uuid: str) -> bool:
     ps = await parking_slot_details(session, uuid)
 
-    if ps.status != 'available':
+    if ps.status != "available":
         return False
 
-    ps.status = 'blocked'
+    ps.status = "blocked"
     ps = await update_parking_slot(session, ps)
 
-    return ps.status == 'blocked'
+    return ps.status == "blocked"
 
 
 async def reserve_parking_slot(session: Session, uuid: str) -> bool:
     ps = await parking_slot_details(session, uuid)
-    ps.status = 'reserved'
+    ps.status = "reserved"
     ps = await update_parking_slot(session, ps)
-    return ps.status == 'reserved'
+    return ps.status == "reserved"
 
 
 async def booking_event_processor(message: IncomingMessage):
     async with message.process(ignore_processed=True):
         await message.ack()
 
-        data = json.loads(str(message.body.decode('utf-8')))
+        data = json.loads(str(message.body.decode("utf-8")))
         parking_slot_uuid = data.get("id")
         booking = data.get("content")
 

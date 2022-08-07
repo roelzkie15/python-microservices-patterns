@@ -1,9 +1,9 @@
 from typing import Any, Dict
 
+from pydantic import BaseModel
 from sqlalchemy import Column, String
 
 from app.db import Base
-from pydantic import BaseModel
 
 
 class DictMixin:
@@ -12,13 +12,13 @@ class DictMixin:
 
 
 class ParkingSlot(Base, DictMixin):
-    __tablename__ = 'parking_slots'
+    __tablename__ = "parking_slots"
 
     uuid = Column(String, primary_key=True, unique=True, index=True)
     name = Column(String, nullable=False)
 
     # available/blocked/reserved
-    status = Column(String, nullable=False, server_default='available')
+    status = Column(String, nullable=False, server_default="available")
 
 
 class AMQPMessage(BaseModel):
