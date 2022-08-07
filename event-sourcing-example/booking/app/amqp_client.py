@@ -1,64 +1,32 @@
-import asyncio
 import contextlib
-from functools import partial
-from typing import Callable
-
-import aio_pika
-import attrs
 import json
-from aio_pika import IncomingMessage, Message
+
+import attrs
+import pika
 
 from app import settings
 from app.models import AMQPMessage
 
 
 class AMQPClient:
-    async def init(self) -> None:
-        """
+
+    def init(self):
+        '''
         Inititalize AMQP client.
-        """
+        '''
 
-        self.connection = await aio_pika.connect_robust(
-            settings.RABBITMQ_BROKER_URL, loop=asyncio.get_event_loop()
-        )
-
-        # Creating channel
-        self.channel = await self.connection.channel()
+        parameters = pika.URLParameters(settings.RABBITMQ_BROKER_URL)
+        self.connection = pika.BlockingConnection(parameters)
+        self.channel = self.connection.channel()
         return self
 
-    async def event_consumer(
-        self,
-        callback: Callable,
-        event_store: str,
-        event: str = "#",
-        queue_name: str | None = None,
-    ) -> None:
-        """
-        Create an event consumer.
-
-        callback    -   A function that will process the incoming message.
-        event_store -   Declare an exchange as an event store. We store send messages/events
-                        to this exchange.
-        event       -   Serves as a binding key or a type of event that occurred.
-        queue_name  -   Create a queue to set of events from the Exchange (Optional).
-                        If not specified it will still create a queue with a random name.
-        """
-        exchange = await self.channel.declare_exchange(
-            event_store, type="topic", durable=True
-        )
-        queue = await self.channel.declare_queue(queue_name, auto_delete=True)
-
-        await queue.bind(exchange, event)
-        await queue.consume(partial(self._process_message, callback=callback))
-
-    async def event_producer(
+    def event_producer(
         self,
         event_store: str,
         binding_key: str,
-        correlation_id: str,
-        message: AMQPMessage,
+        message: AMQPMessage
     ) -> None:
-        """
+        '''
         Send event/message to a specific exchange with binding-key.
 
         If an existing queue is bound to the given binding-key, the message will be stored
@@ -66,38 +34,25 @@ class AMQPClient:
 
         NOTE: The binding_key is mandatory so we can explicitly route the message/event
             to the right queue.
-        """
+        '''
 
         # Declare exchange
-        exchange = await self.channel.declare_exchange(
-            event_store, type="topic", durable=True
+        self.channel.exchange_declare(
+            exchange=event_store,
+            exchange_type='topic',
+            durable=True
         )
 
-        payload = json.dumps(attrs.as_dict(message))
-        await exchange.publish(
-            Message(
-                body=str(payload).encode(),
-                content_type="application/json",
-                correlation_id=correlation_id,
-            ),
-            routing_key=binding_key,
+        payload = json.dumps(attrs.asdict(message))
+        self.channel.basic_publish(
+            exchange=event_store, routing_key=binding_key, body=payload
         )
-
-    async def _process_message(
-        self, message: IncomingMessage, callback: Callable
-    ) -> None:
-        """
-        Process incoming message from a Queue. It will require a callback function to handle
-        message content.
-        """
-        async with message.process(ignore_processed=True):
-            await callback(message)
 
 
 @contextlib.contextmanager
-async def AMQP():
-    amqp_client = AMQPClient().init()
+def AMQP() -> AMQPClient:
+    client = AMQPClient().init()
     try:
-        yield amqp_client
+        yield client
     finally:
-        amqp_client.connection.close()
+        client.connection.close()
