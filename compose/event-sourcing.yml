@@ -61,3 +61,23 @@ services:
       - es-event-store-db
       - es-projector-db
       - es-rabbit
+
+  es-parking:
+    build: $PWD/event-sourcing-example/parking
+    restart: unless-stopped
+    entrypoint: ['/bin/sh','-c']
+    command:
+      - |
+        /code/wait-for-it.sh -t 0 es-rabbit:5671
+        /code/start_dev.sh
+    volumes:
+      - $PWD/event-sourcing-example/parking:/code
+    ports:
+      - '8001:8000'
+    environment:
+      - ENVIRONMENT=dev
+      - TESTING=0
+      - DATABASE_URL=sqlite:////code/parking_db.sqlite3
+      - RABBITMQ_BROKER_URL=amqp://guest:guest@es-rabbit:5671
+    depends_on:
+      - es-rabbit
