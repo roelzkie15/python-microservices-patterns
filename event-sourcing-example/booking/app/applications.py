@@ -48,18 +48,39 @@ class BookingProjector(ProcessApplication):
     @singledispatchmethod
     def policy(self, domain_event, processing_event):
         if type(domain_event) is Booking.BookingCreated:
-            create_booking(
+            booking = create_booking(
                 domain_uuid=str(domain_event.originator_id),
                 parking_slot_ref_no=domain_event.parking_slot_ref_no,
                 status=domain_event.status,
             )
+
+            with AMQP() as amqp:
+                amqp_client: AMQPClient = amqp
+                amqp_client.event_producer(
+                    "BOOKING_TX_EVENT", "booking.create",
+                    AMQPMessage(
+                        id=booking.parking_slot_ref_no,
+                        content=booking.to_dict()
+                    )
+                )
+
         else:
             # Aside from booking created event, there only have
             # a booking status change events.
-            update_booking_status_by(
+            booking = update_booking_status_by(
                 domain_uuid=str(domain_event.originator_id),
                 status=domain_event.status,
             )
+
+            with AMQP() as amqp:
+                amqp_client: AMQPClient = amqp
+                amqp_client.event_producer(
+                    "BOOKING_TX_EVENT", "booking.status_changed",
+                    AMQPMessage(
+                        id=booking.parking_slot_ref_no,
+                        content=booking.to_dict()
+                    )
+                )
 
 
 system = System(pipes=[[Bookings, BookingProjector]])
