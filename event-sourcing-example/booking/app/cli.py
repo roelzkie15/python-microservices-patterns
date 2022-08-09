@@ -3,6 +3,7 @@ from uuid import UUID
 import fire
 
 from app.applications import Bookings, process_runner
+from app.services import get_booking_by_domain_uuid, get_booking_list
 
 
 class AppCLI(object):
@@ -25,6 +26,14 @@ class AppCLI(object):
             booking_app = runner.get(Bookings)
             booking = booking_app.complete_booking(booking_id=booking_id)
             return booking.id
+
+    def get_booking_details(self, booking_id: str):
+        booking = get_booking_by_domain_uuid(booking_id)
+        return booking.to_dict()
+
+    def get_booking_list(self):
+        booking_list = get_booking_list()
+        return [booking.to_dict() for booking in booking_list]
 
 
 if __name__ == "__main__":
