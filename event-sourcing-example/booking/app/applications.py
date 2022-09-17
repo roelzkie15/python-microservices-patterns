@@ -1,4 +1,5 @@
 import contextlib
+from typing import List
 from uuid import UUID
 
 from eventsourcing.application import Application
@@ -18,19 +19,19 @@ class Bookings(Application):
         self.save(booking)
         return booking.id
 
-    def reserve_booking(self, booking_id: UUID) -> Booking:
+    def reserve_booking(self, booking_id: str) -> Booking:
         booking: Booking = self.get_booking(booking_id)
         self._status_checker(booking, "reserved")
         booking.reserve()
         return self._update_booking(booking)
 
-    def complete_booking(self, booking_id: UUID) -> Booking:
+    def complete_booking(self, booking_id: str) -> Booking:
         booking: Booking = self.get_booking(booking_id)
         self._status_checker(booking, "completed")
         booking.complete()
         return self._update_booking(booking)
 
-    def get_booking(self, booking_id: UUID) -> Booking:
+    def get_booking(self, booking_id: str) -> Booking:
         booking = self.repository.get(booking_id)
         return booking
 
