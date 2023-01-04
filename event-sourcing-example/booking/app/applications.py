@@ -2,15 +2,24 @@ import contextlib
 from typing import List
 from uuid import UUID
 
-from eventsourcing.application import Application
-from eventsourcing.dispatch import singledispatchmethod
-from eventsourcing.system import (ProcessApplication, SingleThreadedRunner,
-                                  System)
-
 from app.amqp_client import AMQP, AMQPClient
 from app.domainmodels import Booking
 from app.models import AMQPMessage
 from app.services import create_booking, update_booking_status_by
+from eventsourcing.application import Application
+from eventsourcing.dispatch import singledispatchmethod
+from eventsourcing.persistence import DatetimeAsISO, EventStore, JSONTranscoder, Mapper
+from eventsourcing.popo import POPOApplicationRecorder
+from eventsourcing.system import ProcessApplication, SingleThreadedRunner, System
+
+# Initialize transcoder and register datetime transcoding object.
+transcoder = JSONTranscoder()
+transcoder.register(DatetimeAsISO())
+
+event_store = EventStore(
+    mapper=Mapper(transcoder=transcoder),
+    recorder=POPOApplicationRecorder(),
+)
 
 
 class Bookings(Application):
@@ -35,6 +44,10 @@ class Bookings(Application):
         booking = self.repository.get(booking_id)
         return booking
 
+    def get_booking_history(self, booking_id: str) -> List[any]:
+        result = list(event_store.get(booking_id))
+        return result
+
     def _status_checker(self, booking: Booking, status: str):
         if booking.status == status:
             raise ValueError(f"Booking ID: {booking.id} is already {booking.status}.")
@@ -54,6 +67,7 @@ class BookingProjector(ProcessApplication):
                 parking_slot_ref_no=domain_event.parking_slot_ref_no,
                 status=domain_event.status,
             )
+            event_store.put([domain_event])
 
             with AMQP() as amqp:
                 amqp_client: AMQPClient = amqp
@@ -66,12 +80,13 @@ class BookingProjector(ProcessApplication):
                 )
 
         else:
-            # Aside from booking created event, there only have
+            # Aside from booking created event, there is only have
             # a booking status change events.
             booking = update_booking_status_by(
                 domain_uuid=str(domain_event.originator_id),
                 status=domain_event.status,
             )
+            event_store.put([domain_event])
 
             with AMQP() as amqp:
                 amqp_client: AMQPClient = amqp

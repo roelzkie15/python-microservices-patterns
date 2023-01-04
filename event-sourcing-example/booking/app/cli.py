@@ -35,6 +35,11 @@ class AppCLI(object):
         booking_list = get_booking_list()
         return [booking.to_dict() for booking in booking_list]
 
+    def get_booking_events(self, booking_id: str):
+        booking_app = Bookings()
+        events = booking_app.get_booking_history(booking_id)
+        return events
+
 
 if __name__ == "__main__":
     fire.Fire(AppCLI)
