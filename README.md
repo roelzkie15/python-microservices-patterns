@@ -7,8 +7,6 @@
     - [Choreography](#saga-choreography)
     - [Orchestration](#saga-orchestration)
 1. [API Gateway](#api-gateway)
-1. [Backend for Frontend (BFF)](#bff)
-1. [Circuit Breaker](#circuit-breaker)
 
 <div id="cqrs"/>
 
@@ -59,17 +57,5 @@ There are two popular Saga patterns:
 <div id="api-gateway"/>
 
 ## API Gateway
-
-WIP
-
-<div id="bff"/>
-
-## Backend for Frontend
-
-WIP
-
-<div id="circuit-breaker"/>
-
-## Circuit Breaker
 
 WIP
