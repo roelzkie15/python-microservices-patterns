@@ -37,8 +37,7 @@ class AppCLI(object):
 
     def get_booking_events(self, booking_id: str):
         booking_app = Bookings()
-        events = booking_app.get_booking_history(booking_id)
-        return events
+        return booking_app.get_booking_history(booking_id)
 
 
 if __name__ == "__main__":

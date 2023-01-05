@@ -6,20 +6,13 @@ from app.amqp_client import AMQP, AMQPClient
 from app.domainmodels import Booking
 from app.models import AMQPMessage
 from app.services import create_booking, update_booking_status_by
+from attrs import asdict
 from eventsourcing.application import Application
 from eventsourcing.dispatch import singledispatchmethod
-from eventsourcing.persistence import DatetimeAsISO, EventStore, JSONTranscoder, Mapper
-from eventsourcing.popo import POPOApplicationRecorder
 from eventsourcing.system import ProcessApplication, SingleThreadedRunner, System
 
-# Initialize transcoder and register datetime transcoding object.
-transcoder = JSONTranscoder()
-transcoder.register(DatetimeAsISO())
-
-event_store = EventStore(
-    mapper=Mapper(transcoder=transcoder),
-    recorder=POPOApplicationRecorder(),
-)
+BOOKING_EVENT_ATTRIBUTES = ['originator_id', 'status', 'parking_slot_ref_no', 'originator_version']
+BOOKING_EVENT_ATTRIBUTES_MAPPER = {'originator_id': 'id', 'originator_version': 'version'}
 
 
 class Bookings(Application):
@@ -44,9 +37,21 @@ class Bookings(Application):
         booking = self.repository.get(booking_id)
         return booking
 
-    def get_booking_history(self, booking_id: str) -> List[any]:
-        result = list(event_store.get(booking_id))
-        return result
+    def get_booking_history(self, booking_id: str) -> List[dict] | List:
+        booking_events = list(self.events.get(booking_id))
+        booking_event_dicts = []
+
+        for booking_event in booking_events:
+            booking_event_dict = booking_event.__dict__
+
+            event_dict = {
+                BOOKING_EVENT_ATTRIBUTES_MAPPER.get(event_key, event_key): booking_event_dict.get(event_key)
+                for event_key in sorted(booking_event_dict.keys())
+                if event_key in BOOKING_EVENT_ATTRIBUTES
+            }
+            booking_event_dicts.append(event_dict)
+
+        return booking_event_dicts
 
     def _status_checker(self, booking: Booking, status: str):
         if booking.status == status:
@@ -67,7 +72,6 @@ class BookingProjector(ProcessApplication):
                 parking_slot_ref_no=domain_event.parking_slot_ref_no,
                 status=domain_event.status,
             )
-            event_store.put([domain_event])
 
             with AMQP() as amqp:
                 amqp_client: AMQPClient = amqp
@@ -86,8 +90,6 @@ class BookingProjector(ProcessApplication):
                 domain_uuid=str(domain_event.originator_id),
                 status=domain_event.status,
             )
-            event_store.put([domain_event])
-
             with AMQP() as amqp:
                 amqp_client: AMQPClient = amqp
                 amqp_client.event_producer(
