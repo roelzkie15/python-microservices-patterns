@@ -27,8 +27,8 @@ You must be in the root directory of this repository (python-microservices-patte
 - There'll be no UI presentation for this example but successfull indications are it would run these servers:
     - `es-event-store-db` PostgreSQL server for storing events.
     - `es-projector-db` PostgreSQL server for data presentation.
-    - `Booking` service.
-    - `Parking` service.
+    - **Booking Service**.
+    - **Parking Service**.
     - RabbitMQ server.
 
 ## Event Sourcing
