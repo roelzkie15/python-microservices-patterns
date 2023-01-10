@@ -35,6 +35,8 @@ You must be in the root directory of this repository (python-microservices-patte
 
 ### Workflow
 
+![event-sourcing-pattern](https://github.com/roelzkie15/python-microservices-patterns/blob/e4ed20fff485dbcb1bcdf1850f7956c6486c09c4/event-sourcing-example/resources/event-sourcing-pattern.png)
+
 1. On the **Parking Service**.
     - Create parking slot.
 1. On the **Booking Service**.
