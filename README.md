@@ -32,7 +32,7 @@ Event sourcing pattern stores changes of an application as a sequence of immutab
 
 It works well with [CQRS](#cqrs) architecture, since a write model and a read model can work together to separate the **Event Store** for append-only (write) operation from the **Materialize View** which you can use to query (read) suitable data for the UI presentation. Moreover consumers can subscribe to the events and initiate tasks that complete an operation. Although CQRS is not required for the Event Sourcing design pattern.
 
-See python Event Sourcing example here (WIP).
+See python Event Sourcing example [here](https://github.com/roelzkie15/python-microservices-patterns/tree/event-sourcing/event-sourcing-example).
 
 <div id="saga"/>
 
