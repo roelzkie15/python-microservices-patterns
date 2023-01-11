@@ -227,6 +227,17 @@ Assuming that all docker services are running. We can now execute the above work
     ```
 
 ## Benefits and drawbacks of Event Sourcing Pattern
+- Provide audit log of every event that happen in an entity.
+- Promotes clear event-driven system which publish a message everytime an entity state changes. It will make easier for consumer services when to hook up for an event.
+- Great for debugging as it will give you the understanding how an entity gets into the current state by reconstructing past events.
+- Has a different style of handling data (storing and monitoring), learning curve is a challenge.
+- Sometimes it will require CQRS to separate entity's events and projector (representation of an entity) data.
+- Very complex system design pattern.
 
-WIP
+## When to use Event Sourcing
+- When you want to trace every data that happen to a business processes and entities which is good for reporting.
+- When events tracing are relevant especially for distributed systems that communicate by events.
 
+## When not to use Event Sourcing
+- When entity history is irrelevant.
+- Where CRUD approach is enough.
