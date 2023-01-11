@@ -235,7 +235,7 @@ Assuming that all docker services are running. We can now execute the above work
 - Very complex system design pattern.
 
 ## When to use Event Sourcing
-- When you want to trace every data that happen to a business processes and entities which is good for reporting.
+- When you want to trace every data that happens to a business processes and entities, which is good for reporting.
 - When events tracing are relevant especially for distributed systems that communicate by events.
 
 ## When not to use Event Sourcing
