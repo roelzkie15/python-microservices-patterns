@@ -7,8 +7,6 @@
     - [Choreography](#saga-choreography)
     - [Orchestration](#saga-orchestration)
 1. [API Gateway](#api-gateway)
-1. [Backend for Frontend (BFF)](#bff)
-1. [Circuit Breaker](#circuit-breaker)
 
 <div id="cqrs"/>
 
@@ -26,7 +24,15 @@ See python CQRS example [here](https://github.com/roelzkie15/python-microservice
 
 ## Event Sourcing
 
-WIP
+Event Sourcing is a powerful tool in building distributed systems in software architecture. 
+
+In the traditional approach the create, read, update, and delete (CRUD) usually update the data directly to the data source and a new value represents the current state of that application without leaving previous states or records of how it got to the current state.
+
+Event sourcing pattern stores changes of an application as a sequence of immutable events to a persistent data store called **Event Store** in an append-only style where we can maintain history of events so we are able to reconstruct past events and enable compensating transaction if necessary.
+
+It works well with [CQRS](#cqrs) architecture, since a write model and a read model can work together to separate the **Event Store** for append-only (write) operation from the **Materialize View** which you can use to query (read) suitable data for the UI presentation. Moreover consumers can subscribe to the events and initiate tasks that complete an operation. Although CQRS is not required for the Event Sourcing design pattern.
+
+See python Event Sourcing example [here](https://github.com/roelzkie15/python-microservices-patterns/tree/event-sourcing/event-sourcing-example).
 
 <div id="saga"/>
 
@@ -51,17 +57,5 @@ There are two popular Saga patterns:
 <div id="api-gateway"/>
 
 ## API Gateway
-
-WIP
-
-<div id="bff"/>
-
-## Backend for Frontend
-
-WIP
-
-<div id="circuit-breaker"/>
-
-## Circuit Breaker
 
 WIP
